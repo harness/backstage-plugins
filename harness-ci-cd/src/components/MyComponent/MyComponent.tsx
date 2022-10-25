@@ -217,6 +217,18 @@ function MyComponent() {
           <LinkWrapper />
         )
       }, []),
+    customFilterAndSearch: (term, row: Partial<TableData>) => {
+      const temp = row?.name ?? "";
+      return  temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
+    },
+    customSort: (row1 : Partial<TableData>, row2 : Partial<TableData>) => {
+      const a = row1.name ?? "";
+      const b = row2.name ?? "";
+      if (a.length === b.length) {
+        return a > b ? 1 : -1;
+      }
+      return a.length > b.length ? 1 : -1;
+    }
     },
     {
       title: 'Pipeline Status',
@@ -228,6 +240,18 @@ function MyComponent() {
           <Typography variant="button">{row.status}</Typography>
         </Box>
       ), []),
+      customFilterAndSearch: (term, row: Partial<TableData>) => {
+        const temp = row?.status ?? "";
+        return  temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
+      },
+      customSort: (row1 : Partial<TableData>, row2 : Partial<TableData>) => {
+        const a = row1.status ?? "";
+        const b = row2.status ?? "";
+        if (a.length === b.length) {
+          return a > b ? 1 : -1;
+        }
+        return a.length > b.length ? 1 : -1;
+      }
     },
     {
       title: 'Details',
@@ -262,7 +286,13 @@ function MyComponent() {
             );
         }
     }, []),
-
+    customSort: (row1 : Partial<TableData>, row2 : Partial<TableData>) => {
+      const a = row1.startTime ?? "";
+      const b = row2.startTime ?? "";
+      return a > b ? 1 : -1;
+    }
+    
+      
     },
     {
       title: 'Run Pipeline',
