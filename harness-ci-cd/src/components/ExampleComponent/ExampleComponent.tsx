@@ -9,8 +9,6 @@ import {
   HeaderLabel,
   SupportButton,
 } from '@backstage/core-components';
-import { ExampleFetchComponent } from '../ExampleFetchComponent';
-
 export const ExampleComponent = () => (
   <Page themeId="tool">
     <Header title="Welcome to harness-ci-cd!" subtitle="Optional subtitle">
@@ -30,7 +28,6 @@ export const ExampleComponent = () => (
           </InfoCard>
         </Grid>
         <Grid item>
-          <ExampleFetchComponent />
         </Grid>
       </Grid>
     </Content>
