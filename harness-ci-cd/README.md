@@ -7,7 +7,7 @@ Welcome to the harness-ci-cd plugin!
 
 ## Steps
 
-1. Configure proxy for for harness in app-config.yaml. Add your Harness Personal Access Token for x-api-key(see the [Harness docs](https://docs.harness.io/article/tdoad7xrh9-add-and-manage-api-keys) )
+1. Configure proxy for for harness in app-config.yaml. Add your Harness Personal Access Token or Service Account Token for x-api-key(see the [Harness docs](https://docs.harness.io/article/tdoad7xrh9-add-and-manage-api-keys) )
 
 ```yaml
 # In app-config.yaml
