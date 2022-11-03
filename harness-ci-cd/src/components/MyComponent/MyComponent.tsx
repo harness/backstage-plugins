@@ -4,8 +4,8 @@ import { OverflowTooltip, StatusError, StatusOK, StatusPending, StatusRunning, S
 import ReplayIcon from '@material-ui/icons/Replay';
 import RetryIcon from '@material-ui/icons/Replay';
 import { useEntity } from "@backstage/plugin-catalog-react";
-import { Link as RouterLink } from 'react-router-dom';
-import { harnessCIBuildRouteRef } from '../../route-refs';
+// import { Link as RouterLink } from 'react-router-dom';
+// import { harnessCIBuildRouteRef } from '../../route-refs';
 import { discoveryApiRef, useApi, useRouteRef } from '@backstage/core-plugin-api';
 import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
@@ -199,24 +199,13 @@ function MyComponent() {
       field: 'col1',
       highlight: true,
       render: useCallback((row : Partial<TableData>) => {
-        const LinkWrapper = () => {
-          const routeLink = useRouteRef(harnessCIBuildRouteRef);
-          return (
-            <Link
-              component={RouterLink}
-              to={`${routeLink({
-                buildId: row.planExecutionId!.toString(),
-              })}`}
-            >
-              {row?.name}
-            </Link>
-          );
-        };
-  
-        return (
-          <LinkWrapper />
-        )
+        const link="https://app.harness.io/ng/#/account/"+entity.metadata.annotations?.[accid]+"/ci/orgs/"+entity.metadata.annotations?.[orgid]+"/projects/"+entity.metadata.annotations?.[projectid]+"/pipelines/"+row.pipelineId+"/deployments/"+row.planExecutionId+"/pipeline";
+        return(
+        <Link href={link} target="_blank">{row.name}</Link>
+      )
       }, []),
+        
+      
     customFilterAndSearch: (term, row: Partial<TableData>) => {
       const temp = row?.name ?? "";
       return  temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
