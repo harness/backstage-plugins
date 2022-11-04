@@ -55,6 +55,7 @@ import {
 
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+import { EntityHarnessCiCdContent, isHarnessCIAccountAvailable } from '@harnessio/backstage-plugin-ci-cd';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -68,7 +69,7 @@ const cicdContent = (
   // This is an example of how you can implement your company's logic in entity page.
   // You can for example enforce that all components of type 'service' should use GitHubActions
   <EntitySwitch>
-    <EntitySwitch.Case if={isHarnessCiCdAvailable}>
+    <EntitySwitch.Case if={isHarnessCIAccountAvailable}>
       <EntityHarnessCiCdContent />
     </EntitySwitch.Case>
 

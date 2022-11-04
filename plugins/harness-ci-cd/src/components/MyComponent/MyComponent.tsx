@@ -175,9 +175,10 @@ function MyComponent() {
   const discoveryApi= useApi(discoveryApiRef);
   const backendBaseUrl=discoveryApi.getBaseUrl('proxy');
   const{ entity } = useEntity();
-  const projectid = 'projectIdentifier';
-  const orgid = 'orgIdentifier';
-  const accid = 'accountIdentifier';
+  const projectid = 'harness.io/cicd-projectIdentifier';
+  const orgid = 'harness.io/cicd-orgIdentifier';
+  const accid = 'harness.io/cicd-accountIdentifier';
+  const pipelineid = 'harness.io/ci-pipelineIdentifier';
 
   const columns: TableColumn[] = [
     {
@@ -308,17 +309,38 @@ function MyComponent() {
     },
     
   ];
+  function getQuery()
+  {
+    if(entity.metadata.annotations?.[pipelineid])
+    {
+      const query = new URLSearchParams({
+        accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
+        routingId: `${entity.metadata.annotations?.[accid]}`,
+        orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
+        projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
+        pipelineIdentifier: `${entity.metadata.annotations?.[pipelineid]}`,
+        size: `${pageSize}`,
+        page: `${page}`,
+      }).toString();
+      return query;
+    }
+    else
+    {
+      const query = new URLSearchParams({
+        accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
+        routingId: `${entity.metadata.annotations?.[accid]}`,
+        orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
+        projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
+        size: `${pageSize}`,
+        page: `${page}`,
+      }).toString();
+      return query;
+    }
+  }
 
   useAsyncRetry(async () => {
 
-    const query = new URLSearchParams({
-      accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
-      routingId: `${entity.metadata.annotations?.[accid]}`,
-      orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
-      projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
-      size: `${pageSize}`,
-      page: `${page}`,
-    }).toString();
+    const query=getQuery();
     const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/summary?${query}`, {
       "method": "POST",
     });
