@@ -1,10 +1,20 @@
-# [Backstage](https://backstage.io)
+# Harness plugins for [Backstage](https://backstage.io)
 
-This is your newly scaffolded Backstage App, Good Luck!
+## List of plugins
 
-To start the app, run:
+- [CI/CD plugin](./plugins/harness-ci-cd/)
+
+Check the plugin README for their installation instructions.
+
+## Running locally
+
+Clone the repository and run
 
 ```sh
 yarn install
 yarn dev
 ```
+
+Note: You'll need a Harness account to run these plugins. Check out the plugin installation instructions for more details.
+
+## Contributing
