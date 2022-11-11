@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Box, CircularProgress, IconButton, Link, makeStyles, Typography } from '@material-ui/core';
 import {Grid} from '@mui/material';
-import { OverflowTooltip, StatusError, StatusOK, StatusPending, StatusRunning, StatusWarning, Table, TableColumn } from '@backstage/core-components';
+import { EmptyState, OverflowTooltip, StatusError, StatusOK, StatusPending, StatusRunning, StatusWarning, Table, TableColumn } from '@backstage/core-components';
 import ReplayIcon from '@material-ui/icons/Replay';
 import RetryIcon from '@material-ui/icons/Replay';
 import { useEntity } from "@backstage/plugin-catalog-react";
 // import { Link as RouterLink } from 'react-router-dom';
 // import { harnessCIBuildRouteRef } from '../../route-refs';
-import { discoveryApiRef, useApi, useRouteRef } from '@backstage/core-plugin-api';
+import { configApiRef, discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 
@@ -194,9 +194,12 @@ function MyComponent() {
   const [lastPageSize, setLastPageSize] = useState(5);
   const [lastPage, setLastPage] = useState(false);
   const [toggle, setToggle] = useState(false);
+  const [responseStatus, setResponseStatus] = useState(true);
   const classes = useStyles();
   const discoveryApi= useApi(discoveryApiRef);
+  const config = useApi(configApiRef);
   const backendBaseUrl=discoveryApi.getBaseUrl('proxy');
+  const baseUrl = config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const{ entity } = useEntity();
   const projectid = 'harness.io/cicd-projectIdentifier';
   const orgid = 'harness.io/cicd-orgIdentifier';
@@ -206,6 +209,7 @@ function MyComponent() {
   
   async function getPipeLineByService() {
     const resp = await fetch(`${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${entity.metadata.annotations?.[accid]}&accountIdentifier=${entity.metadata.annotations?.[accid]}&orgIdentifier=${entity.metadata.annotations?.[orgid]}&projectIdentifier=${entity.metadata.annotations?.[projectid]}&serviceId=${entity.metadata.annotations?.[serviceid]}`);
+    if(resp.status != 200) setResponseStatus(false);
     const jsondata= await resp.json();
     let serviceName= jsondata?.data?.name;
     const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/list?routingId=${entity.metadata.annotations?.[accid]}&accountIdentifier=${entity.metadata.annotations?.[accid]}&projectIdentifier=${entity.metadata.annotations?.[projectid]}&orgIdentifier=${entity.metadata.annotations?.[orgid]}&page=0&sort=lastUpdatedAt%2CDESC&size=5`, {
@@ -215,6 +219,8 @@ function MyComponent() {
       "body": `{\"filterType\":\"PipelineSetup\",\"moduleProperties\":{\"cd\":{\"serviceNames\":[\"${serviceName}\"]}}}`,
       "method": "POST",
     });
+    if(response.status != 200) setResponseStatus(false);
+    
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj : any) => {
         return obj.recentExecutionsInfo.length > 0;
@@ -243,7 +249,7 @@ function MyComponent() {
 
   }
   useAsyncRetry(async ()=>{
-     await getAllPipelines();
+    await getAllPipelines();
   },[])
 
   const columns: TableColumn[] = [
@@ -254,7 +260,7 @@ function MyComponent() {
       type: 'numeric',
       width: '80px',
       render: useCallback((row : Partial<TableData>) => {
-        const link="https://app.harness.io/ng/#/account/"+entity.metadata.annotations?.[accid]+"/ci/orgs/"+entity.metadata.annotations?.[orgid]+"/projects/"+entity.metadata.annotations?.[projectid]+"/pipelines/"+row.pipelineId+"/deployments/"+row.planExecutionId+"/pipeline";
+        const link=`${baseUrl}ng/#/account/`+entity.metadata.annotations?.[accid]+"/ci/orgs/"+entity.metadata.annotations?.[orgid]+"/projects/"+entity.metadata.annotations?.[projectid]+"/pipelines/"+row.pipelineId+"/deployments/"+row.planExecutionId+"/pipeline";
         const id=parseInt(row.id?row.id:'0')+1;
         return(
         <Link href={link} target="_blank">{id}</Link>
@@ -266,7 +272,7 @@ function MyComponent() {
       field: 'col1',
       highlight: true,
       render: useCallback((row : Partial<TableData>) => {
-        const link="https://app.harness.io/ng/#/account/"+entity.metadata.annotations?.[accid]+"/ci/orgs/"+entity.metadata.annotations?.[orgid]+"/projects/"+entity.metadata.annotations?.[projectid]+"/pipelines/"+row.pipelineId+"/deployments/"+row.planExecutionId+"/pipeline";
+        const link=`${baseUrl}ng/#/account/`+entity.metadata.annotations?.[accid]+"/ci/orgs/"+entity.metadata.annotations?.[orgid]+"/projects/"+entity.metadata.annotations?.[projectid]+"/pipelines/"+row.pipelineId+"/deployments/"+row.planExecutionId+"/pipeline";
         return(
         <Link href={link} target="_blank">{row.name}</Link>
       )
@@ -392,9 +398,10 @@ function MyComponent() {
     }
     if(toggle)
     {
-      const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`, {
+      const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/summary?${query}`, {
         "method": "POST",
       });
+      if(response.status != 200) setResponseStatus(false);
       const data = await response.json(); 
       const tableData = data.data.content;
   
@@ -404,7 +411,7 @@ function MyComponent() {
         while (data1.length < rows && tableData) {
           let serviceString='';
           let envString='';
-         
+
           if((typeof(tableData[data1.length]?.['moduleInfo']?.['ci']?.['ciExecutionInfoDTO']?.['pullRequest'])==='undefined'))
           {
             request='branch';
@@ -427,8 +434,6 @@ function MyComponent() {
             })
             envString=Array.from(envNames).join(',');
             serviceString=Array.from(serviceNames).join(',');
-            console.log(envString);
-
 
           }
           data1.push({
@@ -479,6 +484,15 @@ function MyComponent() {
     }
   };
   
+  if(!responseStatus) {
+    return (
+      <EmptyState
+        title="Harness CI-CD pipelines"
+        description={`Could not find the pipeline executions, please check the plugin configurations.`}
+        missing="data"
+      />
+    );
+  }
     
   return ( 
   <>
