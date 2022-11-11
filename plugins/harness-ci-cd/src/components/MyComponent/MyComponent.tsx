@@ -401,7 +401,7 @@ function MyComponent() {
       const generateTestData: (number: number) => Array<{}> = (rows = 10) => {
         const data1: Array<TableData> = [];
         let request='pullRequest';
-        while (data1.length < rows && tableData) {
+        while (data1.length < rows && tableData && data1.length < data.data.numberOfElements) {
           let serviceString='';
           let envString='';
          
