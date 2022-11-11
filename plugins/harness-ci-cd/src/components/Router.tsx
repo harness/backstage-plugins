@@ -56,10 +56,6 @@ if(!(isHarnessCIAccountAvailable(entity)&&isHarnessCIOrgAvailable(entity)&&isHar
 return (
 <Routes>
     <Route path="/" element={<MyComponent />} />
-    <Route
-    path={`${harnessCIBuildRouteRef.path}`}
-    element={<BuildWithStepsPage />}
-    />
 </Routes>
 );
 };
