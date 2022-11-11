@@ -191,8 +191,6 @@ function MyComponent() {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [pipelineList, setpipelineList] = useState<any[]>([]);
-  const [lastPageSize, setLastPageSize] = useState(5);
-  const [lastPage, setLastPage] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [responseStatus, setResponseStatus] = useState(true);
   const classes = useStyles();
@@ -398,7 +396,7 @@ function MyComponent() {
     }
     if(toggle)
     {
-      const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/summary?${query}`, {
+      const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`, {
         "method": "POST",
       });
       if(response.status != 200) setResponseStatus(false);
@@ -408,7 +406,7 @@ function MyComponent() {
       const generateTestData: (number: number) => Array<{}> = (rows = 10) => {
         const data1: Array<TableData> = [];
         let request='pullRequest';
-        while (data1.length < rows && tableData) {
+        while (data1.length < rows && tableData && data1.length < data.data.numberOfElements) {
           let serviceString='';
           let envString='';
 
@@ -437,7 +435,7 @@ function MyComponent() {
 
           }
           data1.push({
-            id: `${lastPage ? page*lastPageSize + data1.length : page*pageSize + data1.length}`,
+            id: `${page*pageSize + data1.length}`,
             name: `${tableData[data1.length]?.['name']}`,
             status: `${tableData[data1.length]?.['status']}`,
             startTime: `${tableData[data1.length]?.['startTs']}`,
@@ -473,22 +471,19 @@ function MyComponent() {
 
   const handleChangePage = (page: number, pageSize: number) => {
     setPage(page);
-    if(50 - (page+1)*pageSize < 0) {
-      setLastPageSize(20);
-      setLastPage(true);
-      setPageSize((page+1)*pageSize - 50)
-    }
-    else {
-      setPageSize(pageSize);
-      setLastPage(false);
-    }
+    setPageSize(pageSize);
+  };
+
+  const handleChangeRowsPerPage = (pageSize: number) => {
+    setPage(0);
+    setPageSize(pageSize);
   };
   
   if(!responseStatus) {
     return (
       <EmptyState
         title="Harness CI-CD pipelines"
-        description={`Could not find the pipeline executions, please check the plugin configurations.`}
+        description={`We could not find pipelines defined for entity ${entity.metadata.name}.`}
         missing="data"
       />
     );
@@ -501,6 +496,9 @@ function MyComponent() {
         options={{ 
           paging : true,
           filtering: false,
+          emptyRowsWhenPaging: false,
+          pageSize: pageSize,
+          pageSizeOptions: [5, 10, 25]
         }}
         data={tableData ?? []}
         columns={columns}
@@ -521,6 +519,7 @@ function MyComponent() {
         page={page}
         onPageChange={handleChangePage}
         totalCount={50}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </div>
   </>
