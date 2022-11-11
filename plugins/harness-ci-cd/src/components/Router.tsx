@@ -17,7 +17,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router';
 import { harnessCIBuildRouteRef } from '../route-refs';
-import { BuildWithStepsPage } from './BuildWithStepsPage/BuildWithStepsPage';
 import MyComponent from './MyComponent/MyComponent';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
