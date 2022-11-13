@@ -104,4 +104,4 @@ catalog:
     #     - allow: [User, Group]
 
 harness:
-  baseUrl: https://app.harness.io
+  baseUrl: https://app.harness.io/
