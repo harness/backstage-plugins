@@ -16,8 +16,7 @@
 
 import React from 'react';
 import { Routes, Route } from 'react-router';
-import { harnessCIBuildRouteRef } from '../route-refs';
-import { BuildWithStepsPage } from './BuildWithStepsPage/BuildWithStepsPage';
+//import { harnessCIBuildRouteRef } from '../route-refs';
 import MyComponent from './MyComponent/MyComponent';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
@@ -57,10 +56,6 @@ if(!(isHarnessCIAccountAvailable(entity)&&isHarnessCIOrgAvailable(entity)&&isHar
 return (
 <Routes>
     <Route path="/" element={<MyComponent />} />
-    <Route
-    path={`${harnessCIBuildRouteRef.path}`}
-    element={<BuildWithStepsPage />}
-    />
 </Routes>
 );
 };
