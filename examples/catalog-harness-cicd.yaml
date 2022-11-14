@@ -7,7 +7,7 @@ metadata:
     harness.io/cicd-accountIdentifier: <harness_account_id>
     harness.io/cicd-orgIdentifier: <harness_org_id>
     harness.io/cicd-projectIdentifier: <harness_project_id>
-    harness.io/ci-pipelineIdentifiers: pipelineId1,pipelineId2,pipelineId3 
+    harness.io/ci-pipelineIdentifiers: pipelineId1,pipelineId2,pipelineId3
     harness.io/cd-serviceId: serviceId
   tags:
     - java
