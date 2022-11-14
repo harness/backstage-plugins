@@ -22,7 +22,7 @@ import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { MissingAnnotationEmptyState } from '@backstage/core-components';
 /** @public */
-export const isHarnessCIAccountAvailable = (entity: Entity) =>
+export const isHarnessCiCdAvailable = (entity: Entity) =>
 Boolean(entity.metadata.annotations?.["harness.io/cicd-accountIdentifier"]);
 export const isHarnessCIOrgAvailable = (entity: Entity) =>
 Boolean(entity.metadata.annotations?.["harness.io/cicd-orgIdentifier"]);
@@ -32,7 +32,7 @@ Boolean(entity.metadata.annotations?.["harness.io/cicd-projectIdentifier"]);
 export const Router = () => {
 const { entity } = useEntity();
 function MissingAnnotationAccount(){
-    if (!isHarnessCIAccountAvailable(entity)) {
+    if (!isHarnessCiCdAvailable(entity)) {
     return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-accountIdentifier"} /></>);
     }
     else return(<></>)
@@ -49,7 +49,7 @@ function MissingAnnotationProject(){
     }
     else return(<></>)
 }
-if(!(isHarnessCIAccountAvailable(entity)&&isHarnessCIOrgAvailable(entity)&&isHarnessCIProjectAvailable(entity)))
+if(!(isHarnessCiCdAvailable(entity)&&isHarnessCIOrgAvailable(entity)&&isHarnessCIProjectAvailable(entity)))
 {
     return(<><MissingAnnotationAccount/><MissingAnnotationOrg/><MissingAnnotationProject/></>)
 }
