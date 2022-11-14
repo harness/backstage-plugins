@@ -467,7 +467,7 @@ function MyComponent() {
     return (
       <EmptyState
         title="Harness CI-CD pipelines"
-        description={`We could not find pipelines defined for entity ${entity.metadata.name}.`}
+        description={`Could not find the pipeline executions, please check the plugin configurations.`}
         missing="data"
       />
     );
