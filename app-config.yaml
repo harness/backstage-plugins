@@ -49,6 +49,7 @@ integrations:
 proxy:
   '/harness':
     target: 'https://app.harness.io/'
+    allowedHeaders: ['x-harness-token', 'authorization']
     headers:
       'x-api-key': ${HARNESS_API_KEY}
 

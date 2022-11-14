@@ -16,11 +16,12 @@
 
 import React from 'react';
 import { Routes, Route } from 'react-router';
-//import { harnessCIBuildRouteRef } from '../route-refs';
+import { harnessCIBuildRouteRef } from '../route-refs';
 import MyComponent from './MyComponent/MyComponent';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { MissingAnnotationEmptyState } from '@backstage/core-components';
+import { BuildWithStepsPage } from './BuildWithStepsPage/BuildWithStepsPage';
 /** @public */
 export const isHarnessCiCdAvailable = (entity: Entity) =>
 Boolean(entity.metadata.annotations?.["harness.io/cicd-accountIdentifier"]);
@@ -56,6 +57,10 @@ if(!(isHarnessCiCdAvailable(entity)&&isHarnessCIOrgAvailable(entity)&&isHarnessC
 return (
 <Routes>
     <Route path="/" element={<MyComponent />} />
+    <Route
+    path={`${harnessCIBuildRouteRef.path}`}
+    element={<BuildWithStepsPage />}
+    />
 </Routes>
 );
 };

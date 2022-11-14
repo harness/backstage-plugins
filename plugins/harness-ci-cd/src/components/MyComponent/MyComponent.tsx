@@ -22,12 +22,13 @@ import {
 import ReplayIcon from '@material-ui/icons/Replay';
 import RetryIcon from '@material-ui/icons/Replay';
 import { useEntity } from '@backstage/plugin-catalog-react';
-// import { Link as RouterLink } from 'react-router-dom';
-// import { harnessCIBuildRouteRef } from '../../route-refs';
+import { Link as RouterLink } from 'react-router-dom';
+import { harnessCIBuildRouteRef } from '../../route-refs';
 import {
   configApiRef,
   discoveryApiRef,
   useApi,
+  useRouteRef,
 } from '@backstage/core-plugin-api';
 import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
@@ -614,24 +615,24 @@ function MyComponent() {
       title: 'Pipeline Name',
       field: 'col1',
       highlight: true,
-      render: useCallback((row: Partial<TableData>) => {
-        const link =
-          `${baseUrl}ng/#/account/` +
-          entity.metadata.annotations?.[accid] +
-          '/ci/orgs/' +
-          entity.metadata.annotations?.[orgid] +
-          '/projects/' +
-          entity.metadata.annotations?.[projectid] +
-          '/pipelines/' +
-          row.pipelineId +
-          '/deployments/' +
-          row.planExecutionId +
-          '/pipeline';
+      render: useCallback((row : Partial<TableData>) => {
+        const LinkWrapper = () => {
+          const routeLink = useRouteRef(harnessCIBuildRouteRef);
+          return (
+            <Link
+              component={RouterLink}
+              to={`${routeLink({
+                buildId: row.planExecutionId!.toString(),
+              })}`}
+            >
+              {row?.name}
+            </Link>
+          );
+        };
+  
         return (
-          <Link href={link} target="_blank">
-            {row.name}
-          </Link>
-        );
+          <LinkWrapper />
+        )
       }, []),
 
       customFilterAndSearch: (term, row: Partial<TableData>) => {
