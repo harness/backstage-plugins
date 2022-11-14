@@ -41,5 +41,14 @@ const cicdContent = (
 );
 ```
 
-3. Add required harness specific annotations to your respective catalog-info.yaml files,
+3. Configure baseUrl for harness in `app-config.yaml`
+
+```yaml
+# In app-config.yaml
+
+harness:
+  baseUrl: https://app.harness.io/
+```
+
+4. Add required harness specific annotations to your respective catalog-info.yaml files,
    (example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml)
