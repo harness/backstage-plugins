@@ -467,7 +467,7 @@ function MyComponent() {
     return (
       <EmptyState
         title="Harness CI-CD pipelines"
-        description={`Could not find the pipeline executions, please check the plugin configurations.`}
+        description={`Could not find the pipeline executions, please check the plugin configurations in app-config.yaml and catalog-info.yaml.`}
         missing="data"
       />
     );
