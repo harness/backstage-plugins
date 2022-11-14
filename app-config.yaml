@@ -105,3 +105,5 @@ catalog:
 
 harness:
   baseUrl: https://app.harness.io/
+  # (Optional) Change it true to remove "Run Pipeline" option on the pipeline executions table
+  disableRunPipeline: false

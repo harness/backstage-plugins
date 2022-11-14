@@ -6,5 +6,10 @@ export interface Config {
      * @visibility frontend
      */
     baseUrl?: string;
+    /**
+     * Config to disable the functionality of re-running pipelines from Backstage. Enabled by default.
+     * @visibility frontend
+     */
+    disableRunPipeline?: boolean;
   };
 }
