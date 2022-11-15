@@ -8,6 +8,7 @@ import { processExecutionData, ExecutionNode, GraphLayoutNode, ExecutionPipeline
 import { StepsTree } from './StepsTree';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
   neutral: {
@@ -121,6 +122,7 @@ export const BuildWithStepsPage = () => {
   const backendBaseUrl=discoveryApi.getBaseUrl('proxy');
   const classes = useStyles();
   const [buildUrl, setBuildUrl] = useState('');
+  const [loading, isloading] = useState(true);
 
   useEffect(() => {
     const projectid = 'harness.io/cicd-projectIdentifier';
@@ -175,6 +177,7 @@ export const BuildWithStepsPage = () => {
   {
   const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/${planExecutionId}?${querynode}`);
   const data = await response.json();
+  isloading(false);
   const json2 = data.data.executionGraph.nodeMap || {};
   const tree =  processExecutionData(data?.data?.executionGraph);
   let allNodeMap: { [key: string]: ExecutionNode } = {};
@@ -211,8 +214,7 @@ export const BuildWithStepsPage = () => {
           <Link to="..">All builds</Link>
           <Typography>Build details</Typography>
         </Breadcrumbs>
-      </Box>
-      <InfoCard className={pickClassName(classes, pipelineSummary.status?.toLocaleLowerCase())} title={<BuildName name={pipelineSummary.name} url={buildUrl}/>} cardClassName={classes.cardContent}>
+      </Box>{loading==true?(<div style={{textAlign:'center'}}><CircularProgress/></div>):<InfoCard className={pickClassName(classes, pipelineSummary.status?.toLocaleLowerCase())} title={<BuildName name={pipelineSummary.name} url={buildUrl}/>} cardClassName={classes.cardContent}>
         <Grid container spacing={3} direction="column">
           <Grid item>
           {ExecutionBuildStage.map((stage) => 
@@ -232,7 +234,8 @@ export const BuildWithStepsPage = () => {
           )}
           </Grid>
         </Grid>
-      </InfoCard>
+      </InfoCard>}
+      
     </>
   );
 };
