@@ -52,3 +52,29 @@ harness:
 
 4. Add required harness specific annotations to your respective catalog-info.yaml files,
    (example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml)
+
+```yaml
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  # ...
+  annotations:
+    # mandatory annotations
+    harness.io/cicd-accountId: <harness_account_id>
+    harness.io/cicd-orgId: <harness_org_id>
+    harness.io/cicd-projectId: <harness_project_id>
+    # optional annotations
+    harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
+    harness.io/cd-serviceId: <serviceId>
+spec:
+  type: service
+  # ...
+```
+
+## Features
+
+- List top 50 builds for a project/configured pipelineIds/serviceId
+- Pipeline execution status
+- Retry pipeline execution
+- Pagination for builds
+- Works for both personal access tokens and service account token
