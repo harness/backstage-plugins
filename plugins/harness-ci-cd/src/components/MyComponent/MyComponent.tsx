@@ -76,7 +76,7 @@ async function runPipeline(
   query1: string,
 ): Promise<void> {
   const response = await fetch(
-    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
+    `${backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
       pipelineId.planExecutionId
     }/inputset?${query1}`,
     {},
@@ -84,7 +84,7 @@ async function runPipeline(
   const data = await response.text();
 
   await fetch(
-    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
+    `${backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
       pipelineId.planExecutionId
     }/${pipelineId.pipelineId}?${query1}&moduleType=ci`,
     {
@@ -497,10 +497,11 @@ function MyComponent() {
   const [refresh, setRefresh] = useState(false);
   const [tableData, setTableData] = useState<any[]>([]);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   const [pipelineList, setpipelineList] = useState<any[]>([]);
   const [toggle, setToggle] = useState(false);
-  const [responseStatus, setResponseStatus] = useState(true);
+  const [flag, setFlag] = useState(false);
+  const [responseStatus, setResponseStatus] = useState(100);
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -529,7 +530,7 @@ function MyComponent() {
         entity.metadata.annotations?.[projectid]
       }&serviceId=${entity.metadata.annotations?.[serviceid]}`,
     );
-    if (resp.status != 200) setResponseStatus(false);
+    setResponseStatus(resp.status);
     const jsondata = await resp.json();
     let serviceName = jsondata?.data?.name;
     const response = await fetch(
@@ -550,7 +551,7 @@ function MyComponent() {
         method: 'POST',
       },
     );
-    if (response.status != 200) setResponseStatus(false);
+    setResponseStatus(response.status);
 
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj: any) => {
@@ -586,7 +587,6 @@ function MyComponent() {
     {
       title: 'ID',
       field: 'id',
-      highlight: true,
       type: 'numeric',
       width: '80px',
       render: useCallback((row: Partial<TableData>) => {
@@ -605,7 +605,7 @@ function MyComponent() {
         const id = parseInt(row.id ? row.id : '0') + 1;
         return (
           <Link href={link} target="_blank">
-            {id}
+            <b>{id}</b>
           </Link>
         );
       }, []),
@@ -613,7 +613,6 @@ function MyComponent() {
     {
       title: 'Pipeline Name',
       field: 'col1',
-      highlight: true,
       render: useCallback((row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
@@ -628,8 +627,8 @@ function MyComponent() {
           row.planExecutionId +
           '/pipeline';
         return (
-          <Link href={link} target="_blank">
-            {row.name}
+          <Link href={link} target="_blank" style={{fontSize: "0.9rem"}}>
+            <b>{row.name}</b>
           </Link>
         );
       }, []),
@@ -777,7 +776,7 @@ function MyComponent() {
           method: 'POST',
         },
       );
-      if (response.status != 200) setResponseStatus(false);
+      setResponseStatus(response.status);
       const data = await response.json();
       const tableData = data.data.content;
 
@@ -883,6 +882,7 @@ function MyComponent() {
       };
 
       setTableData(generateTestData(pageSize));
+      setFlag(true);
     }
   }, [refresh, page, pageSize, toggle]);
 
@@ -896,11 +896,25 @@ function MyComponent() {
     setPageSize(pageSize);
   };
 
-  if (!responseStatus) {
+  console.log(responseStatus);
+
+  if(!flag || responseStatus == 100) {
+    return (
+        <div className={classes.empty}>
+          <CircularProgress />
+        </div>
+    );
+  }
+
+  if (responseStatus != 200 || (responseStatus==200 && tableData.length == 0 && flag)) {
+    let description = "";
+    if(responseStatus == 401) description = "Could not find the pipeline executions, the API key is either missing or incorrect.";
+    if(responseStatus == 200 && tableData.length == 0) description = "No executions found";
+    else description= "Could not find the pipeline executions, please check your configurations in catalog-config.yaml or check your permissions.";
     return (
       <EmptyState
         title="Harness CI-CD pipelines"
-        description={`Could not find the pipeline executions, please check the plugin configurations in app-config.yaml and catalog-info.yaml.`}
+        description={description}
         missing="data"
       />
     );
@@ -929,11 +943,6 @@ function MyComponent() {
               },
             },
           ]}
-          emptyContent={
-            <div className={classes.empty}>
-              <CircularProgress />
-            </div>
-          }
           title="Execution History"
           page={page}
           onPageChange={handleChangePage}
