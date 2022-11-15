@@ -73,7 +73,7 @@ spec:
 
 ## Features
 
-- List top 50 builds for a project/configured pipelineIds/serviceId
+- List top 50 pipeline executions for a configured project/pipelineIds/serviceId
 - Pipeline execution status
 - Retry pipeline execution
 - Pagination for builds
