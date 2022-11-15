@@ -23,29 +23,29 @@ import { useEntity } from '@backstage/plugin-catalog-react';
 import { MissingAnnotationEmptyState } from '@backstage/core-components';
 /** @public */
 export const isHarnessCiCdAvailable = (entity: Entity) =>
-Boolean(entity.metadata.annotations?.["harness.io/cicd-accountIdentifier"]);
+Boolean(entity.metadata.annotations?.["harness.io/cicd-accountId"]);
 export const isHarnessCIOrgAvailable = (entity: Entity) =>
-Boolean(entity.metadata.annotations?.["harness.io/cicd-orgIdentifier"]);
+Boolean(entity.metadata.annotations?.["harness.io/cicd-orgId"]);
 export const isHarnessCIProjectAvailable = (entity: Entity) =>
-Boolean(entity.metadata.annotations?.["harness.io/cicd-projectIdentifier"]);
+Boolean(entity.metadata.annotations?.["harness.io/cicd-projectId"]);
 /** @public */
 export const Router = () => {
 const { entity } = useEntity();
 function MissingAnnotationAccount(){
     if (!isHarnessCiCdAvailable(entity)) {
-    return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-accountIdentifier"} /></>);
+    return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-accountId"} /></>);
     }
     else return(<></>)
 }
 function MissingAnnotationOrg(){
     if (!isHarnessCIOrgAvailable(entity)) {
-    return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-orgIdentifier"} /></>);
+    return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-orgId"} /></>);
     }
     else return(<></>)
 }
 function MissingAnnotationProject(){
     if (!isHarnessCIProjectAvailable(entity)) {
-    return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-projectIdentifier"} /></>);
+    return (<><MissingAnnotationEmptyState annotation={"harness.io/cicd-projectId"} /></>);
     }
     else return(<></>)
 }
