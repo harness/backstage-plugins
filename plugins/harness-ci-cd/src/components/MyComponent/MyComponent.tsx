@@ -76,7 +76,7 @@ async function runPipeline(
   query1: string,
 ): Promise<void> {
   const response = await fetch(
-    `${backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
+    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
       pipelineId.planExecutionId
     }/inputset?${query1}`,
     {},
@@ -84,7 +84,7 @@ async function runPipeline(
   const data = await response.text();
 
   await fetch(
-    `${backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
+    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
       pipelineId.planExecutionId
     }/${pipelineId.pipelineId}?${query1}&moduleType=ci`,
     {
