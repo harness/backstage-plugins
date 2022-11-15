@@ -6,7 +6,15 @@ Welcome to the Harness CI/CD plugin for Backstage!
 
 ## Steps
 
-1. Configure proxy for harness in `app-config.yaml`. Add your Harness Personal Access Token or Service Account Token for `x-api-key` (see the [Harness docs](https://docs.harness.io/article/tdoad7xrh9-add-and-manage-api-keys) )
+1. If you have a standalone app(you didn't clone this repo), then do
+
+```
+# From your Backstage root directory
+yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
+yarn install
+```
+
+2. Configure proxy for harness in `app-config.yaml`. Add your Harness Personal Access Token or Service Account Token for `x-api-key` (see the [Harness docs](https://docs.harness.io/article/tdoad7xrh9-add-and-manage-api-keys) )
 
 ```yaml
 # In app-config.yaml
@@ -22,7 +30,7 @@ Note: If you have separate providers for CI and CD apart from Harness, you need 
 
 <!-- TODO: Instructions on how to add a new tab. -->
 
-2. Inside your `EntityPage.tsx`, update the `cicdContent` to render `<EntityHarnessCiCdContent />` whenever service is using Harness CI/CD. Example below
+3. Inside your `EntityPage.tsx`, update the `cicdContent` to render `<EntityHarnessCiCdContent />` whenever service is using Harness CI/CD. Example below
 
 ```tsx
 // In packages/app/src/components/catalog/EntityPage.tsx
@@ -41,7 +49,7 @@ const cicdContent = (
 );
 ```
 
-3. Configure baseUrl for harness in `app-config.yaml`
+4. Configure baseUrl for harness in `app-config.yaml`
 
 ```yaml
 # In app-config.yaml
@@ -50,7 +58,7 @@ harness:
   baseUrl: https://app.harness.io/
 ```
 
-4. Add required harness specific annotations to your respective catalog-info.yaml files,
+5. Add required harness specific annotations to your respective catalog-info.yaml files,
    (example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml)
 
 ```yaml
