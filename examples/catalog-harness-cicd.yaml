@@ -4,14 +4,14 @@ metadata:
   name: demo
   description: demo
   annotations:
-    harness.io/cicd-accountIdentifier: <harness_account_id>
-    harness.io/cicd-orgIdentifier: <harness_org_id>
-    harness.io/cicd-projectIdentifier: <harness_project_id>
-    harness.io/ci-pipelineIdentifiers: pipelineId1,pipelineId2,pipelineId3
-    harness.io/cd-serviceId: serviceId
+    harness.io/cicd-accountId: <harness_account_id>
+    harness.io/cicd-orgId: <harness_org_id>
+    harness.io/cicd-projectId: <harness_project_id>
+    harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
+    harness.io/cd-serviceId: <serviceId>
   tags:
     - java
-    - data
+  
   links:
     - url: https://example.com/user
       title: Examples Users
@@ -38,4 +38,3 @@ spec:
   type: service
   lifecycle: experimental
   owner: team-a
-  system: artist-engagement-portal
