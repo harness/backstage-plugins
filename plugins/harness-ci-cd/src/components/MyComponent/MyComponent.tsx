@@ -511,10 +511,10 @@ function MyComponent() {
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
   const { entity } = useEntity();
-  const projectid = 'harness.io/cicd-projectIdentifier';
-  const orgid = 'harness.io/cicd-orgIdentifier';
-  const accid = 'harness.io/cicd-accountIdentifier';
-  const pipelineid = 'harness.io/ci-pipelineIdentifiers';
+  const projectid = 'harness.io/cicd-projectId';
+  const orgid = 'harness.io/cicd-orgId';
+  const accid = 'harness.io/cicd-accountId';
+  const pipelineid = 'harness.io/ci-pipelineIds';
   const serviceid = 'harness.io/cd-serviceId';
 
   async function getPipeLineByService() {
