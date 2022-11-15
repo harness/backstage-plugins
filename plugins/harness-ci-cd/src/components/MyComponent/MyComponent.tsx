@@ -896,9 +896,7 @@ function MyComponent() {
     setPageSize(pageSize);
   };
 
-  console.log(responseStatus);
-
-  if(!flag || responseStatus == 100) {
+  if(!flag && responseStatus == 100) {
     return (
         <div className={classes.empty}>
           <CircularProgress />
@@ -906,10 +904,10 @@ function MyComponent() {
     );
   }
 
-  if (responseStatus != 200 || (responseStatus==200 && tableData.length == 0 && flag)) {
+  if (responseStatus !== 200 || (responseStatus===200 && tableData.length === 0 && flag)) {
     let description = "";
-    if(responseStatus == 401) description = "Could not find the pipeline executions, the API key is either missing or incorrect.";
-    if(responseStatus == 200 && tableData.length == 0) description = "No executions found";
+    if(responseStatus === 401) description = "Could not find the pipeline executions, the API key is either missing or incorrect.";
+    if(responseStatus === 200 && tableData.length == 0) description = "No executions found";
     else description= "Could not find the pipeline executions, please check your configurations in catalog-config.yaml or check your permissions.";
     return (
       <EmptyState
@@ -943,6 +941,11 @@ function MyComponent() {
               },
             },
           ]}
+          emptyContent={
+            <div className={classes.empty}>
+              <CircularProgress />
+            </div>
+          }
           title="Execution History"
           page={page}
           onPageChange={handleChangePage}
