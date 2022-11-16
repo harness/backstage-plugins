@@ -519,6 +519,8 @@ function MyComponent() {
   const serviceid = 'harness.io/cd-serviceId';
 
   async function getPipeLineByService() {
+    const list = entity.metadata.annotations?.[serviceid];
+    let service1 = list?.split(",").map(item => item.trim())||'';
     const resp = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${
         entity.metadata.annotations?.[accid]
@@ -528,7 +530,7 @@ function MyComponent() {
         entity.metadata.annotations?.[orgid]
       }&projectIdentifier=${
         entity.metadata.annotations?.[projectid]
-      }&serviceId=${entity.metadata.annotations?.[serviceid]}`,
+      }&serviceId=${service1[0]}`,
     );
     setResponseStatus(resp.status);
     const jsondata = await resp.json();
@@ -563,7 +565,7 @@ function MyComponent() {
   }
   async function getPipelinefromCatalog() {
     const list = entity.metadata.annotations?.[pipelineid];
-    const elements = list?.split(',');
+    let elements = list?.split(",").map(item => item.trim());
     let count = 0;
     elements?.map(pipe => {
       if (count < 10) setpipelineList(data => [...data, pipe]);
