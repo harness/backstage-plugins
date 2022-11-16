@@ -551,7 +551,7 @@ function MyComponent() {
         method: 'POST',
       },
     );
-    setResponseStatus(response.status);
+    if(responseStatus == 200) setResponseStatus(response.status);
 
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj: any) => {
@@ -776,7 +776,7 @@ function MyComponent() {
           method: 'POST',
         },
       );
-      setResponseStatus(response.status);
+      if(responseStatus == 50 ||responseStatus == 200 || (responseStatus == 100 && !entity.metadata.annotations?.[serviceid])) setResponseStatus(response.status);
       const data = await response.json();
       const tableData = data.data.content;
 
@@ -889,6 +889,7 @@ function MyComponent() {
   const handleChangePage = (page: number, pageSize: number) => {
     setPage(page);
     setPageSize(pageSize);
+    setResponseStatus(50);
   };
 
   const handleChangeRowsPerPage = (pageSize: number) => {
@@ -896,19 +897,21 @@ function MyComponent() {
     setPageSize(pageSize);
   };
 
-  if(!flag && responseStatus == 100) {
+  console.log(responseStatus);
+
+  if((!flag && responseStatus == 100) || responseStatus == 50) {
     return (
         <div className={classes.empty}>
-          <CircularProgress />
+          <CircularProgress /> 
         </div>
     );
   }
-
-  if (responseStatus !== 200 || (responseStatus===200 && tableData.length === 0 && flag)) {
+  if (responseStatus != 200 || (responseStatus===200 && tableData.length === 0 && flag)) {
     let description = "";
-    if(responseStatus === 401) description = "Could not find the pipeline executions, the API key is either missing or incorrect.";
-    if(responseStatus === 200 && tableData.length == 0) description = "No executions found";
-    else description= "Could not find the pipeline executions, please check your configurations in catalog-config.yaml or check your permissions.";
+    if(responseStatus === 401) description = "Could not find the pipeline executions, the x-api-key is either missing or incorrect in app-config.yaml under proxy settings.";
+    else if(responseStatus === 200 && tableData.length == 0) description = "No executions found";
+    else description= "Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.";
+;
     return (
       <EmptyState
         title="Harness CI-CD pipelines"
