@@ -4,9 +4,9 @@ metadata:
   name: demo
   description: demo
   annotations:
-    harness.io/cicd-accountId: vpCkHKsDSxK9_KYfjCTMKA
-    harness.io/cicd-orgId: default
-    harness.io/cicd-projectId: communityeng
+    harness.io/cicd-accountId: <harness_account_id>
+    harness.io/cicd-orgId: <harness_org_id>
+    harness.io/cicd-projectId: <harness_project_id>
     harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
     harness.io/cd-serviceId: <serviceId>
   tags:
