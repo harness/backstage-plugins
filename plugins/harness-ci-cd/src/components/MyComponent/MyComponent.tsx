@@ -7,7 +7,16 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Tooltip } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  Tooltip,
+} from '@mui/material';
 import {
   EmptyState,
   OverflowTooltip,
@@ -69,17 +78,14 @@ interface TableData {
   cdser?: string;
   reponame: string;
 }
-interface AlertDialogProps
-{
-  row: Partial<TableData>,
-  backendBaseUrl: Object,
-  query1: string,
-  setRefresh:React.Dispatch<React.SetStateAction<boolean>>,
-  refresh: boolean,
+interface AlertDialogProps {
+  row: Partial<TableData>;
+  backendBaseUrl: Object;
+  query1: string;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  refresh: boolean;
 }
-function AlertDialog(
-  props:AlertDialogProps,
-) {
+function AlertDialog(props: AlertDialogProps) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -93,32 +99,35 @@ function AlertDialog(
   return (
     <div>
       <Tooltip title="Re-run Pipeline" arrow>
-            <IconButton
-              aria-label="replay"
-              onClick={handleClickOpen}>
-              <ReplayIcon />
-            </IconButton>
-            </Tooltip>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-      >
-        <DialogTitle>
-          {"Run Pipeline"}
-        </DialogTitle>
+        <IconButton aria-label="replay" onClick={handleClickOpen}>
+          <ReplayIcon />
+        </IconButton>
+      </Tooltip>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{'Run Pipeline'}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Do you want to re-run this pipeline?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} variant="outlined" color="error">cancel</Button>
-          <Button onClick={() => {
-                                    handleClose();
-                                    runPipeline(Object(props.row), props.backendBaseUrl, props.query1,props.setRefresh,props.refresh);
-                                  }} 
-                  variant="contained" color="success"  >
-            
+          <Button onClick={handleClose} variant="outlined" color="error">
+            cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleClose();
+              runPipeline(
+                Object(props.row),
+                props.backendBaseUrl,
+                props.query1,
+                props.setRefresh,
+                props.refresh,
+              );
+            }}
+            variant="contained"
+            color="success"
+          >
             Run Pipeline
           </Button>
         </DialogActions>
@@ -133,7 +142,6 @@ async function runPipeline(
   query1: string,
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
   refresh: boolean,
-
 ): Promise<void> {
   const response = await fetch(
     `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
@@ -155,7 +163,7 @@ async function runPipeline(
       method: 'POST',
     },
   );
-  setRefresh(!refresh)
+  setRefresh(!refresh);
 }
 
 const useStyles = makeStyles(theme => ({
@@ -580,7 +588,7 @@ function MyComponent() {
 
   async function getPipeLineByService() {
     const list = entity.metadata.annotations?.[serviceid];
-    let service1 = list?.split(",").map(item => item.trim())||'';
+    let service1 = list?.split(',').map(item => item.trim()) || '';
     const resp = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${
         entity.metadata.annotations?.[accid]
@@ -625,7 +633,7 @@ function MyComponent() {
   }
   async function getPipelinefromCatalog() {
     const list = entity.metadata.annotations?.[pipelineid];
-    let elements = list?.split(",").map(item => item.trim());
+    let elements = list?.split(',').map(item => item.trim());
     let count = 0;
     elements?.map(pipe => {
       if (count < 10) setpipelineList(data => [...data, pipe]);
@@ -806,10 +814,15 @@ function MyComponent() {
           projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
         }).toString();
         return (
-          <AlertDialog  row={row} backendBaseUrl= {backendBaseUrl} query1= {query1} setRefresh={setRefresh} refresh={refresh}/>
-          
+          <AlertDialog
+            row={row}
+            backendBaseUrl={backendBaseUrl}
+            query1={query1}
+            setRefresh={setRefresh}
+            refresh={refresh}
+          />
         );
-      }
+      },
     });
   }
 
