@@ -48,6 +48,8 @@ const getStatusComponent = (status: string | undefined = '') => {
   }
 };
 
+enum AsyncStatus {Init, Loading, Success, Error, Unauthorized};
+
 interface TableData {
   id: string;
   name: string;
@@ -481,11 +483,11 @@ function PrintCD(props: any) {
   let row = props.props;
   return (
     <div style={{ display: 'block' }}>
-      <Typography style={{ paddingTop: '5px', fontSize: '0.9rem' }}>
+      <Typography component={'span'} style={{ paddingTop: '5px', fontSize: '0.9rem' }}>
         <b>Service Deployed:</b>
         <OverflowTooltip text={row?.cdser} />
       </Typography>
-      <Typography style={{ fontSize: '0.9rem' }}>
+      <Typography component={'span'} style={{ fontSize: '0.9rem' }}>
         <b>Environments:</b>
         <OverflowTooltip text={row?.cdenv} />
       </Typography>
@@ -496,12 +498,12 @@ function PrintCD(props: any) {
 function MyComponent() {
   const [refresh, setRefresh] = useState(false);
   const [tableData, setTableData] = useState<any[]>([]);
+  const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [pipelineList, setpipelineList] = useState<any[]>([]);
   const [toggle, setToggle] = useState(false);
   const [flag, setFlag] = useState(false);
-  const [responseStatus, setResponseStatus] = useState(100);
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -532,7 +534,9 @@ function MyComponent() {
         entity.metadata.annotations?.[projectid]
       }&serviceId=${service1[0]}`,
     );
-    setResponseStatus(resp.status);
+    if(resp.status == 200) setState(AsyncStatus.Success);
+    else if(resp.status == 401) setState(AsyncStatus.Unauthorized);
+    else setState(AsyncStatus.Error);
     const jsondata = await resp.json();
     let serviceName = jsondata?.data?.name;
     const response = await fetch(
@@ -553,7 +557,11 @@ function MyComponent() {
         method: 'POST',
       },
     );
-    if(responseStatus == 200) setResponseStatus(response.status);
+    if(state == AsyncStatus.Success) {
+      if(response.status == 200) setState(AsyncStatus.Success);
+      else if(response.status == 401) setState(AsyncStatus.Unauthorized);
+      else setState(AsyncStatus.Error);
+    }
 
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj: any) => {
@@ -642,10 +650,7 @@ function MyComponent() {
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
         const a = row1.name ?? '';
         const b = row2.name ?? '';
-        if (a.length === b.length) {
-          return a > b ? 1 : -1;
-        }
-        return a.length > b.length ? 1 : -1;
+        return a > b ? 1 : -1;
       },
     },
     {
@@ -668,10 +673,7 @@ function MyComponent() {
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
         const a = row1.status ?? '';
         const b = row2.status ?? '';
-        if (a.length === b.length) {
-          return a > b ? 1 : -1;
-        }
-        return a.length > b.length ? 1 : -1;
+        return a > b ? 1 : -1;
       },
     },
     {
@@ -778,7 +780,11 @@ function MyComponent() {
           method: 'POST',
         },
       );
-      if(responseStatus == 50 ||responseStatus == 200 || (responseStatus == 100 && !entity.metadata.annotations?.[serviceid])) setResponseStatus(response.status);
+      if(state == AsyncStatus.Success || (state == AsyncStatus.Init && !entity.metadata.annotations?.[serviceid]) || state == AsyncStatus.Loading) {
+        if(response.status == 200) setState(AsyncStatus.Success);
+        else if(response.status == 401) setState(AsyncStatus.Unauthorized);
+        else setState(AsyncStatus.Error);
+      }
       const data = await response.json();
       const tableData = data.data.content;
 
@@ -891,7 +897,7 @@ function MyComponent() {
   const handleChangePage = (page: number, pageSize: number) => {
     setPage(page);
     setPageSize(pageSize);
-    setResponseStatus(50);
+    setState(AsyncStatus.Loading);
   };
 
   const handleChangeRowsPerPage = (pageSize: number) => {
@@ -899,19 +905,18 @@ function MyComponent() {
     setPageSize(pageSize);
   };
 
-  console.log(responseStatus);
 
-  if((!flag && responseStatus == 100) || responseStatus == 50) {
+  if(state == AsyncStatus.Init || state == AsyncStatus.Loading) {
     return (
         <div className={classes.empty}>
           <CircularProgress /> 
         </div>
     );
   }
-  if (responseStatus != 200 || (responseStatus===200 && tableData.length === 0 && flag)) {
+  if (state == AsyncStatus.Error || state == AsyncStatus.Unauthorized || (state == AsyncStatus.Success && tableData.length === 0 && flag)) {
     let description = "";
-    if(responseStatus === 401) description = "Could not find the pipeline executions, the x-api-key is either missing or incorrect in app-config.yaml under proxy settings.";
-    else if(responseStatus === 200 && tableData.length == 0) description = "No executions found";
+    if(state == AsyncStatus.Unauthorized) description = "Could not find the pipeline executions, the x-api-key is either missing or incorrect in app-config.yaml under proxy settings.";
+    else if(state == AsyncStatus.Success && tableData.length == 0) description = "No executions found";
     else description= "Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.";
 ;
     return (
@@ -943,6 +948,7 @@ function MyComponent() {
               isFreeAction: true,
               onClick: () => {
                 setRefresh(!refresh);
+                setState(AsyncStatus.Loading);
               },
             },
           ]}
