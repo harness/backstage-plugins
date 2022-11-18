@@ -43,7 +43,7 @@
     "@backstage/plugin-techdocs-module-addons-contrib": "^1.0.5",
     "@backstage/plugin-user-settings": "^0.5.0",
     "@backstage/theme": "^0.2.16",
-    "@harnessio/backstage-plugin-ci-cd": "0.1.1",
+    "@harnessio/backstage-plugin-ci-cd": "0.1.1-beta",
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "history": "^5.0.0",
