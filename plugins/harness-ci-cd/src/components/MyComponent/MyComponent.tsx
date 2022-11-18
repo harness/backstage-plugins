@@ -971,7 +971,7 @@ function MyComponent() {
     setPageSize(pageSize);
   };
 
-  if(state == AsyncStatus.Init || state == AsyncStatus.Loading || (state != AsyncStatus.Unauthorized && state != AsyncStatus.Error && !flag)) {
+  if(state == AsyncStatus.Init || state == AsyncStatus.Loading || (state == AsyncStatus.Success && !flag)) {
     return (
         <div className={classes.empty}>
           <CircularProgress /> 
