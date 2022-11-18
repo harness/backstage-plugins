@@ -25,6 +25,7 @@ import {
   StatusPending,
   StatusRunning,
   StatusWarning,
+  StatusAborted,
   Table,
   TableColumn,
 } from '@backstage/core-components';
@@ -40,22 +41,53 @@ import {
 import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
+
+
+
 const getStatusComponent = (status: string | undefined = '') => {
   switch (status.toLocaleLowerCase('en-US')) {
-    case 'queued':
-    case 'scheduled':
+    case 'waiting':
       return <StatusPending />;
+    case 'approvalwaiting':
+      return <StatusPending />
     case 'running':
       return <StatusRunning />;
     case 'failed':
       return <StatusError />;
     case 'success':
       return <StatusOK />;
-    case 'canceled':
+    case 'aborted':
+      return <StatusAborted />;
     default:
       return <StatusWarning />;
   }
 };
+
+const stringsMap: Record<string, string> = {
+  'Aborted': 'Aborted',
+  'Discontinuing': 'Aborted',
+  'Running': 'Running',
+  'AsyncWaiting': 'Running',
+  'TaskWaiting': 'Running',
+  'TimedWaiting': 'Running',
+  'Failed': 'Failed',
+  'Errored': 'Failed',
+  'NotStarted': 'NotStarted',
+  'Expired': 'Expired',
+  'Queued': 'Queued',
+  'Paused': 'Paused',
+  'ResourceWaiting': 'Waiting',
+  'Skipped': 'Skipped',
+  'Success': 'Success',
+  'IgnoreFailed': 'Success',
+  'Suspended': 'Suspended',
+  'Pausing': 'Pausing',
+  'ApprovalRejected': 'ApprovalRejected',
+  'InterventionWaiting': 'Waiting',
+  'ApprovalWaiting': 'ApprovalWaiting',
+  'InputWaiting': 'Waiting',
+  'WaitStepRunning': 'Waiting'
+}
 
 enum AsyncStatus {Init, Loading, Success, Error, Unauthorized};
 
@@ -723,9 +755,9 @@ function MyComponent() {
       render: useCallback(
         (row: Partial<TableData>) => (
           <Box display="flex" alignItems="center">
-            {getStatusComponent(row.status)}
+            {getStatusComponent(stringsMap[row?.status ?? 'Failed'])}
             <Box mr={1} />
-            <Typography variant="button">{row.status}</Typography>
+            <Typography variant="button">{stringsMap[row?.status ?? 'Failed']}</Typography>
           </Box>
         ),
         [],
