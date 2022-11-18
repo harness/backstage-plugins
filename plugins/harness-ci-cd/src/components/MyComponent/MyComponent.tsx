@@ -7,7 +7,16 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
-import { Grid } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  Tooltip,
+} from '@mui/material';
 import {
   EmptyState,
   OverflowTooltip,
@@ -71,15 +80,74 @@ interface TableData {
   cdser?: string;
   reponame: string;
 }
+interface AlertDialogProps {
+  row: Partial<TableData>;
+  backendBaseUrl: Object;
+  query1: string;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  refresh: boolean;
+}
+function AlertDialog(props: AlertDialogProps) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <div>
+      <Tooltip title="Re-run Pipeline" arrow>
+        <IconButton aria-label="replay" onClick={handleClickOpen}>
+          <ReplayIcon />
+        </IconButton>
+      </Tooltip>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{'Run Pipeline'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to re-run this pipeline?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} variant="outlined" color="error">
+            cancel
+          </Button>
+          <Button
+            onClick={() => {
+              handleClose();
+              runPipeline(
+                Object(props.row),
+                props.backendBaseUrl,
+                props.query1,
+                props.setRefresh,
+                props.refresh,
+              );
+            }}
+            variant="contained"
+            color="success"
+          >
+            Run Pipeline
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
 
 async function runPipeline(
-  pipelineId: TableData,
+  row: TableData,
   backendBaseUrl: Object,
   query1: string,
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
+  refresh: boolean,
 ): Promise<void> {
   const response = await fetch(
     `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
-      pipelineId.planExecutionId
+      row.planExecutionId
     }/inputset?${query1}`,
     {},
   );
@@ -87,8 +155,8 @@ async function runPipeline(
 
   await fetch(
     `${await backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
-      pipelineId.planExecutionId
-    }/${pipelineId.pipelineId}?${query1}&moduleType=ci`,
+      row.planExecutionId
+    }/${row.pipelineId}?${query1}&moduleType=ci`,
     {
       headers: {
         'content-type': 'application/yaml',
@@ -97,6 +165,7 @@ async function runPipeline(
       method: 'POST',
     },
   );
+  setRefresh(!refresh);
 }
 
 const useStyles = makeStyles(theme => ({
@@ -522,7 +591,7 @@ function MyComponent() {
 
   async function getPipeLineByService() {
     const list = entity.metadata.annotations?.[serviceid];
-    let service1 = list?.split(",").map(item => item.trim())||'';
+    let service1 = list?.split(',').map(item => item.trim()) || '';
     const resp = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${
         entity.metadata.annotations?.[accid]
@@ -573,7 +642,7 @@ function MyComponent() {
   }
   async function getPipelinefromCatalog() {
     const list = entity.metadata.annotations?.[pipelineid];
-    let elements = list?.split(",").map(item => item.trim());
+    let elements = list?.split(',').map(item => item.trim());
     let count = 0;
     elements?.map(pipe => {
       if (count < 10) setpipelineList(data => [...data, pipe]);
@@ -738,7 +807,7 @@ function MyComponent() {
     columns.push({
       title: 'Run Pipeline',
       field: 'col5',
-      render: useCallback((row: Partial<TableData>) => {
+      render: (row: Partial<TableData>) => {
         const query1 = new URLSearchParams({
           accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
           routingId: `${entity.metadata.annotations?.[accid]}`,
@@ -746,16 +815,15 @@ function MyComponent() {
           projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
         }).toString();
         return (
-          <div>
-            <IconButton
-              aria-label="replay"
-              onClick={() => runPipeline(Object(row), backendBaseUrl, query1)}
-            >
-              <ReplayIcon />
-            </IconButton>
-          </div>
+          <AlertDialog
+            row={row}
+            backendBaseUrl={backendBaseUrl}
+            query1={query1}
+            setRefresh={setRefresh}
+            refresh={refresh}
+          />
         );
-      }, []),
+      },
     });
   }
 
