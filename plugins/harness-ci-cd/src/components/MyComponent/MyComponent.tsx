@@ -30,7 +30,6 @@ import {
 } from '@backstage/core-components';
 import ReplayIcon from '@material-ui/icons/Replay';
 import RetryIcon from '@material-ui/icons/Replay';
-import { useEntity } from '@backstage/plugin-catalog-react';
 // import { Link as RouterLink } from 'react-router-dom';
 // import { harnessCIBuildRouteRef } from '../../route-refs';
 import {
@@ -40,6 +39,7 @@ import {
 } from '@backstage/core-plugin-api';
 import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
+import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 const getStatusComponent = (status: string | undefined = '') => {
   switch (status.toLocaleLowerCase('en-US')) {
     case 'queued':
@@ -582,25 +582,20 @@ function MyComponent() {
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
-  const { entity } = useEntity();
-  const projectid = 'harness.io/cicd-projectId';
-  const orgid = 'harness.io/cicd-orgId';
-  const accid = 'harness.io/cicd-accountId';
-  const pipelineid = 'harness.io/ci-pipelineIds';
-  const serviceid = 'harness.io/cd-serviceId';
+  const { projectId, orgId, accountId, pipelineId, serviceId} = useProjectSlugFromEntity();
 
   async function getPipeLineByService() {
-    const list = entity.metadata.annotations?.[serviceid];
+    const list = serviceId;
     let service1 = list?.split(',').map(item => item.trim()) || '';
     const resp = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${
-        entity.metadata.annotations?.[accid]
+        accountId
       }&accountIdentifier=${
-        entity.metadata.annotations?.[accid]
+        accountId
       }&orgIdentifier=${
-        entity.metadata.annotations?.[orgid]
+        orgId
       }&projectIdentifier=${
-        entity.metadata.annotations?.[projectid]
+        projectId
       }&serviceId=${service1[0]}`,
     );
     if(resp.status == 200) setState(AsyncStatus.Success);
@@ -610,13 +605,13 @@ function MyComponent() {
     let serviceName = jsondata?.data?.name;
     const response = await fetch(
       `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/list?routingId=${
-        entity.metadata.annotations?.[accid]
+        accountId
       }&accountIdentifier=${
-        entity.metadata.annotations?.[accid]
+        accountId
       }&projectIdentifier=${
-        entity.metadata.annotations?.[projectid]
+        projectId
       }&orgIdentifier=${
-        entity.metadata.annotations?.[orgid]
+        orgId
       }&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
       {
         headers: {
@@ -641,7 +636,7 @@ function MyComponent() {
     });
   }
   async function getPipelinefromCatalog() {
-    const list = entity.metadata.annotations?.[pipelineid];
+    const list = pipelineId;
     let elements = list?.split(',').map(item => item.trim());
     let count = 0;
     elements?.map(pipe => {
@@ -651,9 +646,9 @@ function MyComponent() {
   }
   async function getAllPipelines() {
     if (!toggle) {
-      if (entity.metadata.annotations?.[serviceid])
+      if (serviceId)
         await getPipeLineByService();
-      if (entity.metadata.annotations?.[pipelineid])
+      if (pipelineId)
         await getPipelinefromCatalog();
     }
     setToggle(true);
@@ -671,11 +666,11 @@ function MyComponent() {
       render: useCallback((row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
-          entity.metadata.annotations?.[accid] +
+          accountId +
           '/ci/orgs/' +
-          entity.metadata.annotations?.[orgid] +
+          orgId +
           '/projects/' +
-          entity.metadata.annotations?.[projectid] +
+          projectId +
           '/pipelines/' +
           row.pipelineId +
           '/deployments/' +
@@ -695,11 +690,11 @@ function MyComponent() {
       render: useCallback((row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
-          entity.metadata.annotations?.[accid] +
+          accountId +
           '/ci/orgs/' +
-          entity.metadata.annotations?.[orgid] +
+          orgId +
           '/projects/' +
-          entity.metadata.annotations?.[projectid] +
+          projectId +
           '/pipelines/' +
           row.pipelineId +
           '/deployments/' +
@@ -749,6 +744,7 @@ function MyComponent() {
       title: 'Details',
       field: 'col3',
       width: '30%',
+      sorting: false,
       render: useCallback(
         (row: Partial<TableData>) => <PrintCard props={row} />,
         [],
@@ -807,12 +803,13 @@ function MyComponent() {
     columns.push({
       title: 'Run Pipeline',
       field: 'col5',
+      sorting: false,
       render: (row: Partial<TableData>) => {
         const query1 = new URLSearchParams({
-          accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
-          routingId: `${entity.metadata.annotations?.[accid]}`,
-          orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
-          projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
+          accountIdentifier: `${accountId}`,
+          routingId: `${accountId}`,
+          orgIdentifier: `${orgId}`,
+          projectIdentifier: `${projectId}`,
         }).toString();
         return (
           <AlertDialog
@@ -829,10 +826,10 @@ function MyComponent() {
 
   useAsyncRetry(async () => {
     const query = new URLSearchParams({
-      accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
-      routingId: `${entity.metadata.annotations?.[accid]}`,
-      orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
-      projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
+      accountIdentifier: `${accountId}`,
+      routingId: `${accountId}`,
+      orgIdentifier: `${orgId}`,
+      projectIdentifier: `${projectId}`,
       size: `${pageSize}`,
       page: `${page}`,
     });
@@ -848,7 +845,7 @@ function MyComponent() {
           method: 'POST',
         },
       );
-      if(state == AsyncStatus.Success || (state == AsyncStatus.Init && !entity.metadata.annotations?.[serviceid]) || state == AsyncStatus.Loading) {
+      if(state == AsyncStatus.Success || (state == AsyncStatus.Init && !serviceId) || state == AsyncStatus.Loading) {
         if(response.status == 200) setState(AsyncStatus.Success);
         else if(response.status == 401) setState(AsyncStatus.Unauthorized);
         else setState(AsyncStatus.Error);
@@ -966,6 +963,7 @@ function MyComponent() {
     setPage(page);
     setPageSize(pageSize);
     setState(AsyncStatus.Loading);
+    setFlag(false);
   };
 
   const handleChangeRowsPerPage = (pageSize: number) => {
@@ -973,8 +971,7 @@ function MyComponent() {
     setPageSize(pageSize);
   };
 
-
-  if(state == AsyncStatus.Init || state == AsyncStatus.Loading) {
+  if(state == AsyncStatus.Init || state == AsyncStatus.Loading || (state != AsyncStatus.Unauthorized && state != AsyncStatus.Error && !flag)) {
     return (
         <div className={classes.empty}>
           <CircularProgress /> 
