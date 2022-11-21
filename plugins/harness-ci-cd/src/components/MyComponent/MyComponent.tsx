@@ -22,7 +22,6 @@ import {
   OverflowTooltip,
   StatusError,
   StatusOK,
-  StatusPending,
   StatusRunning,
   StatusWarning,
   StatusAborted,
@@ -46,10 +45,6 @@ import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 
 const getStatusComponent = (status: string | undefined = '') => {
   switch (status.toLocaleLowerCase('en-US')) {
-    case 'waiting':
-      return <StatusPending />;
-    case 'approvalwaiting':
-      return <StatusPending />
     case 'running':
       return <StatusRunning />;
     case 'failed':
@@ -58,6 +53,8 @@ const getStatusComponent = (status: string | undefined = '') => {
       return <StatusOK />;
     case 'aborted':
       return <StatusAborted />;
+    case 'skipped':
+      return <StatusAborted />
     default:
       return <StatusWarning />;
   }
@@ -99,6 +96,7 @@ interface TableData {
   endTime: string;
   pipelineId: string;
   planExecutionId: string;
+  runSequence: string;
   commitId: string;
   commitlink: string;
   branch: string;
@@ -691,7 +689,7 @@ function MyComponent() {
 
   const columns: TableColumn[] = [
     {
-      title: 'ID',
+      title: 'NO',
       field: 'id',
       type: 'numeric',
       width: '80px',
@@ -733,9 +731,14 @@ function MyComponent() {
           row.planExecutionId +
           '/pipeline';
         return (
-          <Link href={link} target="_blank" style={{fontSize: "0.9rem"}}>
-            <b>{row.name}</b>
-          </Link>
+          <Typography style={{fontSize: "small"}}>
+            <Link href={link} target="_blank" style={{fontSize: "0.9rem"}}>
+              <b>{row.name} </b>
+            </Link>
+            (Build ID: {row?.runSequence})
+          </Typography>
+          
+
         );
       }, []),
 
@@ -933,6 +936,7 @@ function MyComponent() {
             endTime: `${tableData[data1.length]?.['endTs']}`,
             pipelineId: `${tableData[data1.length]?.['pipelineIdentifier']}`,
             planExecutionId: `${tableData[data1.length]?.['planExecutionId']}`,
+            runSequence: `${tableData[data1.length]?.['runSequence']}`,
             commitId: `${
               tableData[data1.length]?.['moduleInfo']?.['ci']?.[
                 'ciExecutionInfoDTO'
