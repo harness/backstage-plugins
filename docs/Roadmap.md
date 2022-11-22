@@ -1,8 +1,10 @@
 # Roadmap for Harness plugins for Backstage
 
-Write about Harness. Why we are building plugins.
+WIP
 
-Image about Harness
+<!-- Write about Harness. Why we are building plugins. -->
+
+<!-- Image about Harness -->
 
 ## CI/CD
 
@@ -10,4 +12,4 @@ Image about Harness
 
 ## STO
 
-... etc.
+<!-- ... etc. -->
