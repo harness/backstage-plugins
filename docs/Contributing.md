@@ -38,9 +38,11 @@ In order to contribute to the plugin, you need to import a new Software entity i
 
 <!-- TODO: Maybe a simpler Harness tutorial without K8S and delegates. -->
 
-### Create new or use existing Harness pipeline
+### Create a new or use an existing Harness pipeline
 
-If you already have created Harness pipelines, you don't need to do anything. Otherwise, follow [this tutorial](https://docs.harness.io/article/x0d77ktjw8-ci-pipeline-quickstart) or watch this [video tutorial](https://www.youtube.com/watch?v=yz-HNgHCLHE) to create a very simple Harness pipeline. Execute the pipeline a few times before proceeding ahead.
+If you already have created Harness pipelines, you don't need to do anything.
+
+You can watch this [video tutorial](https://www.youtube.com/watch?v=RTbgEVgljg4) to create a pipeline in minutes. In this video, you can see how to build a sample pipeline based on Go to help you get started quickly with using Harness CI!
 
 ### Create and import a new Backstage software entity
 
