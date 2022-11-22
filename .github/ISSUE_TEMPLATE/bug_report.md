@@ -13,8 +13,11 @@ assignees: ''
 ## Actual behavior
 <!--- What did actually happen? Add screenshots, if applicable. --->
 
-## Environment details
-<!--- Plugin version, Operating System, etc. --->
-
 ## Context
 <!--- Anything else you want to add --->
+
+## Possible Implementation
+<!--- Not obligatory, but ideas as to the implementation of the addition or change. --->
+
+## Environment details
+<!--- Plugin version, Operating System, etc. --->
