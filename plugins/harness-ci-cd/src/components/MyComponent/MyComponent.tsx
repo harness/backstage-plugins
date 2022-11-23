@@ -603,6 +603,7 @@ function MyComponent() {
   const [pipelineList, setpipelineList] = useState<any[]>([]);
   const [toggle, setToggle] = useState(false);
   const [flag, setFlag] = useState(false);
+  const [totalElements, setTotalElements] = useState(50);
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -612,7 +613,7 @@ function MyComponent() {
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
-  const { projectId, orgId, accountId, pipelineId, serviceId} = useProjectSlugFromEntity();
+  const { projectId, orgId, accountId, pipelineId, serviceId, urlParams} = useProjectSlugFromEntity();
 
   async function getPipeLineByService() {
     const list = serviceId;
@@ -887,7 +888,9 @@ function MyComponent() {
       }
       const data = await response.json();
       const tableData = data.data.content;
-
+      if(data.data.totalElements < 50) {
+        setTotalElements(data.data.totalElements);
+      }
       const generateTestData: (number: number) => Array<{}> = (rows = 10) => {
         const data1: Array<TableData> = [];
         let request = 'pullRequest';
@@ -1014,9 +1017,10 @@ function MyComponent() {
         </div>
     );
   }
-  if (state == AsyncStatus.Error || state == AsyncStatus.Unauthorized || (state == AsyncStatus.Success && tableData.length === 0 && flag)) {
+  if (!urlParams || state == AsyncStatus.Error || state == AsyncStatus.Unauthorized || (state == AsyncStatus.Success && tableData.length === 0 && flag)) {
     let description = "";
     if(state == AsyncStatus.Unauthorized) description = "Could not find the pipeline executions, the x-api-key is either missing or incorrect in app-config.yaml under proxy settings.";
+    else if(!urlParams) description="Could not find the pipeline executions, please check your project-url configuration in catalog-info.yaml."
     else if(state == AsyncStatus.Success && tableData.length == 0) description = "No executions found";
     else description= "Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.";
 ;
@@ -1061,7 +1065,7 @@ function MyComponent() {
           title="Execution History"
           page={page}
           onPageChange={handleChangePage}
-          totalCount={50}
+          totalCount={totalElements}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </div>
