@@ -615,7 +615,6 @@ function MyComponent() {
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
   const { projectId, orgId, accountId, pipelineId, serviceId, urlParams} = useProjectSlugFromEntity();
-  const { projectId, orgId, accountId, pipelineId, serviceId} = useProjectSlugFromEntity();
   async function getLicense(){
     const response = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/licenses/account?routingId=${
