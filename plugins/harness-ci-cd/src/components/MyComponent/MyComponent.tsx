@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   CircularProgress,
@@ -604,6 +604,7 @@ function MyComponent() {
   const [toggle, setToggle] = useState(false);
   const [flag, setFlag] = useState(false);
   const [totalElements, setTotalElements] = useState(50);
+  const [licenses, setLicenses] = useState("cd");
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -614,6 +615,24 @@ function MyComponent() {
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
   const { projectId, orgId, accountId, pipelineId, serviceId, urlParams} = useProjectSlugFromEntity();
+  const { projectId, orgId, accountId, pipelineId, serviceId} = useProjectSlugFromEntity();
+  async function getLicense(){
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/gateway/ng/api/licenses/account?routingId=${
+        accountId
+      }&accountIdentifier=${
+        accountId
+      }`);
+      const data = await response.json();
+      if(data?.data?.allModuleLicenses?.CD.length == 0)
+      {
+        setLicenses("ci");
+      }
+
+  }
+  useEffect(() =>{
+    getLicense();
+  },[])
 
   async function getPipeLineByService() {
     const list = serviceId;
@@ -694,11 +713,13 @@ function MyComponent() {
       field: 'id',
       type: 'numeric',
       width: '80px',
-      render: useCallback((row: Partial<TableData>) => {
+      render: (row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
           accountId +
-          '/ci/orgs/' +
+          '/' +
+          licenses +
+          '/orgs/' +
           orgId +
           '/projects/' +
           projectId +
@@ -713,16 +734,18 @@ function MyComponent() {
             <b>{id}</b>
           </Link>
         );
-      }, []),
+      },
     },
     {
       title: 'Pipeline Name',
       field: 'col1',
-      render: useCallback((row: Partial<TableData>) => {
+      render: (row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
           accountId +
-          '/ci/orgs/' +
+          '/' +
+          licenses +
+          '/orgs/' +
           orgId +
           '/projects/' +
           projectId +
@@ -741,7 +764,7 @@ function MyComponent() {
           
 
         );
-      }, []),
+      },
 
       customFilterAndSearch: (term, row: Partial<TableData>) => {
         const temp = row?.name ?? '';
