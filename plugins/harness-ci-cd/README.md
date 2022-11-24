@@ -68,7 +68,7 @@ metadata:
   # ...
   annotations:
     # mandatory annotations
-    harness.io/project-url: <harness_project-url>
+    harness.io/project-url: <harness-project-url>
    
     # optional annotations
     harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
