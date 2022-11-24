@@ -221,7 +221,7 @@ function PrintCard(props: any) {
             alignItems="flex-start"
             columns={20}
           >
-            {row.branch == 'undefined' ? null : (
+            {row.branch == 'undefined'&& row.sourcebranch == 'undefined' ? null : (
               <>
                 <Grid
                   item
@@ -275,7 +275,7 @@ function PrintCard(props: any) {
             alignItems="flex-start"
             columns={20}
           >
-            {row.branch == 'undefined' ? null : (
+            {row.branch == 'undefined'&& row.sourcebranch == 'undefined' ? null : (
               <>
                 <Grid
                   item
@@ -364,7 +364,7 @@ function PrintCI(props: any) {
 }
 function PrintBranch(props: any) {
   let row = props.props;
-  if (row.branch == 'undefined') {
+  if (row.branch == 'undefined'&& row.sourcebranch == 'undefined') {
     return null;
   } else if (row.targetbranch == 'undefined') {
     return (
