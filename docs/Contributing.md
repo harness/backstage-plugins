@@ -10,11 +10,41 @@ Thank you for choosing to contribute to the project. Contributions are welcome a
 
 ## Clone the repository
 
-Start by cloning this repository.
+Fork the [harness/backstage-plugins](https://github.com/harness/backstage-plugins) repository through the GitHub web interface.
+
+Clone the forked repository from your profile to your local setup.
 
 ```
-git clone https://github.com/harness/backstage-plugins
+git clone https://github.com/GITHUB_USERNAME/backstage-plugins
 cd backstage-plugins
+```
+
+<details><summary>Click here if you prefer to use the SSH protocol</summary>
+
+```bash
+git clone git@github.com:GITHUB_USERNAME/backstage-plugins
+cd backstage-plugins
+```
+</details>
+
+Add the `upstream` repository where you forked from.
+
+```bash
+git remote add upstream https://github.com/harness/backstage-plugins.git
+```
+> _Note: This also allows you to sync changes made in the original repository with the fork._
+
+To update your local default branch:
+
+```bash
+git fetch upstream
+git rebase upstream/main
+```
+
+Create a new branch for your changes:
+
+```bash
+git checkout -b BRANCH_NAME
 ```
 
 Install the dependencies and start the project in development mode.
@@ -87,5 +117,28 @@ If you have setup the annotations to the Harness project correctly, you'll be ab
 Now navigate to `plugins/harness-ci-cd` to make any code changes. The changes will be reflected in your browser. Once you have made the changes, raise a Pull Request on this repository!
 
 If you are stuck anywhere and have a few questions, don't hesitate to reach out to us on the [Harness Community Slack workspace](https://join.slack.com/t/harnesscommunity/shared_invite/zt-1k5lupmly-No89okNhRnhBSWQa1o69_Q).
+
+## Submit a PR
+
+1. Commit your changes with an informative but short commit message:
+
+```bash
+git add /path/to/changed/fileORfolder
+$ git commit -m "Commit Message that reflect the changes you made."
+```
+
+2. Push the local developement branch to origin (your fork):
+```bash
+git push -u origin BRANCH_NAME
+```
+
+3. In a browser, navigate to your forked repo and then click `Compare & Pull Request`. 
+- Choose `compare across forks` under the `Compare changes` title. 
+- Choose your repository and the new branch you pushed in the right drop-down list. - Confirm the branch name and changes.
+- Edit the pull request template with all the necessary information about your blog.
+
+4. Wait for reviews. You can also ask for reviews in the Slack [#community](https://harnesscommunity.slack.com/archives/C044SFFSXJB) channel.
+
+5. After review and if the pull request looks good to the community, committers will merge it.
 
 Happy contributing!
