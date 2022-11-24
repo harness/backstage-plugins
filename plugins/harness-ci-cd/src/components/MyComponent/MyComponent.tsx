@@ -118,7 +118,7 @@ interface AlertDialogProps {
   refresh: boolean;
 }
 function AlertDialog(props: AlertDialogProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -219,7 +219,7 @@ function PrintCard(props: any) {
             container
             justifyContent="center"
             alignItems="flex-start"
-            columns={16}
+            columns={20}
           >
             {row.branch == 'undefined' ? null : (
               <>
@@ -256,7 +256,7 @@ function PrintCard(props: any) {
                     </defs>
                   </svg>
                 </Grid>
-                <Grid item md={13}>
+                <Grid sx={{paddingLeft: '5px'}} item md={18}>
                   <PrintCI props={row} />
                 </Grid>
               </>
@@ -273,7 +273,7 @@ function PrintCard(props: any) {
             container
             justifyContent="center"
             alignItems="flex-start"
-            columns={16}
+            columns={20}
           >
             {row.branch == 'undefined' ? null : (
               <>
@@ -310,7 +310,7 @@ function PrintCard(props: any) {
                     </defs>
                   </svg>
                 </Grid>
-                <Grid item md={13}>
+                <Grid sx={{paddingLeft: '5px', paddingBottom: '10px'}} item md={18}>
                   <PrintCI props={row} />
                 </Grid>
               </>
@@ -343,7 +343,7 @@ function PrintCard(props: any) {
                 </defs>
               </svg>
             </Grid>
-            <Grid item md={13}>
+            <Grid sx={{paddingLeft: '5px'}} item md={18}>
               <PrintCD props={row} />
             </Grid>
           </Grid>
@@ -389,7 +389,7 @@ function PrintBranch(props: any) {
                 fontSize: '0.9rem',
               }}
             >
-              <b>{row.reponame}</b>
+              {row.reponame}
             </Typography>
             <svg
               viewBox="0 0 448 512"
@@ -406,7 +406,7 @@ function PrintBranch(props: any) {
             <Typography
               style={{ display: 'inline', padding: '2px', fontSize: '0.9rem' }}
             >
-              <b>{row.branch}</b>
+              {row.branch}
             </Typography>
           </span>
         </div>
@@ -435,7 +435,7 @@ function PrintBranch(props: any) {
                 fontSize: '0.9rem',
               }}
             >
-              <b>{row.reponame}</b>
+              {row.reponame}
             </Typography>
             <svg
               viewBox="0 0 448 512"
@@ -452,7 +452,7 @@ function PrintBranch(props: any) {
             <Typography
               style={{ display: 'inline', padding: '2px', fontSize: '0.9rem' }}
             >
-              <b>{row.sourcebranch}</b>
+              {row.sourcebranch}
             </Typography>
             <svg
               width="18"
@@ -484,7 +484,7 @@ function PrintBranch(props: any) {
             <Typography
               style={{ display: 'inline', padding: '2px', fontSize: '0.9rem' }}
             >
-              <b>{row.targetbranch}</b>
+              {row.targetbranch}
             </Typography>
           </span>
         </div>
@@ -502,7 +502,7 @@ function PrintCommit(props: any) {
         <div style={{ display: 'block' }}>
           <svg
             style={{ display: 'inline' }}
-            viewBox="0 0 640 512"
+            viewBox="0 -150 640 512"
             id="IconChangeColor"
             height="18"
             width="18"
@@ -603,6 +603,7 @@ function MyComponent() {
   const [pipelineList, setpipelineList] = useState<any[]>([]);
   const [toggle, setToggle] = useState(false);
   const [flag, setFlag] = useState(false);
+  const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState("cd");
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
@@ -613,7 +614,7 @@ function MyComponent() {
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
-  const { projectId, orgId, accountId, pipelineId, serviceId} = useProjectSlugFromEntity();
+  const { projectId, orgId, accountId, pipelineId, serviceId, urlParams} = useProjectSlugFromEntity();
   async function getLicense(){
     const response = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/licenses/account?routingId=${
@@ -621,12 +622,13 @@ function MyComponent() {
       }&accountIdentifier=${
         accountId
       }`);
-      const data = await response.json();
-      if(data?.data?.allModuleLicenses?.CD.length == 0)
-      {
-        setLicenses("ci");
+      if(response.status == 200) {
+        const data = await response.json();
+        if(data?.data?.allModuleLicenses?.CD?.length == 0)
+        {
+          setLicenses("ci");
+        }
       }
-
   }
   useEffect(() =>{
     getLicense();
@@ -646,9 +648,9 @@ function MyComponent() {
         projectId
       }&serviceId=${service1[0]}`,
     );
-    if(resp.status == 200) setState(AsyncStatus.Success);
-    else if(resp.status == 401) setState(AsyncStatus.Unauthorized);
-    else setState(AsyncStatus.Error);
+      if(resp.status == 200) setState(AsyncStatus.Success);
+      else if(resp.status == 401) setState(AsyncStatus.Unauthorized);
+      else setState(AsyncStatus.Error);
     const jsondata = await resp.json();
     let serviceName = jsondata?.data?.name;
     const response = await fetch(
@@ -710,7 +712,11 @@ function MyComponent() {
       title: 'NO',
       field: 'id',
       type: 'numeric',
-      width: '80px',
+      width: '5%',
+      align: 'left',
+      cellStyle: {
+        paddingLeft: '30px'
+      },
       render: (row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
@@ -726,7 +732,7 @@ function MyComponent() {
           '/deployments/' +
           row.planExecutionId +
           '/pipeline';
-        const id = parseInt(row.id ? row.id : '0') + 1;
+        const id = parseInt(row.id ? row.id : '0');
         return (
           <Link href={link} target="_blank">
             <b>{id}</b>
@@ -737,6 +743,7 @@ function MyComponent() {
     {
       title: 'Pipeline Name',
       field: 'col1',
+      width: '22%',
       render: (row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
@@ -752,20 +759,19 @@ function MyComponent() {
           '/deployments/' +
           row.planExecutionId +
           '/pipeline';
-        return (
-          <Typography style={{fontSize: "small"}}>
+        return ( 
+          <Typography style={{fontSize: "small", color: "grey"}}>
             <Link href={link} target="_blank" style={{fontSize: "0.9rem"}}>
               <b>{row.name} </b>
             </Link>
-            (Build ID: {row?.runSequence})
+            <br/>
+            Build ID: {row?.runSequence}
           </Typography>
-          
-
         );
       },
 
       customFilterAndSearch: (term, row: Partial<TableData>) => {
-        const temp = row?.name ?? '';
+        const temp = row?.name + " " + row?.runSequence ?? '';
         return temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
       },
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
@@ -777,6 +783,7 @@ function MyComponent() {
     {
       title: 'Pipeline Status',
       field: 'col2',
+      width: '18%',
       render: useCallback(
         (row: Partial<TableData>) => (
           <Box display="flex" alignItems="center">
@@ -811,6 +818,7 @@ function MyComponent() {
       title: 'Pipeline time',
       field: 'col4',
       type: 'date',
+      width: '20%',
       render: useCallback((row: Partial<TableData>) => {
         if (
           durationHumanized(
@@ -853,6 +861,10 @@ function MyComponent() {
         const b = row2.startTime ?? '';
         return a > b ? 1 : -1;
       },
+      customFilterAndSearch: (term, row: Partial<TableData>) => {
+        const temp = new Date(Number(row.startTime)).toUTCString();
+        return temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
+      },
     },
   ];
 
@@ -861,6 +873,7 @@ function MyComponent() {
       title: 'Run Pipeline',
       field: 'col5',
       sorting: false,
+      width: '5%',
       render: (row: Partial<TableData>) => {
         const query1 = new URLSearchParams({
           accountIdentifier: `${accountId}`,
@@ -909,7 +922,9 @@ function MyComponent() {
       }
       const data = await response.json();
       const tableData = data.data.content;
-
+      if(data.data.totalElements < 50) {
+        setTotalElements(data.data.totalElements);
+      }
       const generateTestData: (number: number) => Array<{}> = (rows = 10) => {
         const data1: Array<TableData> = [];
         let request = 'pullRequest';
@@ -951,7 +966,7 @@ function MyComponent() {
             serviceString = Array.from(serviceNames).join(',');
           }
           data1.push({
-            id: `${page * pageSize + data1.length}`,
+            id: `${page * pageSize + data1.length + 1}`,
             name: `${tableData[data1.length]?.['name']}`,
             status: `${tableData[data1.length]?.['status']}`,
             startTime: `${tableData[data1.length]?.['startTs']}`,
@@ -1036,9 +1051,10 @@ function MyComponent() {
         </div>
     );
   }
-  if (state == AsyncStatus.Error || state == AsyncStatus.Unauthorized || (state == AsyncStatus.Success && tableData.length === 0 && flag)) {
+  if (!urlParams || state == AsyncStatus.Error || state == AsyncStatus.Unauthorized || (state == AsyncStatus.Success && tableData.length === 0 && flag)) {
     let description = "";
     if(state == AsyncStatus.Unauthorized) description = "Could not find the pipeline executions, the x-api-key is either missing or incorrect in app-config.yaml under proxy settings.";
+    else if(!urlParams) description="Could not find the pipeline executions, please check your project-url configuration in catalog-info.yaml."
     else if(state == AsyncStatus.Success && tableData.length == 0) description = "No executions found";
     else description= "Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.";
 ;
@@ -1083,7 +1099,7 @@ function MyComponent() {
           title="Execution History"
           page={page}
           onPageChange={handleChangePage}
-          totalCount={50}
+          totalCount={totalElements}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </div>
