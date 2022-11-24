@@ -118,7 +118,7 @@ interface AlertDialogProps {
   refresh: boolean;
 }
 function AlertDialog(props: AlertDialogProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -622,12 +622,13 @@ function MyComponent() {
       }&accountIdentifier=${
         accountId
       }`);
-      const data = await response.json();
-      if(data?.data?.allModuleLicenses?.CD.length == 0)
-      {
-        setLicenses("ci");
+      if(response.status == 200) {
+        const data = await response.json();
+        if(data?.data?.allModuleLicenses?.CD?.length == 0)
+        {
+          setLicenses("ci");
+        }
       }
-
   }
   useEffect(() =>{
     getLicense();
@@ -647,9 +648,9 @@ function MyComponent() {
         projectId
       }&serviceId=${service1[0]}`,
     );
-    if(resp.status == 200) setState(AsyncStatus.Success);
-    else if(resp.status == 401) setState(AsyncStatus.Unauthorized);
-    else setState(AsyncStatus.Error);
+      if(resp.status == 200) setState(AsyncStatus.Success);
+      else if(resp.status == 401) setState(AsyncStatus.Unauthorized);
+      else setState(AsyncStatus.Error);
     const jsondata = await resp.json();
     let serviceName = jsondata?.data?.name;
     const response = await fetch(
@@ -753,15 +754,14 @@ function MyComponent() {
           '/deployments/' +
           row.planExecutionId +
           '/pipeline';
-        return (
-          <Typography style={{fontSize: "small"}}>
+        return ( 
+          <Typography style={{fontSize: "small", color: "grey"}}>
             <Link href={link} target="_blank" style={{fontSize: "0.9rem"}}>
               <b>{row.name} </b>
             </Link>
-            (Build ID: {row?.runSequence})
+            <br/>
+            Build ID: {row?.runSequence}
           </Typography>
-          
-
         );
       },
 
