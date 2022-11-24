@@ -219,7 +219,7 @@ function PrintCard(props: any) {
             container
             justifyContent="center"
             alignItems="flex-start"
-            columns={16}
+            columns={20}
           >
             {row.branch == 'undefined' ? null : (
               <>
@@ -256,7 +256,7 @@ function PrintCard(props: any) {
                     </defs>
                   </svg>
                 </Grid>
-                <Grid item md={13}>
+                <Grid sx={{paddingLeft: '5px'}} item md={18}>
                   <PrintCI props={row} />
                 </Grid>
               </>
@@ -273,7 +273,7 @@ function PrintCard(props: any) {
             container
             justifyContent="center"
             alignItems="flex-start"
-            columns={16}
+            columns={20}
           >
             {row.branch == 'undefined' ? null : (
               <>
@@ -310,7 +310,7 @@ function PrintCard(props: any) {
                     </defs>
                   </svg>
                 </Grid>
-                <Grid item md={13}>
+                <Grid sx={{paddingLeft: '5px', paddingBottom: '10px'}} item md={18}>
                   <PrintCI props={row} />
                 </Grid>
               </>
@@ -343,7 +343,7 @@ function PrintCard(props: any) {
                 </defs>
               </svg>
             </Grid>
-            <Grid item md={13}>
+            <Grid sx={{paddingLeft: '5px'}} item md={18}>
               <PrintCD props={row} />
             </Grid>
           </Grid>
@@ -389,7 +389,7 @@ function PrintBranch(props: any) {
                 fontSize: '0.9rem',
               }}
             >
-              <b>{row.reponame}</b>
+              {row.reponame}
             </Typography>
             <svg
               viewBox="0 0 448 512"
@@ -406,7 +406,7 @@ function PrintBranch(props: any) {
             <Typography
               style={{ display: 'inline', padding: '2px', fontSize: '0.9rem' }}
             >
-              <b>{row.branch}</b>
+              {row.branch}
             </Typography>
           </span>
         </div>
@@ -435,7 +435,7 @@ function PrintBranch(props: any) {
                 fontSize: '0.9rem',
               }}
             >
-              <b>{row.reponame}</b>
+              {row.reponame}
             </Typography>
             <svg
               viewBox="0 0 448 512"
@@ -452,7 +452,7 @@ function PrintBranch(props: any) {
             <Typography
               style={{ display: 'inline', padding: '2px', fontSize: '0.9rem' }}
             >
-              <b>{row.sourcebranch}</b>
+              {row.sourcebranch}
             </Typography>
             <svg
               width="18"
@@ -484,7 +484,7 @@ function PrintBranch(props: any) {
             <Typography
               style={{ display: 'inline', padding: '2px', fontSize: '0.9rem' }}
             >
-              <b>{row.targetbranch}</b>
+              {row.targetbranch}
             </Typography>
           </span>
         </div>
@@ -502,7 +502,7 @@ function PrintCommit(props: any) {
         <div style={{ display: 'block' }}>
           <svg
             style={{ display: 'inline' }}
-            viewBox="0 0 640 512"
+            viewBox="0 -150 640 512"
             id="IconChangeColor"
             height="18"
             width="18"
@@ -712,7 +712,11 @@ function MyComponent() {
       title: 'NO',
       field: 'id',
       type: 'numeric',
-      width: '80px',
+      width: '5%',
+      align: 'left',
+      cellStyle: {
+        paddingLeft: '30px'
+      },
       render: (row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
@@ -728,7 +732,7 @@ function MyComponent() {
           '/deployments/' +
           row.planExecutionId +
           '/pipeline';
-        const id = parseInt(row.id ? row.id : '0') + 1;
+        const id = parseInt(row.id ? row.id : '0');
         return (
           <Link href={link} target="_blank">
             <b>{id}</b>
@@ -739,6 +743,7 @@ function MyComponent() {
     {
       title: 'Pipeline Name',
       field: 'col1',
+      width: '22%',
       render: (row: Partial<TableData>) => {
         const link =
           `${baseUrl}ng/#/account/` +
@@ -766,7 +771,7 @@ function MyComponent() {
       },
 
       customFilterAndSearch: (term, row: Partial<TableData>) => {
-        const temp = row?.name ?? '';
+        const temp = row?.name + " " + row?.runSequence ?? '';
         return temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
       },
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
@@ -778,6 +783,7 @@ function MyComponent() {
     {
       title: 'Pipeline Status',
       field: 'col2',
+      width: '18%',
       render: useCallback(
         (row: Partial<TableData>) => (
           <Box display="flex" alignItems="center">
@@ -812,6 +818,7 @@ function MyComponent() {
       title: 'Pipeline time',
       field: 'col4',
       type: 'date',
+      width: '20%',
       render: useCallback((row: Partial<TableData>) => {
         if (
           durationHumanized(
@@ -854,6 +861,10 @@ function MyComponent() {
         const b = row2.startTime ?? '';
         return a > b ? 1 : -1;
       },
+      customFilterAndSearch: (term, row: Partial<TableData>) => {
+        const temp = new Date(Number(row.startTime)).toUTCString();
+        return temp.toLowerCase().indexOf(term.toLowerCase()) > -1;
+      },
     },
   ];
 
@@ -862,6 +873,7 @@ function MyComponent() {
       title: 'Run Pipeline',
       field: 'col5',
       sorting: false,
+      width: '5%',
       render: (row: Partial<TableData>) => {
         const query1 = new URLSearchParams({
           accountIdentifier: `${accountId}`,
@@ -954,7 +966,7 @@ function MyComponent() {
             serviceString = Array.from(serviceNames).join(',');
           }
           data1.push({
-            id: `${page * pageSize + data1.length}`,
+            id: `${page * pageSize + data1.length + 1}`,
             name: `${tableData[data1.length]?.['name']}`,
             status: `${tableData[data1.length]?.['status']}`,
             startTime: `${tableData[data1.length]?.['startTs']}`,
