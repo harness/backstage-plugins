@@ -68,9 +68,8 @@ metadata:
   # ...
   annotations:
     # mandatory annotations
-    harness.io/cicd-accountId: <harness_account_id>
-    harness.io/cicd-orgId: <harness_org_id>
-    harness.io/cicd-projectId: <harness_project_id>
+    harness.io/project-url: <harness_project-url>
+   
     # optional annotations
     harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
     harness.io/cd-serviceId: <serviceId>
