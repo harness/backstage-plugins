@@ -61,7 +61,7 @@ harness:
 5. Add required harness specific annotations to your respective catalog-info.yaml files,
    (example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml)
 
-```yaml
+
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
@@ -76,7 +76,7 @@ metadata:
 spec:
   type: service
   # ...
-```
+
 
 ## Features
 
