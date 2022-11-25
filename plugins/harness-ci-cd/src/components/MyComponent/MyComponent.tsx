@@ -40,6 +40,7 @@ import {
 import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
+import Swal from 'sweetalert2';
 
 
 
@@ -184,7 +185,7 @@ async function runPipeline(
   );
   const data = await response.text();
 
-  await fetch(
+  const resp2 = await fetch(
     `${await backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
       row.planExecutionId
     }/${row.pipelineId}?${query1}&moduleType=ci`,
@@ -196,6 +197,52 @@ async function runPipeline(
       method: 'POST',
     },
   );
+  if(resp2.status==200)
+ {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    
+  })
+  
+  Toast.fire({
+    icon: 'success',
+    title: 'Pipeline ran successfully'
+  })
+ }
+ else if(resp2.status==403){
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top',
+    showCloseButton: true,
+    showConfirmButton: false,
+    width: "500px",
+  })
+  
+  Toast.fire({
+    icon: 'warning',
+    title: "You don't have access to trigger this pipeline",
+    text: "Please check your API key configuration",
+  })
+
+ }
+ else {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top',
+    showCloseButton: true,
+    showConfirmButton: false,
+  })
+  
+  Toast.fire({
+    icon: 'error',
+    title: "Pipeline Trigger Failed",
+  })
+
+ }
   setRefresh(!refresh);
 }
 
@@ -396,7 +443,7 @@ function PrintBranch(props: any) {
               <path
                 d="M1 3a2 2 0 012-2h4.584a2 2 0 011.414.586l5.413 5.412a2 2 0 010 2.829L9.827 14.41a2 2 0 01-2.829 0L1.586 8.998A2 2 0 011 7.584V3zm3.487-.007a1.494 1.494 0 100 2.988 1.494 1.494 0 000-2.988z"
                 fill-rule="evenodd"
-                fill="#03989e"
+                fill="#25b5ba"
               ></path>
             </svg>
             <Typography
