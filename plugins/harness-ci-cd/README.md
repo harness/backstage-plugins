@@ -70,7 +70,7 @@ metadata:
     # mandatory annotations
     harness.io/project-url: <harness_project_url>
    
-    # optional annotations
+    # optional annotations, don't include this block if not needed
     harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
     harness.io/cd-serviceId: <serviceId>
 spec:
