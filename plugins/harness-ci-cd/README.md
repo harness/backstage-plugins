@@ -68,11 +68,11 @@ metadata:
   # ...
   annotations:
     # mandatory annotations
-    harness.io/project-url: <harness_project_url>
-   
+    [harness.io/project-url](./PluginConfiguation.md): <harness_project_url>
+
     # optional annotations, don't include this block if not needed
-    harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
-    harness.io/cd-serviceId: <serviceId>
+    [harness.io/ci-pipelineIds](./PluginConfiguation.md): <pipelineId1,pipelineId2,pipelineId3 etc>
+    [harness.io/cd-serviceId](./PluginConfiguation.md): <serviceId>
 spec:
   type: service
   # ...
