@@ -109,6 +109,7 @@ interface TableData {
   cdenv?: string;
   cdser?: string;
   reponame: string;
+  tag: string;
 }
 interface AlertDialogProps {
   row: Partial<TableData>;
@@ -221,7 +222,7 @@ function PrintCard(props: any) {
             alignItems="flex-start"
             columns={20}
           >
-            {row.branch == 'undefined' ? null : (
+            {row.branch == 'undefined'&& row.sourcebranch == 'undefined' && row.tag == 'undefined' ? null : (
               <>
                 <Grid
                   item
@@ -275,7 +276,7 @@ function PrintCard(props: any) {
             alignItems="flex-start"
             columns={20}
           >
-            {row.branch == 'undefined' ? null : (
+            {row.branch == 'undefined'&& row.sourcebranch == 'undefined' && row.tag == 'undefined' ? null : (
               <>
                 <Grid
                   item
@@ -364,7 +365,52 @@ function PrintCI(props: any) {
 }
 function PrintBranch(props: any) {
   let row = props.props;
-  if (row.branch == 'undefined') {
+  if(row.tag != 'undefined')
+  {
+    return (
+      <>
+        <div>
+          <span style={{ padding: '3px' }}>
+            <svg
+              viewBox="0 0 13 14"
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+            >
+              <path
+                d="M12.438 2.452l-.006-.017a.367.367 0 00-.067-.114l-.004-.007L10.409.125a.374.374 0 00-.28-.125H2.327a.376.376 0 00-.28.125L.095 2.314l-.005.008a.374.374 0 00-.066.113l-.006.017a.37.37 0 00-.018.11v11.064c0 .206.168.374.374.374h11.707a.375.375 0 00.375-.374V2.563a.369.369 0 00-.018-.111zm-7.91 7.86h3.4v.357a.318.318 0 01-.318.318H4.846a.318.318 0 01-.318-.318v-.357zM.75 9.563V6.625h3.03v.357c0 .588.479 1.066 1.067 1.066H7.61c.588 0 1.066-.478 1.066-1.066v-.357h3.03v2.938H.75zm3.03-6.626v.357c0 .588.479 1.067 1.067 1.067H7.61c.589 0 1.067-.479 1.067-1.067v-.357h3.03v2.939H.75V2.937h3.03zm4.15 0v.357a.318.318 0 01-.318.318H4.846a.318.318 0 01-.318-.318v-.357h3.4zm-3.4 3.688h3.4v.357a.318.318 0 01-.319.317H4.846a.317.317 0 01-.318-.317v-.357zM2.493.749h7.468l1.284 1.44H1.21L2.494.748zm9.213 12.502H.75v-2.939h3.03v.357c0 .589.479 1.067 1.067 1.067H7.61c.588 0 1.066-.478 1.066-1.067v-.357h3.03v2.94z"
+                fill="currentColor"
+              ></path>
+            </svg>
+            <Typography
+              style={{
+                display: 'inline',
+                padding: '2px 8px 2px 2px',
+                fontSize: '0.9rem',
+              }}
+            >
+              {row.reponame}
+            </Typography>
+            <svg data-icon="tag" width="15" height="15" viewBox="0 0 16 16">
+              <desc>tag</desc>
+              <path
+                d="M1 3a2 2 0 012-2h4.584a2 2 0 011.414.586l5.413 5.412a2 2 0 010 2.829L9.827 14.41a2 2 0 01-2.829 0L1.586 8.998A2 2 0 011 7.584V3zm3.487-.007a1.494 1.494 0 100 2.988 1.494 1.494 0 000-2.988z"
+                fill-rule="evenodd"
+                fill="#03989e"
+              ></path>
+            </svg>
+            <Typography
+              style={{ display: 'inline', padding: '3px', fontSize: '0.9rem' }}
+            >
+              {row.tag}
+            </Typography>
+          </span>
+        </div>
+      </>
+    );
+
+  }
+  if (row.branch == 'undefined'&& row.sourcebranch == 'undefined') {
     return null;
   } else if (row.targetbranch == 'undefined') {
     return (
@@ -1021,6 +1067,11 @@ function MyComponent() {
             cdser: `${serviceString}`,
             reponame: `${
               tableData[data1.length]?.['moduleInfo']?.['ci']?.['repoName']
+            }`,
+            tag: `${
+              tableData[data1.length]?.['moduleInfo']?.['ci']?.[
+                'tag'
+              ]
             }`,
           });
         }
