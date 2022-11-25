@@ -33,7 +33,8 @@
     "@material-ui/lab": "4.0.0-alpha.57",
     "@mui/material": "^5.10.13",
     "path-to-regexp": "^6.2.1",
-    "react-use": "^17.2.4"
+    "react-use": "^17.2.4",
+    "sweetalert2": "^11.6.14"
   },
   "peerDependencies": {
     "react": "^16.13.1 || ^17.0.0"
