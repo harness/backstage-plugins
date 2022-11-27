@@ -58,7 +58,7 @@ import {
 
 const serviceEntityPage = (
   // ...
-  <EntityLayout.Route path="/harness-ci-cd" title="Harness CI/CD">
+  <EntityLayout.Route path="/harness-ci-cd" title="Harness CI/CD" if={isHarnessCiCdAvailable}>
       <EntityHarnessCiCdContent />
     </EntityLayout.Route>
   // ...
