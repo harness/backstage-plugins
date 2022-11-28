@@ -277,6 +277,7 @@ function PrintCard(props: any) {
                   alignItems={'center'}
                   sx={{ paddingTop: '2px' }}
                 >
+                  <Tooltip title="Continuous Integration" arrow>
                   <svg
                     viewBox="0 0 32 32"
                     xmlns="http://www.w3.org/2000/svg"
@@ -303,6 +304,7 @@ function PrintCard(props: any) {
                       </linearGradient>
                     </defs>
                   </svg>
+                  </Tooltip>
                 </Grid>
                 <Grid sx={{paddingLeft: '5px'}} item md={18}>
                   <PrintCI props={row} />
@@ -331,6 +333,7 @@ function PrintCard(props: any) {
                   alignItems={'center'}
                   sx={{ paddingTop: '2px' }}
                 >
+                  <Tooltip title="Continuous Integration" arrow>
                   <svg
                     viewBox="0 0 32 32"
                     xmlns="http://www.w3.org/2000/svg"
@@ -357,6 +360,7 @@ function PrintCard(props: any) {
                       </linearGradient>
                     </defs>
                   </svg>
+                  </Tooltip>
                 </Grid>
                 <Grid sx={{paddingLeft: '5px', paddingBottom: '10px'}} item md={18}>
                   <PrintCI props={row} />
@@ -364,6 +368,7 @@ function PrintCard(props: any) {
               </>
             )}
             <Grid item md={2} alignItems={'top'} sx={{ paddingTop: '10px' }}>
+            <Tooltip title="Continuous Delivery" arrow>
               <svg
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
@@ -390,6 +395,7 @@ function PrintCard(props: any) {
                   </linearGradient>
                 </defs>
               </svg>
+              </Tooltip>
             </Grid>
             <Grid sx={{paddingLeft: '5px'}} item md={18}>
               <PrintCD props={row} />
