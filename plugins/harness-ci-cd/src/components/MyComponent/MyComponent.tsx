@@ -197,52 +197,52 @@ async function runPipeline(
       method: 'POST',
     },
   );
-  if(resp2.status==200)
- {
-  const Toast = Swal.mixin({
-    toast: true,
-    position: 'top',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
+if(resp2.status==200)
+{
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true, 
     
-  })
-  
-  Toast.fire({
-    icon: 'success',
-    title: 'Pipeline ran successfully'
-  })
- }
- else if(resp2.status==403){
-  const Toast = Swal.mixin({
-    toast: true,
-    position: 'top',
-    showCloseButton: true,
-    showConfirmButton: false,
-    width: "500px",
-  })
-  
-  Toast.fire({
-    icon: 'warning',
-    title: "You don't have access to trigger this pipeline",
-    text: "Please check your API key configuration",
-  })
+})
 
- }
- else {
-  const Toast = Swal.mixin({
-    toast: true,
-    position: 'top',
-    showCloseButton: true,
-    showConfirmButton: false,
-  })
-  
-  Toast.fire({
-    icon: 'error',
-    title: "Pipeline Trigger Failed",
-  })
+Toast.fire({
+  icon: 'success',
+  title: 'Pipeline ran successfully'
+})
+}
+else if(resp2.status==403){
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top',
+  showCloseButton: true,
+  showConfirmButton: false,
+  width: "500px",
+})
 
- }
+Toast.fire({
+  icon: 'warning',
+  title: "You don't have access to trigger this pipeline",
+  text: "Please check your API key configuration",
+})
+
+}
+else {
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top',
+  showCloseButton: true,
+  showConfirmButton: false,
+})
+
+Toast.fire({
+  icon: 'error',
+  title: "Pipeline Trigger Failed",
+})
+
+}
   setRefresh(!refresh);
 }
 
@@ -695,7 +695,9 @@ function MyComponent() {
   const [pageSize, setPageSize] = useState(5);
   const [pipelineList, setpipelineList] = useState<any[]>([]);
   const [toggle, setToggle] = useState(false);
+  const [serviceToast, setServiceToast] = useState(false);
   const [flag, setFlag] = useState(false);
+  const [renderedOnce, setRenderedOnce] = useState(true);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState("cd");
   const classes = useStyles();
@@ -741,9 +743,10 @@ function MyComponent() {
         projectId
       }&serviceId=${service1[0]}`,
     );
-      if(resp.status == 200) setState(AsyncStatus.Success);
-      else if(resp.status == 401) setState(AsyncStatus.Unauthorized);
-      else setState(AsyncStatus.Error);
+    if(resp.status != 200) {
+      setToggle(true);
+      setServiceToast(true);
+    }
     const jsondata = await resp.json();
     let serviceName = jsondata?.data?.name;
     const response = await fetch(
@@ -764,12 +767,6 @@ function MyComponent() {
         method: 'POST',
       },
     );
-    if(state == AsyncStatus.Success) {
-      if(response.status == 200) setState(AsyncStatus.Success);
-      else if(response.status == 401) setState(AsyncStatus.Unauthorized);
-      else setState(AsyncStatus.Error);
-    }
-
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj: any) => {
       return obj.recentExecutionsInfo.length > 0;
@@ -789,10 +786,10 @@ function MyComponent() {
   }
   async function getAllPipelines() {
     if (!toggle) {
-      if (serviceId)
-        await getPipeLineByService();
       if (pipelineId)
         await getPipelinefromCatalog();
+      if (serviceId)
+        await getPipeLineByService();
     }
     setToggle(true);
   }
@@ -1008,7 +1005,7 @@ function MyComponent() {
           method: 'POST',
         },
       );
-      if(state == AsyncStatus.Success || (state == AsyncStatus.Init && !serviceId) || state == AsyncStatus.Loading) {
+      if(state == AsyncStatus.Init || state == AsyncStatus.Loading) {
         if(response.status == 200) setState(AsyncStatus.Success);
         else if(response.status == 401) setState(AsyncStatus.Unauthorized);
         else setState(AsyncStatus.Error);
@@ -1165,6 +1162,32 @@ function MyComponent() {
     );
   }
 
+  if(serviceToast && renderedOnce) {
+    setRenderedOnce(false);
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top',
+      showCloseButton: true,
+      showConfirmButton: false,
+      width: '375px',
+      padding: '2px 5px',
+    })
+    
+    Toast.fire({
+      title: 'Incorrect Service ID',
+      text: 'Please check your service ID configuration in catalog-info.yaml',
+      showClass: {
+        backdrop: 'swal2-noanimation', // disable backdrop animation
+        popup: '',                     // disable popup animation
+        icon: '' ,                     // disable icon animation
+      },
+      hideClass: {
+        popup: '',                     // disable popup fade-out animation
+      },
+    })
+  }
+
+  
   return (
     <>
       <div className={classes.container}>
