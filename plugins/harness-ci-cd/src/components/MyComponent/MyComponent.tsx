@@ -1174,6 +1174,7 @@ function MyComponent() {
     })
     
     Toast.fire({
+      icon: 'warning',
       title: 'Incorrect Service ID',
       text: 'Please check your service ID configuration in catalog-info.yaml',
       showClass: {
