@@ -1,6 +1,6 @@
 # harness-ci-cd
 
-Welcome to the Harness CI/CD plugin for Backstage!
+Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
 ## Getting started
 
@@ -14,21 +14,20 @@ yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
 yarn install
 ```
 
-2. Configure proxy for harness in `app-config.yaml`. Add your Harness Personal Access Token or Service Account Token for `x-api-key` (see the [Harness docs](https://docs.harness.io/article/tdoad7xrh9-add-and-manage-api-keys) )
+2. Configure proxy for harness in `app-config.yaml` under proxy config. Add your Harness Personal Access Token or Service Account Token for `x-api-key` (see the [Harness docs](https://docs.harness.io/article/tdoad7xrh9-add-and-manage-api-keys) )
 
 ```yaml
 # In app-config.yaml
 
 proxy:
+# ...
   '/harness':
     target: 'https://app.harness.io/'
     headers:
       'x-api-key': '<YOUR PAT/SAT>'
+# ...      
 ```
-
-Note: If you have separate providers for CI and CD apart from Harness, you need to add a new tab for Harness pipelines instead of replacing your existing CI or CD tab.
-
-<!-- TODO: Instructions on how to add a new tab. -->
+Note: Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions.
 
 3. Inside your `EntityPage.tsx`, update the `cicdContent` to render `<EntityHarnessCiCdContent />` whenever service is using Harness CI/CD. Example below
 
@@ -37,7 +36,7 @@ Note: If you have separate providers for CI and CD apart from Harness, you need 
 
 import {
   isHarnessCiCdAvailable,
-  EntityHarnessCiCdContent,
+  EntityHarnessCiCdContent
 } from '@harnessio/backstage-plugin-ci-cd';
 
 const cicdContent = (
@@ -47,6 +46,23 @@ const cicdContent = (
   </EntitySwitch.Case>
   // ...
 );
+```
+Note: If you have separate providers for CI and CD apart from Harness, you need to add a new tab for Harness CI/CD plugin like below instead of replacing your existing CI/CD tab mentioned in above block.
+```tsx
+// In packages/app/src/components/catalog/EntityPage.tsx
+
+import {
+  isHarnessCiCdAvailable,
+  EntityHarnessCiCdContent
+} from '@harnessio/backstage-plugin-ci-cd';
+
+const serviceEntityPage = (
+  // ...
+  <EntityLayout.Route path="/harness-ci-cd" title="Harness CI/CD" if={isHarnessCiCdAvailable}>
+      <EntityHarnessCiCdContent />
+    </EntityLayout.Route>
+  // ...
+);  
 ```
 
 4. Configure baseUrl for harness in `app-config.yaml`
@@ -77,6 +93,7 @@ spec:
   type: service
   # ...
 ```
+Note: Refer to [this](./PluginConfiguation.md) page on how to get these values from your Harness account.
 
 ## Features
 

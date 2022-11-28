@@ -10,7 +10,7 @@ export const useProjectSlugFromEntity = () => {
     const pipelineId = entity.metadata.annotations?.[pipelineid]; 
     const serviceId = entity.metadata.annotations?.[serviceid]; 
     const URL = entity.metadata.annotations?.[url];
-    const urlMatch = match("(.*)/account/:accountId/:module(ci|cd|home)/orgs/:orgId/projects/:projectId/(.*)", {
+    const urlMatch = match("(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/(.*)", {
         decode: decodeURIComponent,
     });
     const urlParams: any = urlMatch(URL ?? '');
