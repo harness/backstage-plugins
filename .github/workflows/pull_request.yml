@@ -105,7 +105,6 @@ jobs:
         run: yarn test --runInBand --ci
 
   typecheck:
-    needs: strings
     name: Typecheck
     runs-on: ubuntu-latest
     steps:
