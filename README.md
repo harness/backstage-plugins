@@ -22,6 +22,10 @@ Check out the plugin specific installation instructions.
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ | -------------------------------------------------------- |
 | [<img align="center" src="./docs/assets/CI%20logo.png" alt="Harness CI logo" width="20" /> CI](https://harness.io/products/continuous-integration) and [<img align="center" src="./docs/assets/CD%20logo.png" alt="Harness CD logo" width="20" /> CD](https://harness.io/products/continuous-delivery) | View builds and pipeline executions for your services. | 📘 [Installation instructions](./plugins/harness-ci-cd/) |
 
+## Contributor License Agreement
+
+In order to clarify the intellectual property license granted with Contributions from any person or entity, Harness Inc. ("Harness") must have a Contributor License Agreement ("CLA") on file that has been read and followed by each contributor, indicating an agreement to the license terms [here](Contributor_License_Agreement.md). This license is for your protection as a Contributor as well as the protection of Harness; it does not change your rights to use your own Contributions for any other purpose.
+
 ## Contributing
 
 <!-- Checkout contributing guide -->
@@ -45,6 +49,18 @@ Check out the [detailed roadmap](./docs/Roadmap.md) of the project.
 | [<img align="center" src="./docs/assets/STO%20logo.png" alt="STO logo" width="20" /> Security Testing Orchestration](https://harness.io/products/security-testing-orchestration)                                                                                                                       | Shift-left application security                           | ⏳ Coming soon |
 | [<img align="center" src="./docs/assets/SRM%20logo.png" alt="SRM logo" width="20" /> Service Reliability Management](https://harness.io/products/service-reliability-management)                                                                                                                       | SLO-driven software delivery                              | ⏳ Coming soon |
 
+## Code of Conduct
+
+All users and contributors of the Harness community should adhere to the following [Code of Conduct](https://github.com/harness/community/blob/main/CODE_OF_CONDUCT.md)!
+
+## Communication
+
+Refer [Harness Community Communications Guide](https://github.com/harness-community/overview/blob/main/community_communication_guide.rst) to interact with the wider community users/contributors, join slack workgroups to get help/help other users and create topics in [community.harness.io](https://community.harness.io/).
+
 ## Security
 
 Please report sensitive security issues via [harness.io/security](https://harness.io/security) rather than GitHub.
+
+### License
+
+Apache License 2.0. See [COPYING](LICENSE) for more information.
