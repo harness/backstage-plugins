@@ -17,7 +17,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router';
 //import { harnessCIBuildRouteRef } from '../route-refs';
-import MyComponent from './MyComponent/MyComponent';
+import ExecutionList from './ExecutionList/ExecutionList';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { MissingAnnotationEmptyState } from '@backstage/core-components';
@@ -35,7 +35,7 @@ if(!(isHarnessCiCdAvailable(entity))) {
 
 return (
 <Routes>
-    <Route path="/" element={<MyComponent />} />
+    <Route path="/" element={<ExecutionList />} />
 </Routes>
 );
 };
