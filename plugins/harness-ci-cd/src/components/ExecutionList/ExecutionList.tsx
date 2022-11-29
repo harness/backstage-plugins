@@ -693,7 +693,7 @@ function PrintCD(props: any) {
   );
 }
 
-function MyComponent() {
+function ExecutionList() {
   const [refresh, setRefresh] = useState(false);
   const [tableData, setTableData] = useState<any[]>([]);
   const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
@@ -1235,4 +1235,4 @@ function MyComponent() {
   );
 }
 
-export default MyComponent;
+export default ExecutionList;
