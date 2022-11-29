@@ -14,6 +14,7 @@ This project consists of Backstage plugins to integrate with [Harness](https://h
 
 Harness plugins for Backstage is an Open Source project. It's open for your ideas, suggestions and contributions.
 
+
 ## How to use?
 
 Check out the plugin specific installation instructions.
