@@ -1,7 +1,7 @@
 name: PR
 on:
   pull_request:
-    branches: [main,pr_chceks]
+    branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
 
 jobs:
