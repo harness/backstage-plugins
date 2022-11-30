@@ -5,136 +5,25 @@ on:
     types: [opened, reopened, ready_for_review, synchronize]
 
 jobs:
-  lint:
-    name: ESLint
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set Up Node
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
-
-      - name: Set up GitHub Package Registry token
-        run: |
-          echo @wings-software:registry=https://npm.pkg.github.com > .npmrc
-          echo "//npm.pkg.github.com/:_authToken="$GIT_BOT_TOKEN >> .npmrc
-          echo always-auth=true >> .npmrc
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn tsc
+      - run: yarn test
+      - run: yarn build
         env:
-          GIT_BOT_TOKEN: ${{ secrets.GIT_BOT_TOKEN }}
-
-      - name: Cache node_modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
-
-      - name: Install Packages
-        run: yarn
-
-      - name: Lint Check
-        run: yarn lint --quiet
-        
-  prettier:
-    name: Prettier
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set Up Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14'
-
-      - name: Set up GitHub Package Registry token
-        run: |
-          echo @wings-software:registry=https://npm.pkg.github.com > .npmrc
-          echo "//npm.pkg.github.com/:_authToken="$GIT_BOT_TOKEN >> .npmrc
-          echo always-auth=true >> .npmrc
-        env:
-          GIT_BOT_TOKEN: ${{ secrets.GIT_BOT_TOKEN }}
-
-      - name: Cache node_modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
-
-      - name: Install Packages
-        run: yarn
-
-      - name: Prettier format check
-        run: npx prettier src --check
-
-  jest:
-    name: Jest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set Up Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14'
-
-      - name: Set up GitHub Package Registry token
-        run: |
-          echo @wings-software:registry=https://npm.pkg.github.com > .npmrc
-          echo "//npm.pkg.github.com/:_authToken="$GIT_BOT_TOKEN >> .npmrc
-          echo always-auth=true >> .npmrc
-        env:
-          GIT_BOT_TOKEN: ${{ secrets.GIT_BOT_TOKEN }}
-
-      - name: Cache node_modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
-
-      - name: Install Packages
-        run: yarn
-
-      - name: Run Jest
-        run: yarn test --runInBand --ci
-
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set Up Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14'
-
-      - name: Set up GitHub Package Registry token
-        run: |
-          echo @wings-software:registry=https://npm.pkg.github.com > .npmrc
-          echo "//npm.pkg.github.com/:_authToken="$GIT_BOT_TOKEN >> .npmrc
-          echo always-auth=true >> .npmrc
-        env:
-          GIT_BOT_TOKEN: ${{ secrets.GIT_BOT_TOKEN }}
-
-      - name: Cache node_modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
-
-      - name: Install Packages
-        run: yarn
-
-      - name: Type check
-        run: yarn typecheck
+          CI: true
 
 
