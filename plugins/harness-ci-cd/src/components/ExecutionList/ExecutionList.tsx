@@ -682,7 +682,7 @@ function PrintCD(props: any) {
   return (
     <div style={{ display: 'block' }}>
       <Typography component={'span'} style={{ paddingTop: '5px', fontSize: '0.9rem' }}>
-        Service Deployed:
+        Services deployed:
         <OverflowTooltip text={row?.cdser} />
       </Typography>
       <Typography component={'span'} style={{ fontSize: '0.9rem' }}>
