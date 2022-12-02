@@ -15,8 +15,9 @@
  */
 
 import React from 'react';
+// eslint-disable-next-line
 import { Routes, Route } from 'react-router';
-//import { harnessCIBuildRouteRef } from '../route-refs';
+// import { harnessCIBuildRouteRef } from '../route-refs';
 import ExecutionList from './ExecutionList/ExecutionList';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
@@ -30,7 +31,7 @@ Boolean(entity.metadata.annotations?.["harness.io/project-url"]);
 export const Router = () => {
 const { entity } = useEntity();
 if(!(isHarnessCiCdAvailable(entity))) {
-    return(<><MissingAnnotationEmptyState annotation={"harness.io/project-url"} /></>)
+    return(<><MissingAnnotationEmptyState annotation="harness.io/project-url" /></>)
 }
 
 return (
