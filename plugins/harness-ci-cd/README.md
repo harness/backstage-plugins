@@ -74,7 +74,9 @@ const serviceEntityPage = (
 );  
 ```
 
-4. Configure baseUrl for harness in `app-config.yaml`
+4. (Optional) Configure `baseUrl` for harness in `app-config.yaml`
+
+This step is optional. The default value of `harness.baseUrl` is https://app.harness.io/
 
 ```yaml
 # In app-config.yaml
