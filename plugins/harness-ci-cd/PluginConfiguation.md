@@ -2,12 +2,12 @@
 
 ## harness.io/project-url configuration:
 
-![Project URL](../../docs/assets/harness_project_url.png)
+![Project URL](./src/assets/harness_project_url.png)
 
 ## harness.io/ci-pipelineIds configuration:
 
-![PipelineID](../../docs/assets/pipelineIds.png)
+![PipelineID](./src/assets/pipelineIds.png)
 
 ## harness.io/cd-serviceId configuration:
 
-![ServiceID](../../docs/assets/serviceId.png)
+![ServiceID](./src/assets/serviceId.png)
