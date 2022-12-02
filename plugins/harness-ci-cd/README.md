@@ -1,4 +1,4 @@
-# harness-ci-cd
+# Harness NextGen CI/CD plugin
 Website: [https://harness.io/](https://harness.io/)
 
 Welcome to the Harness NextGen CI/CD plugin for Backstage!
