@@ -1,10 +1,19 @@
-# harness-ci-cd
+# Harness NextGen CI/CD plugin
+Website: [https://harness.io/](https://harness.io/)
 
 Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
+## Screenshots
+
+<img src="./../../docs/assets/ci-executions.png" />
+<img src="./../../docs/assets/cd-executions.png" />
+<img src="./../../docs/assets/ci-cd-executions.png" />
+
+
+
 ## Getting started
 
-## Steps
+## Setup steps
 
 1. If you have a standalone app(you didn't clone this repo), then do
 
