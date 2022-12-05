@@ -862,7 +862,7 @@ function ExecutionList() {
               <b>{row.name} </b>
             </Link>
             <br/>
-            Build ID: {row?.runSequence}
+            Run ID: {row?.runSequence}
           </Typography>
         );
       },
