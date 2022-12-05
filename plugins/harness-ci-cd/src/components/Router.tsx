@@ -15,7 +15,6 @@
  */
 
 import React from 'react';
-// eslint-disable-next-line
 import { Routes, Route } from 'react-router';
 // import { harnessCIBuildRouteRef } from '../route-refs';
 import ExecutionList from './ExecutionList/ExecutionList';
