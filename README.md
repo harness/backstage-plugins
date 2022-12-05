@@ -14,7 +14,6 @@ This project consists of Backstage plugins to integrate with [Harness](https://h
 
 Harness plugins for Backstage is an Open Source project. It's open for your ideas, suggestions and contributions.
 
-
 ## How to use?
 
 Check out the plugin specific installation instructions.
@@ -39,14 +38,12 @@ If you would like to chat with us, join the [Harness Community Slack channel](ht
 
 ## Roadmap
 
-Check out the [detailed roadmap](./docs/Roadmap.md) of the project.
-
 | Harness Module                                                                                                                                                                                                                                                                                         | Description                                               | Status         |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | -------------- |
 | [<img align="center" src="./docs/assets/CI%20logo.png" alt="Harness CI logo" width="20" /> CI](https://harness.io/products/continuous-integration) and [<img align="center" src="./docs/assets/CD%20logo.png" alt="Harness CD logo" width="20" /> CD](https://harness.io/products/continuous-delivery) | View builds and pipeline executions for your services.    | ✅ Launched    |
 | [<img align="center" src="./docs/assets/Cloud%20Cost%20logo.png" alt="Cloud cost management logo" width="20" /> Cloud Cost Management](https://harness.io/products/cloud-cost)                                                                                                                         | Manage and Optimize cloud costs                           | ⏳ Coming soon |
 | [<img align="center" src="./docs/assets/Feature%20Flags%20logo.png" alt="Feature flags logo" width="20" /> Feature Flags](https://harness.io/products/feature-flags)                                                                                                                                   | Manage feature flags                                      | ⏳ Coming soon |
-| [<img align="center" src="./docs/assets/Chaos%20logo.png" alt="Chaos engineering logo" width="20" /> Chaos Engineering](https://harness.io/products/chaos-engineering)                                                                                                                             | Improve application resiliency and reduce costly downtime | ⏳ Coming soon |
+| [<img align="center" src="./docs/assets/Chaos%20logo.png" alt="Chaos engineering logo" width="20" /> Chaos Engineering](https://harness.io/products/chaos-engineering)                                                                                                                                 | Improve application resiliency and reduce costly downtime | ⏳ Coming soon |
 | [<img align="center" src="./docs/assets/STO%20logo.png" alt="STO logo" width="20" /> Security Testing Orchestration](https://harness.io/products/security-testing-orchestration)                                                                                                                       | Shift-left application security                           | ⏳ Coming soon |
 | [<img align="center" src="./docs/assets/SRM%20logo.png" alt="SRM logo" width="20" /> Service Reliability Management](https://harness.io/products/service-reliability-management)                                                                                                                       | SLO-driven software delivery                              | ⏳ Coming soon |
 
