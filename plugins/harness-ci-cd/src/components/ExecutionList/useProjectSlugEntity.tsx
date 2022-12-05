@@ -2,7 +2,7 @@ import { useEntity } from '@backstage/plugin-catalog-react';
 import { match } from 'path-to-regexp';
 
 export const useProjectSlugFromEntity = () => {
-    let accountId, orgId, projectId;
+    let accountId; let orgId; let projectId;
     const { entity } = useEntity();
     const pipelineid = 'harness.io/ci-pipelineIds';
     const serviceid = 'harness.io/cd-serviceId';

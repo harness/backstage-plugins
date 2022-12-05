@@ -9,6 +9,7 @@ import {
   HeaderLabel,
   SupportButton,
 } from '@backstage/core-components';
+
 export const ExampleComponent = () => (
   <Page themeId="tool">
     <Header title="Welcome to harness-ci-cd!" subtitle="Optional subtitle">
@@ -27,8 +28,7 @@ export const ExampleComponent = () => (
             </Typography>
           </InfoCard>
         </Grid>
-        <Grid item>
-        </Grid>
+        <Grid item />
       </Grid>
     </Content>
   </Page>
