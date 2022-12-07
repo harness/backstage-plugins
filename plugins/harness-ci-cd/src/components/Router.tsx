@@ -23,19 +23,23 @@ import { useEntity } from '@backstage/plugin-catalog-react';
 import { MissingAnnotationEmptyState } from '@backstage/core-components';
 /** @public */
 export const isHarnessCiCdAvailable = (entity: Entity) =>
-Boolean(entity.metadata.annotations?.["harness.io/project-url"]);
+  Boolean(entity.metadata.annotations?.['harness.io/project-url']);
 
 /** @public */
 
 export const Router = () => {
-const { entity } = useEntity();
-if(!(isHarnessCiCdAvailable(entity))) {
-    return(<><MissingAnnotationEmptyState annotation="harness.io/project-url" /></>)
-}
+  const { entity } = useEntity();
+  if (!isHarnessCiCdAvailable(entity)) {
+    return (
+      <>
+        <MissingAnnotationEmptyState annotation="harness.io/project-url" />
+      </>
+    );
+  }
 
-return (
-<Routes>
-    <Route path="/" element={<ExecutionList />} />
-</Routes>
-);
+  return (
+    <Routes>
+      <Route path="/" element={<ExecutionList />} />
+    </Routes>
+  );
 };

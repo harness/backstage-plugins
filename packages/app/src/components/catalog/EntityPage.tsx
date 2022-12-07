@@ -55,7 +55,10 @@ import {
 
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
-import { EntityHarnessCiCdContent, isHarnessCiCdAvailable } from '@harnessio/backstage-plugin-ci-cd';
+import {
+  EntityHarnessCiCdContent,
+  isHarnessCiCdAvailable,
+} from '@harnessio/backstage-plugin-ci-cd';
 
 const techdocsContent = (
   <EntityTechdocsContent>

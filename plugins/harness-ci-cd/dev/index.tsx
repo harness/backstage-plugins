@@ -7,6 +7,6 @@ createDevApp()
   .addPage({
     element: <HarnessCiCdPage />,
     title: 'Root Page',
-    path: '/harness-ci-cd'
+    path: '/harness-ci-cd',
   })
   .render();
