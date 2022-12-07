@@ -110,7 +110,7 @@ spec:
 
 Note: Refer to [this](./PluginConfiguation.md) page on how to get these values from your Harness account.
 
-By default, the plugin will take all the pipelines inside the configured Harness project and show their executions. However, if your service has quiet a few pipelines, you can additionally configure the pipelines as well as associated services to use for display.
+By default, the plugin will take all the pipelines inside the configured Harness project and show their executions. However, if your service has quiet a few pipelines, you can additionally configure the pipelines as well as associated services to show those specific execution details for the display.
 
 ## Other configurations
 
@@ -141,7 +141,7 @@ harness:
 
 - Connect a Backstage service with a Harness project and view top 50 executions from the pipelines in the project.
 - See details about executions - status, execution timestamp and time taken, associated triggers for CI pipelines, services deployed for CD pipelines.
-- Specify pipeline IDs (CI) or service IDs (CD) to narrow down on what pipelines to show in Backstage service view.
+- Specify pipeline IDs (CI) or service IDs (CD) to narrow down on pipeline executions to show in the Backstage service view.
 - Retry pipeline executions from the plugin
 
 ## Upcoming features
