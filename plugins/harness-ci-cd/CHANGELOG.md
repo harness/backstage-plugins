@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- <commit_id>: First implementation of the Harness NextGen CI/CD(https://harness.io/) plugin. For more information refer to it's README.md.
+- 3a6d88f6e3: First implementation of the Harness NextGen CI/CD(https://harness.io/) plugin. For more information refer to it's README.md.
 
 ### Patch Changes
 
