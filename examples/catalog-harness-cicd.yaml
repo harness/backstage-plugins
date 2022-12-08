@@ -1,0 +1,40 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: demo
+  description: demo
+  annotations:
+    # mandatory annotation
+    harness.io/project-url: <harness_project_url>
+    # optional annotations, don't include this block if not needed. Add this if specific pipeline executions needs to be shown on the Plugin. When specified, latest pipeline execution details for configured pipelineIds(max 10) and configured serviceId will be shown.
+    harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
+    harness.io/cd-serviceId: <serviceId>
+  tags:
+    - java
+
+  links:
+    - url: https://example.com/user
+      title: Examples Users
+      icon: user
+    - url: https://example.com/group
+      title: Example Group
+      icon: group
+    - url: https://example.com/cloud
+      title: Link with Cloud Icon
+      icon: cloud
+    - url: https://example.com/dashboard
+      title: Dashboard
+      icon: dashboard
+    - url: https://example.com/help
+      title: Support
+      icon: help
+    - url: https://example.com/web
+      title: Website
+      icon: web
+    - url: https://example.com/alert
+      title: Alerts
+      icon: alert
+spec:
+  type: service
+  lifecycle: experimental
+  owner: team-a
