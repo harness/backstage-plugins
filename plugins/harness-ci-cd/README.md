@@ -12,6 +12,10 @@ Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
 ## Getting started
 
+We have video tutorial for the plugin. 
+
+[![Watch here](http://img.youtube.com/vi/XDNdInYwiuw/0.jpg)](http://www.youtube.com/watch?v=XDNdInYwiuw)
+
 ## Setup steps
 
 1. Open terminal and navigate to the _root of your Backstage app_. Then run
