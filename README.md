@@ -61,4 +61,4 @@ Please report sensitive security issues via [harness.io/security](https://harnes
 
 ### License
 
-Apache License 2.0. See [COPYING](LICENSE) for more information.
+Apache License 2.0. See [COPYING](LICENSE.md) for more information.
