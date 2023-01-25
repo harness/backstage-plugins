@@ -7,7 +7,7 @@ import { setupServer } from 'msw/node';
 import {
   setupRequestMockHandlers,
   renderInTestApp,
-} from "@backstage/test-utils";
+} from '@backstage/test-utils';
 
 describe('ExampleComponent', () => {
   const server = setupServer();
@@ -27,6 +27,8 @@ describe('ExampleComponent', () => {
         <ExampleComponent />
       </ThemeProvider>,
     );
-    expect(rendered.getByText('Welcome to harness-feature-flags!')).toBeInTheDocument();
+    expect(
+      rendered.getByText('Welcome to harness-feature-flags!'),
+    ).toBeInTheDocument();
   });
 });
