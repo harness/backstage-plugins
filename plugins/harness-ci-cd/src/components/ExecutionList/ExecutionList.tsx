@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable @typescript-eslint/no-shadow */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
@@ -956,6 +958,7 @@ function ExecutionList() {
       });
     }
     if (toggle) {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const response = await fetch(
         `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
         {
