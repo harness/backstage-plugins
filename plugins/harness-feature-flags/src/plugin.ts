@@ -20,4 +20,3 @@ export const HarnessFeatureFlagsPage = harnessFeatureFlagsPlugin.provide(
     mountPoint: rootRouteRef,
   }),
 );
-
