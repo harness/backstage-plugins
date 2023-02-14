@@ -1,1 +1,1 @@
-export { FeatureList } from './ExampleComponent';
+export { FeatureList } from './FeatureList';
