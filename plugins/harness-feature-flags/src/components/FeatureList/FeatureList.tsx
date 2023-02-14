@@ -10,7 +10,7 @@ import {
   SupportButton,
 } from '@backstage/core-components';
 
-export const ExampleComponent = () => (
+export const FeatureList = () => (
   <Page themeId="tool">
     <Header
       title="Welcome to harness-feature-flags!"
