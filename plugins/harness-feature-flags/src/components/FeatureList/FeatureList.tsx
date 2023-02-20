@@ -1,6 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-inner-declarations */
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -12,14 +9,8 @@ import {
   MenuItem,
   Typography,
 } from '@material-ui/core';
-import {
-  Table,
-  TableColumn,
-} from '@backstage/core-components';
-// import ReplayIcon from '@material-ui/icons/Replay';
+import { Table, TableColumn } from '@backstage/core-components';
 import RetryIcon from '@material-ui/icons/Replay';
-// import { Link as RouterLink } from 'react-router-dom';
-// import { harnessFeatureRouteRef } from '../../route-refs';
 import {
   discoveryApiRef,
   useApi,
@@ -30,9 +21,6 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormHelperText from '@mui/material/FormHelperText';
 import dayjs from 'dayjs';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
-// import { getRandomValues } from 'crypto';
-// import { env } from 'process';
-
 
 interface TableData {
   name: string;
@@ -42,6 +30,8 @@ interface TableData {
   modifiedAt?: any;
   kind?: string;
   identifier: string;
+  status: string;
+  state: string;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -56,14 +46,12 @@ const useStyles = makeStyles(theme => ({
 }));
 /// /
 
-
 function FeatureList() {
   const [refresh, setRefresh] = useState(false);
-  const [currTableData] = useState<any[]>([]);
+  const [currTableData, setCurrTableData] = useState<any[]>([]);
   const [envIds, setEnvIds] = useState<string[]>([]);
   const [envId, setEnvId] = React.useState('');
   const [totalElements, setTotalElements] = useState(50);
-  // const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
   const [done, setDone] = useState<boolean>(false);
 
   const classes = useStyles();
@@ -88,31 +76,33 @@ function FeatureList() {
   }
   useEffect(() => {
     getFeatureEnv();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // console.log(envIds);
-
 
   const columns: TableColumn[] = [
     {
       title: 'State',
       field: 'col1',
-      width: '22%',
+      width: '10%',
       render: (row: Partial<TableData>) => {
         return (
-          <Typography style={{ fontSize: 'small', color: 'grey' }}>
-            <b>{row.archived} </b>
+          <Typography style={{ fontSize: 'medium', color: 'brown' }}>
+            <b>{row.state} </b>
           </Typography>
         );
       },
     },
     {
       title: 'Feature Name',
-      field: 'col2',
-      width: '18%',
+      field: 'col1',
+      width: '30%',
       render: (row: Partial<TableData>) => {
         const link = `${baseUrl}ng/#/account/${accountId}/cf/orgs/${orgId}/projects/${projectId}/feature-flags/${row.identifier}?tab=activity&activeEnvironment=${envId}`;
-        return <Link href={link} target="_blank" />;
+        return (
+          <Link href={link} target="_blank">
+            <b>{row.name}</b>
+          </Link>
+        );
       },
       customFilterAndSearch: (term, row: Partial<TableData>) => {
         const temp = row?.name ?? '';
@@ -126,7 +116,7 @@ function FeatureList() {
     },
     {
       title: 'Created By',
-      field: 'col3',
+      field: 'col2',
       width: '30%',
       sorting: false,
       render: (row: Partial<TableData>) => {
@@ -139,12 +129,25 @@ function FeatureList() {
     },
     {
       title: 'Type',
+      field: 'col3',
+      width: '18%',
+      type: 'string',
+      render: (row: Partial<TableData>) => {
+        return (
+          <Typography style={{ fontSize: 'small', color: 'black' }}>
+            <b>{row.kind} </b>
+          </Typography>
+        );
+      },
+    },
+    {
+      title: 'Status',
       field: 'col4',
       type: 'string',
       render: (row: Partial<TableData>) => {
         return (
-          <Typography style={{ fontSize: 'small', color: 'grey' }}>
-            <b>{row.kind} </b>
+          <Typography style={{ fontSize: 'small', color: 'green' }}>
+            <b>{row.status} </b>
           </Typography>
         );
       },
@@ -154,7 +157,7 @@ function FeatureList() {
       field: 'col5',
       type: 'date',
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.createdAt).format('DD MMM YYYY HH:mm');
+        const time = dayjs(row.createdAt).format('DD MMM HH:mm');
         return <Typography>{time}</Typography>;
       },
     },
@@ -164,7 +167,7 @@ function FeatureList() {
       field: 'col6',
       type: 'date',
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.modifiedAt).format('DD MMM YYYY HH:mm');
+        const time = dayjs(row.modifiedAt).format('DD MMM HH:mm');
         return <Typography>{time}</Typography>;
       },
     },
@@ -181,38 +184,38 @@ function FeatureList() {
       if (!envId) {
         setEnvId(envIds[0]);
       } else {
+        // eslint-disable-next-line no-inner-declarations
         async function fetchFeatures() {
           const resp2 = await fetch(
-            `${await backendBaseUrl}/harness/gateway/cf/admin/features?${query}`,
+            `${await backendBaseUrl}/harness/gateway/cf/admin/features?${query}&metrics=true&flagCounts=true&name=&summary=true`,
           );
           const data = await resp2.json();
-          const tableData = data.data.content;
-          if (data.data.totalElements < 50) {
-            setTotalElements(data.data.totalElements);
+          if (data.itemCount < 50) {
+            setTotalElements(data.itemCount);
           }
           const getFeatureList = (): Array<{}> => {
-          const data1: Array<TableData> = [];
-            data1.push({
-              name: `${tableData[data1.length]?.features[0].identifier}`,
-              owner: `${tableData[data1.length]?.features[0].owner[0]}`,
-              modifiedAt: `${tableData[data1.length]?.features[0].modifiedAt}`,
-              createdAt: `${tableData[data1.length]?.features[0].createdAt}`,
-              archived: `${tableData[data1.length]?.features[0].archived}`,
-              kind: `${tableData[data1.length]?.features[0].kind}`,
-              identifier: `${tableData[data1.length]?.identifier}`,   
-            });
+            const data1: Array<TableData> = [];
+            while (data1.length < data.itemCount)
+              data1.push({
+                name: `${data.features[data1.length]?.name}`,
+                owner: `${data.features[data1.length]?.owner[0]}`,
+                modifiedAt: `${data.features[data1.length]?.modifiedAt}`,
+                createdAt: `${data.features[data1.length]?.createdAt}`,
+                archived: `${data.features[data1.length]?.archived}`,
+                kind: `${data.features[data1.length]?.kind}`,
+                identifier: `${data.features[data1.length]?.identifier}`,
+                status: `${data.features[data1.length]?.status.status}`,
+                state: `${data.features[data1.length]?.envProperties.state}`,
+              });
             return data1;
           };
-          getFeatureList();
-
+          setCurrTableData(getFeatureList());
         }
         fetchFeatures();
       }
-
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, envId]);
-  
 
   const handleChange = (event: SelectChangeEvent) => {
     setEnvId(event.target.value as string);
@@ -250,7 +253,7 @@ function FeatureList() {
         </Box>
         &nbsp;&nbsp;
         <Table
-          options={{ paging: true, filtering: true }}
+          options={{ paging: true }}
           data={currTableData ?? []}
           columns={columns}
           actions={[
@@ -270,7 +273,6 @@ function FeatureList() {
           }
           title="Feature Flags"
           totalCount={totalElements}
-
         />
       </div>
     </>

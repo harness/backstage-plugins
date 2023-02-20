@@ -12,7 +12,7 @@ Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
 ## Getting started
 
-We have video tutorial for the plugin. 
+We have video tutorial for the plugin.
 
 [![Watch here](http://img.youtube.com/vi/XDNdInYwiuw/0.jpg)](http://www.youtube.com/watch?v=XDNdInYwiuw)
 
@@ -44,11 +44,11 @@ proxy:
 # ...
 ```
 
-Notes: 
+Notes:
 
-* Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions
+- Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions
 
-* Set the value of target to your on-prem URL if you are using the Harness on-prem offering
+- Set the value of target to your on-prem URL if you are using the Harness on-prem offering
 
 3. Inside your Backstage's `EntityPage.tsx`, update the `cicdContent` component to render `<EntityHarnessCiCdContent />` whenever the service is using Harness CI/CD. Something like this -
 
