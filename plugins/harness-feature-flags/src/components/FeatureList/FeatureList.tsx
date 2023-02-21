@@ -9,7 +9,7 @@ import {
   MenuItem,
   Typography,
 } from '@material-ui/core';
-import { Table, TableColumn } from '@backstage/core-components';
+import { EmptyState, Table, TableColumn } from '@backstage/core-components';
 import RetryIcon from '@material-ui/icons/Replay';
 import {
   discoveryApiRef,
@@ -22,6 +22,14 @@ import FormHelperText from '@mui/material/FormHelperText';
 import dayjs from 'dayjs';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 
+enum AsyncStatus {
+  Init,
+  Loading,
+  Success,
+  Error,
+  Unauthorized,
+}
+
 interface TableData {
   name: string;
   archived: string;
@@ -32,6 +40,7 @@ interface TableData {
   identifier: string;
   status: string;
   state: string;
+  pipelineConfigured: string;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -49,10 +58,12 @@ const useStyles = makeStyles(theme => ({
 function FeatureList() {
   const [refresh, setRefresh] = useState(false);
   const [currTableData, setCurrTableData] = useState<any[]>([]);
+  const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
   const [envIds, setEnvIds] = useState<string[]>([]);
   const [envId, setEnvId] = React.useState('');
   const [totalElements, setTotalElements] = useState(50);
   const [done, setDone] = useState<boolean>(false);
+  const [flag, setFlag] = useState(false);
 
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
@@ -61,12 +72,17 @@ function FeatureList() {
   const baseUrl =
     config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
 
-  const { projectId, orgId, accountId } = useProjectSlugFromEntity();
+  const { projectId, orgId, accountId, urlParams } = useProjectSlugFromEntity();
 
   async function getFeatureEnv() {
     const resp = await fetch(
       `${await backendBaseUrl}/harness/gateway/ng/api/environments?accountId=${accountId}&outingId=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}`,
     );
+    if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
+      if (resp.status === 200) setState(AsyncStatus.Success);
+      else if (resp.status === 401) setState(AsyncStatus.Unauthorized);
+      else setState(AsyncStatus.Error);
+    }
     const data = await resp.json();
     data?.data?.content.map((obj: any) => {
       setEnvIds(env => [...env, obj.identifier]);
@@ -153,21 +169,33 @@ function FeatureList() {
       },
     },
     {
-      title: 'Created at',
+      title: 'Pipeline Configured',
       field: 'col5',
+      type: 'string',
+      render: (row: Partial<TableData>) => {
+        return (
+          <Typography style={{ fontSize: 'small', color: 'green' }}>
+            <b>{row.pipelineConfigured} </b>
+          </Typography>
+        );
+      },
+    },
+    {
+      title: 'Created at',
+      field: 'col6',
       type: 'date',
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.createdAt).format('DD MMM HH:mm');
+        const time = dayjs(row.createdAt).format('DD MMM HH:mm A');
         return <Typography>{time}</Typography>;
       },
     },
 
     {
       title: 'Modified At',
-      field: 'col6',
+      field: 'col7',
       type: 'date',
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.modifiedAt).format('DD MMM HH:mm');
+        const time = dayjs(row.modifiedAt).format('DD MMM HH:mm A');
         return <Typography>{time}</Typography>;
       },
     },
@@ -189,6 +217,11 @@ function FeatureList() {
           const resp2 = await fetch(
             `${await backendBaseUrl}/harness/gateway/cf/admin/features?${query}&metrics=true&flagCounts=true&name=&summary=true`,
           );
+          if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
+            if (resp2.status === 200) setState(AsyncStatus.Success);
+            else if (resp2.status === 401) setState(AsyncStatus.Unauthorized);
+            else setState(AsyncStatus.Error);
+          }
           const data = await resp2.json();
           if (data.itemCount < 50) {
             setTotalElements(data.itemCount);
@@ -206,10 +239,14 @@ function FeatureList() {
                 identifier: `${data.features[data1.length]?.identifier}`,
                 status: `${data.features[data1.length]?.status.status}`,
                 state: `${data.features[data1.length]?.envProperties.state}`,
+                pipelineConfigured: `${
+                  data.features[data1.length]?.envProperties.pipelineConfigured
+                }`,
               });
             return data1;
           };
           setCurrTableData(getFeatureList());
+          setFlag(true);
         }
         fetchFeatures();
       }
@@ -219,7 +256,47 @@ function FeatureList() {
 
   const handleChange = (event: SelectChangeEvent) => {
     setEnvId(event.target.value as string);
+    setState(AsyncStatus.Success);
+    // setFlag(false);
   };
+
+  if (
+    state === AsyncStatus.Init ||
+    state === AsyncStatus.Loading ||
+    (state === AsyncStatus.Success && !flag)
+  ) {
+    return (
+      <div className={classes.empty}>
+        <CircularProgress />
+      </div>
+    );
+  }
+  if (
+    !urlParams ||
+    state === AsyncStatus.Error ||
+    state === AsyncStatus.Unauthorized ||
+    (state === AsyncStatus.Success && currTableData.length === 0 && flag)
+  ) {
+    let description = '';
+    if (state === AsyncStatus.Unauthorized)
+      description =
+        'Could not find any Feature Flags, the x-api-key is either missing or incorrect in app-config.yaml under proxy settings.';
+    else if (!urlParams)
+      description =
+        'Could not find any Feature Flags, please check your project-url configuration in catalog-info.yaml.';
+    else if (state === AsyncStatus.Success && currTableData.length === 0)
+      description = 'No Feature Flags configured';
+    else
+      description =
+        'Could not find any Feature Flags, please check your configurations in catalog-info.yaml or check your permissions.';
+    return (
+      <EmptyState
+        title="Harness Feature Flags"
+        description={description}
+        missing="data"
+      />
+    );
+  }
 
   return (
     <>
