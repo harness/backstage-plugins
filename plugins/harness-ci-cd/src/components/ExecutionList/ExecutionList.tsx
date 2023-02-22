@@ -1,5 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable @typescript-eslint/no-shadow */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
