@@ -50,7 +50,7 @@ proxy:
   '/harness':
     target: 'https://app.harness.io/'
     headers:
-      'x-api-key': ${HARNESS_API_KEY}
+      'x-api-key': pat.6_vVHzo9Qeu9fXvj-AcbCQ.63f6f8d7db15f9783b3ea29c.AqubX2H8SiMEBadXquED
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
