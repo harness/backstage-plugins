@@ -16,9 +16,8 @@ export const harnessFeatureFlagsPlugin = createPlugin({
 export const HarnessFeatureFlagsPage = harnessFeatureFlagsPlugin.provide(
   createRoutableExtension({
     name: 'HarnessFeatureFlagsPage',
-    component: () =>
-      import('./components/ExampleComponent').then(m => m.ExampleComponent),
-    mountPoint: rootRouteRef,
+    component: () => import('./components/Router').then(m => m.Router),
+    mountPoint: harnessFeatureFlagsRouteRef,
   }),
 );
 
