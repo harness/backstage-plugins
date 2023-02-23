@@ -956,7 +956,6 @@ function ExecutionList() {
       });
     }
     if (toggle) {
-      // eslint-disable-next-line @typescript-eslint/no-shadow
       const response = await fetch(
         `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
         {

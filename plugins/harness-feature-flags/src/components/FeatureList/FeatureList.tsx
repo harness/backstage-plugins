@@ -200,6 +200,7 @@ function FeatureList() {
       },
     },
   ];
+
   useAsyncRetry(async () => {
     const query = new URLSearchParams({
       routingId: `${accountId}`,
@@ -212,8 +213,7 @@ function FeatureList() {
       if (!envId) {
         setEnvId(envIds[0]);
       } else {
-        // eslint-disable-next-line no-inner-declarations
-        async function fetchFeatures() {
+        const fn = async function fetchFeatures() {
           const resp2 = await fetch(
             `${await backendBaseUrl}/harness/gateway/cf/admin/features?${query}&metrics=true&flagCounts=true&name=&summary=true`,
           );
@@ -227,55 +227,28 @@ function FeatureList() {
             setTotalElements(data.itemCount);
           }
           const getFeatureList = (): Array<{}> => {
-            // const data1: Array<TableData> = [];
-            // while (data1.length < data.itemCount)
-            //   data1.push({
-            //     name: `${data.features[data1.length]?.name}`,
-            //     owner: `${data.features[data1.length]?.owner[0]}`,
-            //     modifiedAt: `${data.features[data1.length]?.modifiedAt}`,
-            //     createdAt: `${data.features[data1.length]?.createdAt}`,
-            //     archived: `${data.features[data1.length]?.archived}`,
-            //     kind: `${data.features[data1.length]?.kind}`,
-            //     identifier: `${data.features[data1.length]?.identifier}`,
-            //     status: `${data.features[data1.length]?.status.status}`,
-            //     state: `${data.features[data1.length]?.envProperties.state}`,
-            //     pipelineConfigured: `${
-            //       data.features[data1.length]?.envProperties.pipelineConfigured
-            //     }`,
-            //   });
-            // return data1;
-            const data1 = data.features
-              .slice(0, 50)
-              .map(
-                (feature: {
-                  name: any;
-                  owner: any[];
-                  modifiedAt: any;
-                  createdAt: any;
-                  archived: any;
-                  kind: any;
-                  identifier: any;
-                  status: { status: any };
-                  envProperties: { state: any; pipelineConfigured: any };
-                }) => ({
-                  name: `${feature?.name}`,
-                  owner: `${feature?.owner[0]}`,
-                  modifiedAt: `${feature?.modifiedAt}`,
-                  createdAt: `${feature?.createdAt}`,
-                  archived: `${feature?.archived}`,
-                  kind: `${feature?.kind}`,
-                  identifier: `${feature?.identifier}`,
-                  status: `${feature?.status.status}`,
-                  state: `${feature?.envProperties.state}`,
-                  pipelineConfigured: `${feature?.envProperties.pipelineConfigured}`,
-                }),
-              );
+            const data1: Array<TableData> = [];
+            while (data1.length < data.itemCount)
+              data1.push({
+                name: `${data.features[data1.length]?.name}`,
+                owner: `${data.features[data1.length]?.owner[0]}`,
+                modifiedAt: `${data.features[data1.length]?.modifiedAt}`,
+                createdAt: `${data.features[data1.length]?.createdAt}`,
+                archived: `${data.features[data1.length]?.archived}`,
+                kind: `${data.features[data1.length]?.kind}`,
+                identifier: `${data.features[data1.length]?.identifier}`,
+                status: `${data.features[data1.length]?.status.status}`,
+                state: `${data.features[data1.length]?.envProperties.state}`,
+                pipelineConfigured: `${
+                  data.features[data1.length]?.envProperties.pipelineConfigured
+                }`,
+              });
             return data1;
           };
           setCurrTableData(getFeatureList());
           setFlag(true);
-        }
-        fetchFeatures();
+        };
+        fn();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
