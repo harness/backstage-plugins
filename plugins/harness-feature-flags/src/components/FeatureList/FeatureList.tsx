@@ -227,22 +227,30 @@ function FeatureList() {
             setTotalElements(data.itemCount);
           }
           const getFeatureList = (): Array<{}> => {
-            const data1: Array<TableData> = [];
-            while (data1.length < data.itemCount)
-              data1.push({
-                name: `${data.features[data1.length]?.name}`,
-                owner: `${data.features[data1.length]?.owner[0]}`,
-                modifiedAt: `${data.features[data1.length]?.modifiedAt}`,
-                createdAt: `${data.features[data1.length]?.createdAt}`,
-                archived: `${data.features[data1.length]?.archived}`,
-                kind: `${data.features[data1.length]?.kind}`,
-                identifier: `${data.features[data1.length]?.identifier}`,
-                status: `${data.features[data1.length]?.status.status}`,
-                state: `${data.features[data1.length]?.envProperties.state}`,
-                pipelineConfigured: `${
-                  data.features[data1.length]?.envProperties.pipelineConfigured
-                }`,
-              });
+            const data1 = data.features.map(
+              (feature: {
+                name: string;
+                archived: string;
+                owner: string;
+                createdAt?: string;
+                modifiedAt?: any;
+                kind?: string;
+                identifier: string;
+                status: { status: any };
+                envProperties: { state: string; pipelineConfigured: string };
+              }) => ({
+                name: `${feature?.name}`,
+                owner: `${feature?.owner[0]}`,
+                modifiedAt: `${feature?.modifiedAt}`,
+                createdAt: `${feature?.createdAt}`,
+                archived: `${feature?.archived}`,
+                kind: `${feature?.kind}`,
+                identifier: `${feature?.identifier}`,
+                status: `${feature?.status.status}`,
+                state: `${feature?.envProperties.state}`,
+                pipelineConfigured: `${feature?.envProperties.pipelineConfigured}`,
+              }),
+            );
             return data1;
           };
           setCurrTableData(getFeatureList());
