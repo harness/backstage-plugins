@@ -16,9 +16,8 @@ export const harnessCiCdPlugin = createPlugin({
 export const HarnessCiCdPage = harnessCiCdPlugin.provide(
   createRoutableExtension({
     name: 'HarnessCiCdPage',
-    component: () =>
-      import('./components/ExampleComponent').then(m => m.ExampleComponent),
-    mountPoint: rootRouteRef,
+    component: () => import('./components/Router').then(m => m.Router),
+    mountPoint: harnessCiCdRouteRef,
   }),
 );
 export const EntityHarnessCiCdContent = harnessCiCdPlugin.provide(
