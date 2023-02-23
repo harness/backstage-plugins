@@ -223,7 +223,7 @@ function FeatureList() {
             else setState(AsyncStatus.Error);
           }
           const data = await resp2.json();
-          if (data.itemCount < 50) {
+          if (data.itemCount < data.featureCounts.totalFeatures) {
             setTotalElements(data.itemCount);
           }
           const getFeatureList = (): Array<{}> => {
