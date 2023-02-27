@@ -44,11 +44,7 @@ proxy:
 # ...
 ```
 
-Notes: 
-
-* Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions
-
-* Set the value of target to your on-prem URL if you are using the Harness on-prem offering
+Note: Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions.
 
 3. Inside your Backstage's `EntityPage.tsx`, update the `cicdContent` component to render `<EntityHarnessCiCdContent />` whenever the service is using Harness CI/CD. Something like this -
 
