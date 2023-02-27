@@ -228,11 +228,6 @@ function FeatureList() {
           const resp2 = await fetch(
             `${await backendBaseUrl}/harness/gateway/cf/admin/features?${query}&metrics=true&flagCounts=true&name=&summary=true`,
           );
-          // if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
-          //   if (resp2.status === 200) setState(AsyncStatus.Success);
-          //   else if (resp2.status === 401) setState(AsyncStatus.Unauthorized);
-          //   else setState(AsyncStatus.Error);
-          // }
           const data = await resp2.json();
           if (data.itemCount < data.featureCounts.totalFeatures) {
             setTotalElements(data.itemCount);
@@ -265,17 +260,6 @@ function FeatureList() {
     setState(AsyncStatus.Success);
   };
 
-  // if (
-  //   state === AsyncStatus.Init ||
-  //   state === AsyncStatus.Loading ||
-  //   (state === AsyncStatus.Success && !flag)
-  // ) {
-  //   return (
-  //     <div className={classes.empty}>
-  //       <CircularProgress />
-  //     </div>
-  //   );
-  // }
   if (
     !urlParams ||
     state === AsyncStatus.Error ||
