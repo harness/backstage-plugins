@@ -42,6 +42,17 @@ interface TableData {
   state: string;
   pipelineConfigured: string;
 }
+interface Feature {
+  name?: string;
+  archived?: string;
+  owner?: string[];
+  createdAt?: string;
+  modifiedAt?: any;
+  kind?: string;
+  identifier?: string;
+  status?: { status: any };
+  envProperties?: { state: string; pipelineConfigured: string };
+}
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -226,31 +237,19 @@ function FeatureList() {
           if (data.itemCount < data.featureCounts.totalFeatures) {
             setTotalElements(data.itemCount);
           }
-          const getFeatureList = (): Array<{}> => {
-            const data1 = data.features.map(
-              (feature: {
-                name: string;
-                archived: string;
-                owner: string;
-                createdAt?: string;
-                modifiedAt?: any;
-                kind?: string;
-                identifier: string;
-                status: { status: any };
-                envProperties: { state: string; pipelineConfigured: string };
-              }) => ({
-                name: `${feature?.name}`,
-                owner: `${feature?.owner[0]}`,
-                modifiedAt: `${feature?.modifiedAt}`,
-                createdAt: `${feature?.createdAt}`,
-                archived: `${feature?.archived}`,
-                kind: `${feature?.kind}`,
-                identifier: `${feature?.identifier}`,
-                status: `${feature?.status.status}`,
-                state: `${feature?.envProperties.state}`,
-                pipelineConfigured: `${feature?.envProperties.pipelineConfigured}`,
-              }),
-            );
+          const getFeatureList = (): Feature[] => {
+            const data1 = data.features.map((feature: Feature) => ({
+              name: feature?.name,
+              owner: feature?.owner?.[0],
+              modifiedAt: feature?.modifiedAt,
+              createdAt: feature?.createdAt,
+              archived: feature?.archived,
+              kind: feature?.kind,
+              identifier: feature?.identifier,
+              status: feature?.status?.status,
+              state: feature?.envProperties?.state,
+              pipelineConfigured: feature?.envProperties?.pipelineConfigured,
+            }));
             return data1;
           };
           setCurrTableData(getFeatureList());
