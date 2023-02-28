@@ -60,6 +60,11 @@ import {
   isHarnessCiCdAvailable,
 } from '@harnessio/backstage-plugin-ci-cd';
 
+import {
+  isHarnessFeatureFlagAvailable,
+  EntityHarnessFeatureFlagContent,
+} from '@internal/plugin-harness-feature-flags';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -71,6 +76,7 @@ const techdocsContent = (
 const cicdContent = (
   // This is an example of how you can implement your company's logic in entity page.
   // You can for example enforce that all components of type 'service' should use GitHubActions
+
   <EntitySwitch>
     <EntitySwitch.Case if={isHarnessCiCdAvailable}>
       <EntityHarnessCiCdContent />
@@ -98,7 +104,30 @@ const cicdContent = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
+const featureFlagList = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={isHarnessFeatureFlagAvailable}>
+      <EntityHarnessFeatureFlagContent />
+    </EntitySwitch.Case>
 
+    <EntitySwitch.Case>
+      <EmptyState
+        title="No Feature Flags available for this entity"
+        missing="info"
+        description="You need to add an annotation to your component if you want to enable Feature Flags for it. You can read more about annotations in Backstage by clicking the button below."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
+          >
+            Read more
+          </Button>
+        }
+      />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
 const entityWarningContent = (
   <>
     <EntitySwitch>
@@ -148,6 +177,10 @@ const serviceEntityPage = (
       {cicdContent}
     </EntityLayout.Route>
 
+    <EntityLayout.Route path="/feature-flag" title="Feature Flags">
+      {featureFlagList}
+    </EntityLayout.Route>
+
     <EntityLayout.Route path="/api" title="API">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item md={6}>
@@ -184,6 +217,10 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/feature-flag" title="Feature Flags">
+      {featureFlagList}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/dependencies" title="Dependencies">
