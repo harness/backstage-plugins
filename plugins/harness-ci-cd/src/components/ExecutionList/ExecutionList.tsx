@@ -704,6 +704,7 @@ function ExecutionList() {
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
+
   const baseUrl =
     config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const boolDisableRunPipeline =
