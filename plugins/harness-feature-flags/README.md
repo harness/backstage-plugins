@@ -58,7 +58,7 @@ Notes:
 import {
   isHarnessFeatureFlagAvailable,
   EntityHarnessFeatureFlagContent,
-} from '@internal/plugin-harness-feature-flags';
+} from '@harnessio/backstage-plugin-feature-flags';
 
 const featureFlagList = (
   <EntitySwitch>
