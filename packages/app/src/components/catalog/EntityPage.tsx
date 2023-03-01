@@ -63,7 +63,7 @@ import {
 import {
   isHarnessFeatureFlagAvailable,
   EntityHarnessFeatureFlagContent,
-} from '@internal/plugin-harness-feature-flags';
+} from '@harnessio/backstage-plugin-feature-flags';
 
 const techdocsContent = (
   <EntityTechdocsContent>
