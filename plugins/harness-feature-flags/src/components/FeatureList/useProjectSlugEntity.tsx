@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { match } from 'path-to-regexp';
 
