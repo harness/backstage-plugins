@@ -9,13 +9,6 @@ Welcome to the Harness Feature Flags plugin for Backstage!
 <img src="./src/assets/FeatureList.png" />
 <img src="./src/assets/ListofEnvironment.png" />
 
-## Getting Started
-
-We have video tutorial for the plugin. 
-
-[![Watch here](http://img.youtube.com/vi/XDNdInYwiuw/0.jpg)](http://www.youtube.com/watch?v=XDNdInYwiuw)
-
-
 ## Setup steps
 
 1. Open terminal and navigate to the _root of your Backstage app_. Then run
@@ -44,11 +37,11 @@ proxy:
 # ...
 ```
 
-Notes: 
+Notes:
 
-* Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions
+- Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions
 
-* Set the value of target to your on-prem URL if you are using the Harness on-prem offering
+- Set the value of target to your on-prem URL if you are using the Harness on-prem offering
 
 3. Inside your Backstage's `EntityPage.tsx`, add the new `featureFlagList` component to render `<EntityHarnessFeatureFlagContent />` whenever the service is using Harness Feature Flags. Something like this -
 
@@ -59,6 +52,8 @@ import {
   isHarnessFeatureFlagAvailable,
   EntityHarnessFeatureFlagContent,
 } from '@harnessio/backstage-plugin-feature-flags';
+
+...
 
 const featureFlagList = (
   <EntitySwitch>
@@ -84,7 +79,21 @@ const featureFlagList = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
+
+...
+
+const serviceEntityPage = (
+  <EntityLayout>
+    <EntityLayout.Route path="/feature-flag" title="Feature Flags">
+      {featureFlagList}
+    </EntityLayout.Route>
+  </EntityLayout>
+);
+
+...
+
 ```
+
 4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file. Here is an example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml
 
 ```yaml
@@ -120,8 +129,9 @@ If you have a separate Harness hosted URL other than `https://app.harness.io`, y
 harness:
   baseUrl: https://app.harness.io/
 ```
+
 ## Features
 
-- Connect a Backstage service with a Harness project and view the list of  all Feature Flags.
+- Connect a Backstage service with a Harness project and view the list of all Feature Flags.
 - See details about a Feature Flags - state(on/off), type and status environment, last modified and created.
-- Filter the Feature Flags and their corresponding information according to the Environments. 
+- Filter the Feature Flags and their corresponding information according to the Environments.

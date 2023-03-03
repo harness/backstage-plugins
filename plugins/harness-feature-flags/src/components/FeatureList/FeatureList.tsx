@@ -34,8 +34,8 @@ interface TableData {
   name: string;
   archived: string;
   owner: string;
-  createdAt?: string;
-  modifiedAt?: any;
+  createdAt?: any;
+  modifiedAt?: string;
   kind?: string;
   identifier: string;
   status: string;
@@ -46,8 +46,8 @@ interface Feature {
   name?: string;
   archived?: string;
   owner?: string[];
-  createdAt?: string;
-  modifiedAt?: any;
+  createdAt?: any;
+  modifiedAt?: string;
   kind?: string;
   identifier?: string;
   status?: { status: any };
@@ -196,7 +196,7 @@ function FeatureList() {
       field: 'col6',
       type: 'date',
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.createdAt).format('DD MMM HH:mm A');
+        const time = dayjs(row.createdAt).format('DD MMM YYYY HH:mm A [GMT]');
         return <Typography>{time}</Typography>;
       },
     },
@@ -206,7 +206,7 @@ function FeatureList() {
       field: 'col7',
       type: 'date',
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.modifiedAt).format('DD MMM HH:mm A');
+        const time = dayjs(row.modifiedAt).format('DD MMM YYYY HH:mm A [GMT]');
         return <Typography>{time}</Typography>;
       },
     },
