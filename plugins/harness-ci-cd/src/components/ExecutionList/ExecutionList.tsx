@@ -700,21 +700,55 @@ function ExecutionList() {
   const [renderedOnce, setRenderedOnce] = useState(true);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
+  const [env, setEnv] = useState('prod');
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
-  const baseUrl =
+  const baseUrl1 =
     config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
+    
 
-  const { projectId, orgId, accountId, pipelineId, serviceId, urlParams } =
+
+  const { projectId, orgId, accountId, pipelineId, serviceId, urlParams, hostname, baseUrl } =
     useProjectSlugFromEntity();
+
+
+    const prod = 'production';
+    const stress = 'staging';
+    const qa = 'qa';
+  
+    async function getBaseUrl() {
+      const response = await fetch(`${baseUrl1}`);
+      const data = await response.json();
+      return data.url;
+    }
+  
+    useEffect(() => {
+      async function fetchData() {
+        const url = await getBaseUrl();
+      }
+      fetchData();
+      
+      if (hostname === prod) {
+        setEnv('prod');
+      }
+      if (hostname === stress) {
+        setEnv('stress');
+      }
+      if (hostname === qa) {
+        setEnv('qa');
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+  
+
   async function getLicense() {
     const response = await fetch(
-      `${await backendBaseUrl}/harness/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
+      `${await backendBaseUrl}/harness${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
     );
     if (response.status === 200) {
       const data = await response.json();
@@ -728,11 +762,13 @@ function ExecutionList() {
     // eslint-disable-next-line
   }, []);
 
+
+
   async function getPipeLineByService() {
     const list = serviceId;
     const service1 = list?.split(',').map(item => item.trim()) || '';
     const resp = await fetch(
-      `${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
+      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
         service1[0]
       }`,
     );
@@ -791,7 +827,7 @@ function ExecutionList() {
         paddingLeft: '30px',
       },
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         const id = parseInt(row.id ? row.id : '0', 10);
         return (
           <Link href={link} target="_blank">
@@ -805,7 +841,7 @@ function ExecutionList() {
       field: 'col1',
       width: '22%',
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         return (
           <Typography style={{ fontSize: 'small', color: 'grey' }}>
             <Link href={link} target="_blank" style={{ fontSize: '0.9rem' }}>
