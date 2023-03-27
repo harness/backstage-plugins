@@ -47,8 +47,20 @@ integrations:
     #   token: ${GHE_TOKEN}
 
 proxy:
-  '/harness':
+  '/harness/prod':
     target: 'https://app.harness.io/'
+    headers:
+      'x-api-key': ${HARNESS_API_KEY}
+  '/harness/qa':
+    target: 'https://qa.harness.io/'
+    headers:
+      'x-api-key': ${HARNESS_API_KEY}
+  '/harness/stage':
+    target: 'https://stage.harness.io/'
+    headers:
+      'x-api-key': ${HARNESS_API_KEY}
+  '/harness/stress':
+    target: 'https://stress.harness.io/'
     headers:
       'x-api-key': ${HARNESS_API_KEY}
 
