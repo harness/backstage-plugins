@@ -725,6 +725,7 @@ function ExecutionList() {
   const qa = 'qa';
   const stage = 'stage';
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   async function getBaseUrl() {
     const response = await fetch(`${baseUrl1}`);
     if (response.status === 200) {
@@ -733,9 +734,7 @@ function ExecutionList() {
   }
 
   useEffect(() => {
-    async function fetchData() {
-    }
-    fetchData();
+    getBaseUrl();
     if (hostname === stage) {
       setEnv('stage');
     }
@@ -745,8 +744,7 @@ function ExecutionList() {
     if (hostname === qa) {
       setEnv('qa');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getBaseUrl, hostname]);
 
   async function getLicense() {
     const response = await fetch(
