@@ -12,8 +12,8 @@ export const useProjectSlugFromEntity = () => {
   const pipelineId = entity.metadata.annotations?.[pipelineid];
   const serviceId = entity.metadata.annotations?.[serviceid];
   const uRL = entity.metadata.annotations?.[url];
-  const hostname = new URL(uRL ?? "").hostname;
-  const baseUrl = new URL(uRL ?? "").origin;
+  const hostname = new URL(uRL ?? '').hostname;
+  const baseUrl = new URL(uRL ?? '').origin;
   const urlMatch = match(
     '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/(.*)',
     {
@@ -28,5 +28,14 @@ export const useProjectSlugFromEntity = () => {
     projectId = urlParams.params.projectId;
   }
 
-  return { projectId, orgId, accountId, pipelineId, serviceId, urlParams, hostname, baseUrl };
+  return {
+    projectId,
+    orgId,
+    accountId,
+    pipelineId,
+    serviceId,
+    urlParams,
+    hostname,
+    baseUrl,
+  };
 };

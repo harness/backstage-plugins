@@ -710,41 +710,45 @@ function ExecutionList() {
     config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
-    
 
+  const {
+    projectId,
+    orgId,
+    accountId,
+    pipelineId,
+    serviceId,
+    urlParams,
+    hostname,
+    baseUrl,
+  } = useProjectSlugFromEntity();
 
-  const { projectId, orgId, accountId, pipelineId, serviceId, urlParams, hostname, baseUrl } =
-    useProjectSlugFromEntity();
+  const stress = 'stress';
+  const qa = 'qa';
+  const stage = 'stage';
 
-
-    const prod = 'production';
-    const stress = 'staging';
-    const qa = 'qa';
-  
-    async function getBaseUrl() {
-      const response = await fetch(`${baseUrl1}`);
-      const data = await response.json();
-      return data.url;
+  async function getBaseUrl() {
+    const response = await fetch(`${baseUrl1}`);
+    if (response.status === 200) {
+      setEnv('prod');
     }
-  
-    useEffect(() => {
-      async function fetchData() {
-        const url = await getBaseUrl();
-      }
-      fetchData();
-      
-      if (hostname === prod) {
-        setEnv('prod');
-      }
-      if (hostname === stress) {
-        setEnv('stress');
-      }
-      if (hostname === qa) {
-        setEnv('qa');
-      }
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      const url = await getBaseUrl();
+    }
+    fetchData();
+    if (hostname === stage) {
+      setEnv('stage');
+    }
+    if (hostname === stress) {
+      setEnv('stress');
+    }
+    if (hostname === qa) {
+      setEnv('qa');
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-  
+  }, []);
 
   async function getLicense() {
     const response = await fetch(
@@ -761,8 +765,6 @@ function ExecutionList() {
     getLicense();
     // eslint-disable-next-line
   }, []);
-
-
 
   async function getPipeLineByService() {
     const list = serviceId;
