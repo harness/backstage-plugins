@@ -719,7 +719,6 @@ function ExecutionList() {
     serviceId,
     urlParams,
     hostname,
-    baseUrl,
   } = useProjectSlugFromEntity();
 
   const stress = 'stress';
@@ -735,7 +734,6 @@ function ExecutionList() {
 
   useEffect(() => {
     async function fetchData() {
-      const url = await getBaseUrl();
     }
     fetchData();
     if (hostname === stage) {
