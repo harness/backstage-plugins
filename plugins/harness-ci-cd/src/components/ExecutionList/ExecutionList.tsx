@@ -721,20 +721,15 @@ function ExecutionList() {
     hostname,
   } = useProjectSlugFromEntity();
 
-  const stress = 'stress';
-  const qa = 'qa';
-  const stage = 'stage';
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  async function getBaseUrl() {
-    const response = await fetch(`${baseUrl1}`);
-    if (response.status === 200) {
-      setEnv('prod');
-    }
-  }
+  const stress = 'stress.harness.io';
+  const qa = 'qa.harness.io';
+  const stage = 'stage.harness.io';
+  const prod = 'app.harness.io';
 
   useEffect(() => {
-    getBaseUrl();
+    if (hostname === prod) {
+      setEnv('prod');
+    }
     if (hostname === stage) {
       setEnv('stage');
     }
@@ -744,11 +739,13 @@ function ExecutionList() {
     if (hostname === qa) {
       setEnv('qa');
     }
-  }, [getBaseUrl, hostname]);
+    getLicense();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function getLicense() {
     const response = await fetch(
-      `${await backendBaseUrl}/harness${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
+      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
     );
     if (response.status === 200) {
       const data = await response.json();
@@ -757,10 +754,6 @@ function ExecutionList() {
       }
     }
   }
-  useEffect(() => {
-    getLicense();
-    // eslint-disable-next-line
-  }, []);
 
   async function getPipeLineByService() {
     const list = serviceId;
@@ -777,7 +770,7 @@ function ExecutionList() {
     const jsondata = await resp.json();
     const serviceName = jsondata?.data?.name;
     const response = await fetch(
-      `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
       {
         headers: {
           'content-type': 'application/json',
@@ -992,7 +985,7 @@ function ExecutionList() {
     }
     if (toggle) {
       const response = await fetch(
-        `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
+        `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
         {
           method: 'POST',
         },
