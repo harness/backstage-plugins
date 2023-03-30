@@ -706,8 +706,6 @@ function ExecutionList() {
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
-  const baseUrl1 =
-    config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
@@ -818,7 +816,7 @@ function ExecutionList() {
         paddingLeft: '30px',
       },
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl1}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${env}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         const id = parseInt(row.id ? row.id : '0', 10);
         return (
           <Link href={link} target="_blank">
@@ -832,7 +830,7 @@ function ExecutionList() {
       field: 'col1',
       width: '22%',
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl1}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${env}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         return (
           <Typography style={{ fontSize: 'small', color: 'grey' }}>
             <Link href={link} target="_blank" style={{ fontSize: '0.9rem' }}>
