@@ -13,7 +13,7 @@ export const useProjectSlugFromEntity = () => {
   const serviceId = entity.metadata.annotations?.[serviceid];
   const uRL = entity.metadata.annotations?.[url];
   const hostname = new URL(uRL ?? '').hostname;
-  const baseUrl = new URL(uRL ?? '').origin;
+  const baseUrl1 = new URL(uRL ?? '').origin;
   const urlMatch = match(
     '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/(.*)',
     {
@@ -36,6 +36,6 @@ export const useProjectSlugFromEntity = () => {
     serviceId,
     urlParams,
     hostname,
-    baseUrl,
+    baseUrl1,
   };
 };
