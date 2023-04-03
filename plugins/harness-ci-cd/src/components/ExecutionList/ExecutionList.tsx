@@ -706,8 +706,6 @@ function ExecutionList() {
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
-  const baseUrl1 =
-    config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
@@ -719,6 +717,7 @@ function ExecutionList() {
     serviceId,
     urlParams,
     hostname,
+    baseUrl1,
   } = useProjectSlugFromEntity();
 
   const stress = 'stress.harness.io';
@@ -741,7 +740,7 @@ function ExecutionList() {
     }
     getLicense();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [env]);
 
   async function getLicense() {
     const response = await fetch(
@@ -754,7 +753,6 @@ function ExecutionList() {
       }
     }
   }
-
   async function getPipeLineByService() {
     const list = serviceId;
     const service1 = list?.split(',').map(item => item.trim()) || '';
