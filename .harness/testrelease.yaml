@@ -75,6 +75,9 @@ pipeline:
                       limits:
                         memory: 8Gi
                         cpu: 2000m
+                  when:
+                    stageStatus: All
+                  failureStrategies: []
               - step:
                   type: Action
                   name: changesets
@@ -88,6 +91,9 @@ pipeline:
                       CI: "true"
                       GITHUB_TOKEN: <+secrets.getValue("GITHUB_TOKEN")>
                       NPM_TOKEN: <+secrets.getValue("npm_token")>
+                  when:
+                    stageStatus: All
+                  failureStrategies: []
           platform:
             os: Linux
             arch: Amd64
