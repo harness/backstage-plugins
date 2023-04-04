@@ -28,7 +28,7 @@ pipeline:
                   spec:
                     uses: actions/setup-node@v1
                     with:
-                      node-version: "16"
+                      node-version: 16.x
                   failureStrategies: []
               - step:
                   type: Run
