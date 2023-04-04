@@ -58,7 +58,7 @@ pipeline:
                       # root build is required for
                       cd plugins/harness-feature-flags/
                       pwd
-                      npm config set //registry.npmjs.org/:_authToken <+pipeline.variables.npm_token>
+                      npm config set //registry.npmjs.org/:_authToken <+secrets.getValue("npm_token")>
                       yarn install
                       yarn tsc
                       yarn build
@@ -84,8 +84,8 @@ pipeline:
                     with:
                       id: changesets
                       publish: yarn release
-                      GITHUB_TOKEN: <+secrets.getValue("doc-secret")>
-                      NPM_TOKEN: <+secrets.npm_token>
+                      GITHUB_TOKEN: <+secrets.getValue("GITHUB_TOKEN")>
+                      NPM_TOKEN: <+secrets.getValue("npm_token")>
                     env:
                       CI: "true"
           platform:
