@@ -65,4 +65,4 @@ pipeline:
       value: account.githubbotharness
     - name: npm_token
       type: Secret
-      value: npmtoken
+      value: npm_token
