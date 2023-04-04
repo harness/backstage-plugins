@@ -1,0 +1,14 @@
+inputSet:
+  name: Automation Inputset
+  identifier: Automation_Inputset
+  orgIdentifier: default
+  projectIdentifier: NgLabs
+  pipeline:
+    identifier: testrelease
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
