@@ -14,6 +14,37 @@ pipeline:
           execution:
             steps:
               - step:
+                  type: Action
+                  name: Checkout
+                  identifier: Checkout
+                  spec:
+                    uses: actions/checkout@v2
+                    with:
+                      fetch-depth: "0"
+              - step:
+                  type: Action
+                  name: Use Node JS
+                  identifier: Use_Node_JS
+                  spec:
+                    uses: actions/setup-node@v1
+                    with:
+                      node-version: <+matrix.deps>
+                  failureStrategies: []
+              - step:
+                  type: Run
+                  name: Lint and prettier check
+                  identifier: Lint_and_prettier_check
+                  spec:
+                    connectorRef: harnessnew
+                    image: node:16
+                    shell: Sh
+                    command: |-
+                      yarn install
+                      yarn lint
+                      yarn tsc
+                      yarn build
+                      yarn prettier:check
+              - step:
                   type: Run
                   name: npm publish
                   identifier: npm_publish
@@ -44,6 +75,19 @@ pipeline:
                       limits:
                         memory: 8Gi
                         cpu: 2000m
+              - step:
+                  type: Action
+                  name: Create Release Pull Request or Publish to npm
+                  identifier: Create_Release_Pull_Request_or_Publish_to_npm
+                  spec:
+                    uses: changesets/action@v1
+                    with:
+                      id: changesets
+                      publish: yarn release
+                      GITHUB_TOKEN: <+secrets.getValue("doc-secret")>
+                      NPM_TOKEN: <+secrets.npm_token>
+                    env:
+                      CI: "true"
           platform:
             os: Linux
             arch: Amd64
