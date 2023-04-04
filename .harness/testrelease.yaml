@@ -62,8 +62,10 @@ pipeline:
                       yarn install
                       yarn tsc
                       yarn build
+                      yarn changeset
+                      yarn changeset version
                       # npm publish --verbose
-                      yarn publish --non-interactive
+                      yarn changeset publish --non-interactive
 
                       # publish only ci-cd plugins 
                       #cd plugins/harness-ci-cd/
