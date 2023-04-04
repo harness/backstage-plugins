@@ -62,6 +62,7 @@ pipeline:
                       yarn install
                       yarn tsc
                       yarn build
+                      yarn add @changesets/cli && yarn changeset init
                       yarn changeset
                       yarn changeset version
                       # npm publish --verbose
