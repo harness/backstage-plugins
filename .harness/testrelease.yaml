@@ -62,8 +62,8 @@ pipeline:
                       yarn install
                       yarn tsc
                       yarn build
-                      #npm publish --verbose
-                      yarn publish --non-interactive
+                      # npm publish --verbose
+                      # yarn publish --non-interactive
 
                       # publish only ci-cd plugins 
                       #cd plugins/harness-ci-cd/
@@ -77,17 +77,17 @@ pipeline:
                         cpu: 2000m
               - step:
                   type: Action
-                  name: Create Release Pull Request or Publish to npm
+                  name: changesets
                   identifier: Create_Release_Pull_Request_or_Publish_to_npm
                   spec:
                     uses: changesets/action@v1
                     with:
                       id: changesets
                       publish: yarn release
-                      GITHUB_TOKEN: <+secrets.getValue("GITHUB_TOKEN")>
-                      NPM_TOKEN: <+secrets.getValue("npm_token")>
                     env:
                       CI: "true"
+                      GITHUB_TOKEN: <+secrets.getValue("GITHUB_TOKEN")>
+                      NPM_TOKEN: <+secrets.getValue("npm_token")>
           platform:
             os: Linux
             arch: Amd64
