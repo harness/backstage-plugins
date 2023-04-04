@@ -687,6 +687,7 @@ function PrintCD(props: any) {
   );
 }
 
+
 function ExecutionList() {
   const [refresh, setRefresh] = useState(false);
   const [currTableData, setCurrTableData] = useState<any[]>([]);
@@ -742,10 +743,36 @@ function ExecutionList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
 
-  async function getLicense() {
+  function getSecureHarnessKey(key: string): string | undefined {
+    try {
+      const token = JSON.parse(decodeURI(atob(localStorage.getItem(key) || '')));
+      return token ? `Bearer ${token}` : '';
+    } catch (err) {
+      console.error('Failed to read Harness tokens', err);
+      return undefined;
+    }
+  }
+  
+  async function fetchLicenseWithAuth(): Promise<Response> {
+    const token = getSecureHarnessKey('harnessBearerToken');
+    const value = token ? `Bearer ${token}` : '';
+  
+    const headers = new Headers({
+      'Authorization': value,
+    });
     const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
+      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`, 
+      {
+        headers
+      }
     );
+  
+    return response;
+  }
+  
+  async function getLicense() {
+    const response = await fetchLicenseWithAuth();
+  
     if (response.status === 200) {
       const data = await response.json();
       if (data?.data?.allModuleLicenses?.CD?.length === 0) {
@@ -753,30 +780,49 @@ function ExecutionList() {
       }
     }
   }
+  
   async function getPipeLineByService() {
     const list = serviceId;
     const service1 = list?.split(',').map(item => item.trim()) || '';
+  
+    const token = getSecureHarnessKey('harnessBearerToken');
+    const value = token ? `Bearer ${token}` : '';
+  
+    const headers = new Headers({
+      'content-type': 'application/json',
+      'Authorization': value,
+    });
+  
     const resp = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
-        service1[0]
-      }`,
+      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${service1[0]}`, 
+      {
+        headers,
+      }
     );
+  
     if (resp.status !== 200) {
       setToggle(true);
       setServiceToast(true);
     }
-    const jsondata = await resp.json();
-    const serviceName = jsondata?.data?.name;
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
-      {
-        headers: {
-          'content-type': 'application/json',
+
+  const jsondata = await resp.json();
+  const serviceName = jsondata?.data?.name;
+  const response = await fetch(
+    `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
+    {
+      headers,
+      body: JSON.stringify({
+        filterType: 'PipelineSetup',
+        moduleProperties: {
+          cd: {
+            serviceNames: [serviceName],
+          },
         },
-        body: `{\"filterType\":\"PipelineSetup\",\"moduleProperties\":{\"cd\":{\"serviceNames\":[\"${serviceName}\"]}}}`,
-        method: 'POST',
-      },
-    );
+      }),
+      method: 'POST',
+    }
+  );
+
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj: any) => {
       return obj.recentExecutionsInfo.length > 0;
