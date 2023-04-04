@@ -1,0 +1,70 @@
+pipeline:
+  name: testrelease
+  identifier: testrelease
+  projectIdentifier: NgLabs
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: Release
+        identifier: clone
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: localconnector
+              namespace: default
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: npm publish
+                  identifier: npm_publish
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: node:16
+                    shell: Sh
+                    command: |-
+                      set -ex
+
+                      # root build is required for
+                      cd plugins/harness-feature-flags/
+                      pwd
+                      npm config set //registry.npmjs.org/:_authToken <+pipeline.variables.npm_token>
+                      yarn install
+                      yarn tsc
+                      yarn build
+                      #npm publish --verbose
+                      yarn publish --non-interactive
+
+                      # publish only ci-cd plugins 
+                      #cd plugins/harness-ci-cd/
+                      # build gets triggered in prepublish step
+                      #yarn publish --non-interactive
+                    envVariables:
+                      GIT_BOT_TOKEN: <+pipeline.variables.GIT_BOT_TOKEN>
+                    resources:
+                      limits:
+                        memory: 8Gi
+                        cpu: 2000m
+  properties:
+    ci:
+      codebase:
+        connectorRef: gitconnectordhruba
+        repoName: backstage-plugins
+        build: <+input>
+  variables:
+    - name: GIT_BOT_TOKEN
+      type: Secret
+      value: account.githubbotharnesstoken
+    - name: BOT_PASSWORD
+      type: Secret
+      value: account.githubbotharness
+    - name: npm_token
+      type: Secret
+      value: npmtoken
