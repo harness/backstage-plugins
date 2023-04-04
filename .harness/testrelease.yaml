@@ -28,7 +28,7 @@ pipeline:
                   spec:
                     uses: actions/setup-node@v1
                     with:
-                      node-version: <+matrix.deps>
+                      node-version: "16"
                   failureStrategies: []
               - step:
                   type: Run
