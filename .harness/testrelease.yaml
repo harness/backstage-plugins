@@ -82,10 +82,10 @@ pipeline:
                   type: Action
                   name: changesets
                   identifier: Create_Release_Pull_Request_or_Publish_to_npm
+                  id: changesets
                   spec:
                     uses: changesets/action@v1
                     with:
-                      id: changesets
                       publish: yarn release
                     env:
                       CI: "true"
@@ -115,4 +115,4 @@ pipeline:
       value: account.githubbotharness
     - name: npm_token
       type: Secret
-      value: npm_token
+      value: <+secrets.getValue("npm_token")>
