@@ -123,126 +123,6 @@ interface AlertDialogProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   refresh: boolean;
 }
-function AlertDialog(props: AlertDialogProps) {
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  return (
-    <div>
-      <Tooltip title="Re-run Pipeline" arrow>
-        <IconButton aria-label="replay" onClick={handleClickOpen}>
-          <ReplayIcon />
-        </IconButton>
-      </Tooltip>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Run Pipeline</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Do you want to re-run this pipeline?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant="outlined" color="error">
-            cancel
-          </Button>
-          <Button
-            onClick={() => {
-              handleClose();
-              runPipeline(
-                Object(props.row),
-                props.backendBaseUrl,
-                props.query1,
-                props.setRefresh,
-                props.refresh,
-              );
-            }}
-            variant="contained"
-            color="success"
-          >
-            Run Pipeline
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
-}
-
-async function runPipeline(
-  row: TableData,
-  backendBaseUrl: Object,
-  query1: string,
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
-  refresh: boolean,
-): Promise<void> {
-  const response = await fetch(
-    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
-      row.planExecutionId
-    }/inputset?${query1}`,
-    {},
-  );
-  const data = await response.text();
-
-  const resp2 = await fetch(
-    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
-      row.planExecutionId
-    }/${row.pipelineId}?${query1}&moduleType=ci`,
-    {
-      headers: {
-        'content-type': 'application/yaml',
-      },
-      body: `${data}`,
-      method: 'POST',
-    },
-  );
-  if (resp2.status === 200) {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-    });
-
-    Toast.fire({
-      icon: 'success',
-      title: 'Pipeline ran successfully',
-    });
-  } else if (resp2.status === 403) {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: '500px',
-    });
-
-    Toast.fire({
-      icon: 'warning',
-      title: "You don't have access to trigger this pipeline",
-      text: 'Please check your API key configuration',
-    });
-  } else {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showCloseButton: true,
-      showConfirmButton: false,
-    });
-
-    Toast.fire({
-      icon: 'error',
-      title: 'Pipeline Trigger Failed',
-    });
-  }
-  setRefresh(!refresh);
-}
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -700,22 +580,215 @@ function ExecutionList() {
   const [renderedOnce, setRenderedOnce] = useState(true);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
+  const [env, setEnv] = useState('prod');
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
-  const baseUrl =
-    config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
 
-  const { projectId, orgId, accountId, pipelineId, serviceId, urlParams } =
-    useProjectSlugFromEntity();
-  async function getLicense() {
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
+  const {
+    projectId,
+    orgId,
+    accountId,
+    pipelineId,
+    serviceId,
+    urlParams,
+    hostname,
+    baseUrl1,
+  } = useProjectSlugFromEntity();
+
+  const stress = 'stress.harness.io';
+  const qa = 'qa.harness.io';
+  const stage = 'stage.harness.io';
+  const prod = 'app.harness.io';
+
+  useEffect(() => {
+    if (hostname === prod) {
+      setEnv('prod');
+    }
+    if (hostname === stage) {
+      setEnv('stage');
+    }
+    if (hostname === stress) {
+      setEnv('stress');
+    }
+    if (hostname === qa) {
+      setEnv('qa');
+    }
+    getLicense();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [env]);
+
+  function getSecureHarnessKey(key: string): string | undefined {
+    try {
+      const token = JSON.parse(
+        decodeURI(atob(localStorage.getItem(key) || '')),
+      );
+      return token ? `Bearer ${token}` : '';
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.log('Failed to read Harness tokens', err);
+      return undefined;
+    }
+  }
+
+  function AlertDialog(props: AlertDialogProps) {
+    const [open, setOpen] = useState(false);
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    return (
+      <div>
+        <Tooltip title="Re-run Pipeline" arrow>
+          <IconButton aria-label="replay" onClick={handleClickOpen}>
+            <ReplayIcon />
+          </IconButton>
+        </Tooltip>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Run Pipeline</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Do you want to re-run this pipeline?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} variant="outlined" color="error">
+              cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleClose();
+                runPipeline(
+                  Object(props.row),
+                  props.backendBaseUrl,
+                  props.query1,
+                  props.setRefresh,
+                  props.refresh,
+                );
+              }}
+              variant="contained"
+              color="success"
+            >
+              Run Pipeline
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     );
+  }
+
+  async function runPipeline(
+    row: TableData,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    backendBaseUrl: Object,
+    query1: string,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    refresh: boolean,
+  ): Promise<void> {
+    const token = getSecureHarnessKey('harnessBearerToken');
+    const value = token ? `Bearer ${token}` : '';
+
+    const headers = new Headers({
+      Authorization: value,
+    });
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/${
+        row.planExecutionId
+      }/inputset?${query1}`,
+      {
+        headers,
+      },
+    );
+
+    const data = await response.text();
+
+    const resp2 = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipeline/execute/rerun/${
+        row.planExecutionId
+      }/${row.pipelineId}?${query1}&moduleType=ci`,
+      {
+        headers: {
+          'content-type': 'application/yaml',
+          Authorization: value,
+        },
+        body: `${data}`,
+        method: 'POST',
+      },
+    );
+    if (resp2.status === 200) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+
+      Toast.fire({
+        icon: 'success',
+        title: 'Pipeline ran successfully',
+      });
+    } else if (resp2.status === 403) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: '500px',
+      });
+
+      Toast.fire({
+        icon: 'warning',
+        title: "You don't have access to trigger this pipeline",
+        text: 'Please check your API key configuration',
+      });
+    } else {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showCloseButton: true,
+        showConfirmButton: false,
+      });
+
+      Toast.fire({
+        icon: 'error',
+        title: 'Pipeline Trigger Failed',
+      });
+    }
+    setRefresh(!refresh);
+  }
+
+  async function fetchLicenseWithAuth(): Promise<Response> {
+    const token = getSecureHarnessKey('harnessBearerToken');
+    const value = token ? `Bearer ${token}` : '';
+
+    const headers = new Headers({
+      Authorization: value,
+    });
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
+      {
+        headers,
+      },
+    );
+
+    return response;
+  }
+
+  async function getLicense() {
+    const response = await fetchLicenseWithAuth();
+
     if (response.status === 200) {
       const data = await response.json();
       if (data?.data?.allModuleLicenses?.CD?.length === 0) {
@@ -723,35 +796,51 @@ function ExecutionList() {
       }
     }
   }
-  useEffect(() => {
-    getLicense();
-    // eslint-disable-next-line
-  }, []);
 
   async function getPipeLineByService() {
     const list = serviceId;
     const service1 = list?.split(',').map(item => item.trim()) || '';
+
+    const token = getSecureHarnessKey('harnessBearerToken');
+    const value = token ? `Bearer ${token}` : '';
+
+    const headers = new Headers({
+      'content-type': 'application/json',
+      Authorization: value,
+    });
+
     const resp = await fetch(
-      `${await backendBaseUrl}/harness/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
+      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
         service1[0]
       }`,
+      {
+        headers,
+      },
     );
+
     if (resp.status !== 200) {
       setToggle(true);
       setServiceToast(true);
     }
+
     const jsondata = await resp.json();
     const serviceName = jsondata?.data?.name;
     const response = await fetch(
-      `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
       {
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: `{\"filterType\":\"PipelineSetup\",\"moduleProperties\":{\"cd\":{\"serviceNames\":[\"${serviceName}\"]}}}`,
+        headers,
+        body: JSON.stringify({
+          filterType: 'PipelineSetup',
+          moduleProperties: {
+            cd: {
+              serviceNames: [serviceName],
+            },
+          },
+        }),
         method: 'POST',
       },
     );
+
     const data = await response.json();
     const filteredData = await data?.data?.content.filter((obj: any) => {
       return obj.recentExecutionsInfo.length > 0;
@@ -791,7 +880,7 @@ function ExecutionList() {
         paddingLeft: '30px',
       },
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         const id = parseInt(row.id ? row.id : '0', 10);
         return (
           <Link href={link} target="_blank">
@@ -805,7 +894,7 @@ function ExecutionList() {
       field: 'col1',
       width: '22%',
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl}ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         return (
           <Typography style={{ fontSize: 'small', color: 'grey' }}>
             <Link href={link} target="_blank" style={{ fontSize: '0.9rem' }}>
@@ -958,7 +1047,7 @@ function ExecutionList() {
     }
     if (toggle) {
       const response = await fetch(
-        `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
+        `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
         {
           method: 'POST',
         },

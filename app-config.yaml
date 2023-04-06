@@ -47,10 +47,22 @@ integrations:
     #   token: ${GHE_TOKEN}
 
 proxy:
-  '/harness':
+  '/harness/prod':
     target: 'https://app.harness.io/'
     headers:
-      'x-api-key': ${HARNESS_API_KEY}
+      'x-api-key': ${HARNESS_PROD_API_KEY}
+  '/harness/qa':
+    target: 'https://qa.harness.io/'
+    headers:
+      'x-api-key': ${HARNESS_QA_API_KEY}
+  '/harness/stage':
+    target: 'https://stage.harness.io/'
+    headers:
+      'x-api-key': ${HARNESS_STAGE_API_KEY}
+  '/harness/stress':
+    target: 'https://stress.harness.io/'
+    headers:
+      'x-api-key': ${HARNESS_STRESS_API_KEY}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
