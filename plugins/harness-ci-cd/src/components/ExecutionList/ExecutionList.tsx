@@ -123,126 +123,6 @@ interface AlertDialogProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   refresh: boolean;
 }
-function AlertDialog(props: AlertDialogProps) {
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  return (
-    <div>
-      <Tooltip title="Re-run Pipeline" arrow>
-        <IconButton aria-label="replay" onClick={handleClickOpen}>
-          <ReplayIcon />
-        </IconButton>
-      </Tooltip>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Run Pipeline</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Do you want to re-run this pipeline?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant="outlined" color="error">
-            cancel
-          </Button>
-          <Button
-            onClick={() => {
-              handleClose();
-              runPipeline(
-                Object(props.row),
-                props.backendBaseUrl,
-                props.query1,
-                props.setRefresh,
-                props.refresh,
-              );
-            }}
-            variant="contained"
-            color="success"
-          >
-            Run Pipeline
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
-}
-
-async function runPipeline(
-  row: TableData,
-  backendBaseUrl: Object,
-  query1: string,
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
-  refresh: boolean,
-): Promise<void> {
-  const response = await fetch(
-    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/${
-      row.planExecutionId
-    }/inputset?${query1}`,
-    {},
-  );
-  const data = await response.text();
-
-  const resp2 = await fetch(
-    `${await backendBaseUrl}/harness/gateway/pipeline/api/pipeline/execute/rerun/${
-      row.planExecutionId
-    }/${row.pipelineId}?${query1}&moduleType=ci`,
-    {
-      headers: {
-        'content-type': 'application/yaml',
-      },
-      body: `${data}`,
-      method: 'POST',
-    },
-  );
-  if (resp2.status === 200) {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-    });
-
-    Toast.fire({
-      icon: 'success',
-      title: 'Pipeline ran successfully',
-    });
-  } else if (resp2.status === 403) {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: '500px',
-    });
-
-    Toast.fire({
-      icon: 'warning',
-      title: "You don't have access to trigger this pipeline",
-      text: 'Please check your API key configuration',
-    });
-  } else {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showCloseButton: true,
-      showConfirmButton: false,
-    });
-
-    Toast.fire({
-      icon: 'error',
-      title: 'Pipeline Trigger Failed',
-    });
-  }
-  setRefresh(!refresh);
-}
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -753,6 +633,140 @@ function ExecutionList() {
       console.log('Failed to read Harness tokens', err);
       return undefined;
     }
+  }
+
+  function AlertDialog(props: AlertDialogProps) {
+    const [open, setOpen] = useState(false);
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    return (
+      <div>
+        <Tooltip title="Re-run Pipeline" arrow>
+          <IconButton aria-label="replay" onClick={handleClickOpen}>
+            <ReplayIcon />
+          </IconButton>
+        </Tooltip>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Run Pipeline</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Do you want to re-run this pipeline?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} variant="outlined" color="error">
+              cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleClose();
+                runPipeline(
+                  Object(props.row),
+                  props.backendBaseUrl,
+                  props.query1,
+                  props.setRefresh,
+                  props.refresh,
+                );
+              }}
+              variant="contained"
+              color="success"
+            >
+              Run Pipeline
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  }
+
+  async function runPipeline(
+    row: TableData,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    backendBaseUrl: Object,
+    query1: string,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    refresh: boolean,
+  ): Promise<void> {
+    const token = getSecureHarnessKey('harnessBearerToken');
+    const value = token ? `Bearer ${token}` : '';
+
+    const headers = new Headers({
+      Authorization: value,
+    });
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/${
+        row.planExecutionId
+      }/inputset?${query1}`,
+      {
+        headers,
+      },
+    );
+
+    const data = await response.text();
+
+    const resp2 = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipeline/execute/rerun/${
+        row.planExecutionId
+      }/${row.pipelineId}?${query1}&moduleType=ci`,
+      {
+        headers: {
+          'content-type': 'application/yaml',
+          Authorization: value,
+        },
+        body: `${data}`,
+        method: 'POST',
+      },
+    );
+    if (resp2.status === 200) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+
+      Toast.fire({
+        icon: 'success',
+        title: 'Pipeline ran successfully',
+      });
+    } else if (resp2.status === 403) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: '500px',
+      });
+
+      Toast.fire({
+        icon: 'warning',
+        title: "You don't have access to trigger this pipeline",
+        text: 'Please check your API key configuration',
+      });
+    } else {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showCloseButton: true,
+        showConfirmButton: false,
+      });
+
+      Toast.fire({
+        icon: 'error',
+        title: 'Pipeline Trigger Failed',
+      });
+    }
+    setRefresh(!refresh);
   }
 
   async function fetchLicenseWithAuth(): Promise<Response> {
