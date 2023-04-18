@@ -1,10 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Accordion,AccordionDetails, AccordionSummary, Box, Grid, IconButton, Typography } from '@material-ui/core';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Grid,
+  IconButton,
+  Typography,
+} from '@material-ui/core';
 import { Breadcrumbs, InfoCard, Link } from '@backstage/core-components';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { useEntity } from "@backstage/plugin-catalog-react";
+import { useEntity } from '@backstage/plugin-catalog-react';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
-import { processExecutionData, ExecutionNode, GraphLayoutNode, ExecutionPipelineNode, getPipelineStagesMap } from './defs';
+import {
+  processExecutionData,
+  ExecutionNode,
+  GraphLayoutNode,
+  ExecutionPipelineNode,
+  getPipelineStagesMap,
+} from './defs';
 import { StepsTree } from './StepsTree';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { makeStyles } from '@material-ui/core/styles';
@@ -86,25 +100,30 @@ const pickClassName = (
   status: string,
 ) => {
   if (status === 'failed') return classes.failed;
-  if (status === 'running' || status === 'asyncwaiting' || status === 'taskwaiting') return classes.running;
+  if (
+    status === 'running' ||
+    status === 'asyncwaiting' ||
+    status === 'taskwaiting'
+  )
+    return classes.running;
   if (status === 'success') return classes.success;
-  if (status === 'aborted' || status === 'approvalwaiting') return classes.aborted;
+  if (status === 'aborted' || status === 'approvalwaiting')
+    return classes.aborted;
 
   return classes.neutral;
 };
 
 interface ExecutionBuildStageProps {
-    id: string,
-    stage : GraphLayoutNode,
-    allNodeMap: { [key: string]: ExecutionNode },
-    tree: ExecutionPipelineNode<ExecutionNode>[]
-    stageId: string,
+  id: string;
+  stage: GraphLayoutNode;
+  allNodeMap: { [key: string]: ExecutionNode };
+  tree: ExecutionPipelineNode<ExecutionNode>[];
+  stageId: string;
 }
 
 const IconLink = IconButton as any as typeof Link;
 
-
-const BuildName = (props : any) => (
+const BuildName = (props: any) => (
   <Box display="flex" alignItems="center">
     <Typography variant="h3">{props.name}</Typography>
     <IconLink target="_blank" href={props.url} to="">
@@ -116,10 +135,12 @@ const BuildName = (props : any) => (
 export const BuildWithStepsPage = () => {
   const [pipelineData, setPipelineData] = useState();
   const [count, setCount] = useState(0);
-  const{ entity } = useEntity();
-  const [ExecutionBuildStage, setExecutionBuildStage] = useState<ExecutionBuildStageProps[]>([]);
-  const discoveryApi= useApi(discoveryApiRef);
-  const backendBaseUrl=discoveryApi.getBaseUrl('proxy');
+  const { entity } = useEntity();
+  const [ExecutionBuildStage, setExecutionBuildStage] = useState<
+    ExecutionBuildStageProps[]
+  >([]);
+  const discoveryApi = useApi(discoveryApiRef);
+  const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
   const classes = useStyles();
   const [buildUrl, setBuildUrl] = useState('');
   const [loading, isloading] = useState(true);
@@ -129,85 +150,87 @@ export const BuildWithStepsPage = () => {
     const orgid = 'harness.io/cicd-orgIdentifier';
     const accid = 'harness.io/cicd-accountIdentifier';
     const query = new URLSearchParams({
-    routingId: `${entity.metadata.annotations?.[accid]}`,
-    accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
-    orgIdentifier: `${entity.metadata.annotations?.[orgid]}` ,
-    projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
-  }).toString();
-  const url = window.location.pathname;
-  const planExecutionId = url.split("/").pop();
-  async function run()
-  {
-  const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/${planExecutionId}?${query}`);
-  const data = await response.json();
-  setBuildUrl(`https://app.harness.io/ng/#/account/${entity.metadata.annotations?.['harness.io/cicd-accountIdentifier']}/ci/orgs/${entity.metadata.annotations?.['harness.io/cicd-orgIdentifier']}/projects/${entity.metadata.annotations?.['harness.io/cicd-projectIdentifier']}/pipelines/${data.data.pipelineExecutionSummary.pipelineIdentifier}/deployments/${planExecutionId}/pipeline`);
-  setPipelineData(data.data.pipelineExecutionSummary);
-  };
-  run();
+      routingId: `${entity.metadata.annotations?.[accid]}`,
+      accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
+      orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
+      projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
+    }).toString();
+    const url = window.location.pathname;
+    const planExecutionId = url.split('/').pop();
+    async function run() {
+      const response = await fetch(
+        `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/${planExecutionId}?${query}`,
+      );
+      const data = await response.json();
+      setBuildUrl(
+        `https://app.harness.io/ng/#/account/${entity.metadata.annotations?.['harness.io/cicd-accountIdentifier']}/ci/orgs/${entity.metadata.annotations?.['harness.io/cicd-orgIdentifier']}/projects/${entity.metadata.annotations?.['harness.io/cicd-projectIdentifier']}/pipelines/${data.data.pipelineExecutionSummary.pipelineIdentifier}/deployments/${planExecutionId}/pipeline`,
+      );
+      setPipelineData(data.data.pipelineExecutionSummary);
+    }
+    run();
   }, [backendBaseUrl, entity.metadata.annotations]);
-  const pipelineSummary : any = pipelineData || {};
+  const pipelineSummary: any = pipelineData || {};
   const pipelineStagesMap = React.useMemo(() => {
     return getPipelineStagesMap(
       pipelineSummary.layoutNodeMap,
-      pipelineSummary.startingNodeId
-    )
-  }, [pipelineSummary.layoutNodeMap, pipelineSummary.startingNodeId])
+      pipelineSummary.startingNodeId,
+    );
+  }, [pipelineSummary.layoutNodeMap, pipelineSummary.startingNodeId]);
   const builds: Array<string> = [];
 
   pipelineStagesMap.forEach((_value, key) => {
     builds.push(key);
   });
 
-  const datanode : string = builds[count];
-  
+  const datanode: string = builds[count];
+
   useEffect(() => {
     const projectid = 'harness.io/cicd-projectIdentifier';
     const orgid = 'harness.io/cicd-orgIdentifier';
     const accid = 'harness.io/cicd-accountIdentifier';
     const querynode = new URLSearchParams({
-    routingId: `${entity.metadata.annotations?.[accid]}`,
-    accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
-    orgIdentifier: `${entity.metadata.annotations?.[orgid]}` ,
-    projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
-    stageNodeId: `${datanode}`
+      routingId: `${entity.metadata.annotations?.[accid]}`,
+      accountIdentifier: `${entity.metadata.annotations?.[accid]}`,
+      orgIdentifier: `${entity.metadata.annotations?.[orgid]}`,
+      projectIdentifier: `${entity.metadata.annotations?.[projectid]}`,
+      stageNodeId: `${datanode}`,
     }).toString();
-  const url = window.location.pathname;
-  const planExecutionId = url.split("/").pop();
-  async function runnode()
-  {
-  const response = await fetch(`${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/${planExecutionId}?${querynode}`);
-  const data = await response.json();
-  isloading(false);
-  const json2 = data.data.executionGraph.nodeMap || {};
-  const tree =  processExecutionData(data?.data?.executionGraph);
-  const allNodeMap: { [key: string]: ExecutionNode } = {};
-  // eslint-disable-next-line func-names
-  Object.keys(json2).forEach(function(key) {
-    allNodeMap[key] = json2[key];
-  });
+    const url = window.location.pathname;
+    const planExecutionId = url.split('/').pop();
+    async function runnode() {
+      const response = await fetch(
+        `${await backendBaseUrl}/harness/gateway/pipeline/api/pipelines/execution/v2/${planExecutionId}?${querynode}`,
+      );
+      const data = await response.json();
+      isloading(false);
+      const json2 = data.data.executionGraph.nodeMap || {};
+      const tree = processExecutionData(data?.data?.executionGraph);
+      const allNodeMap: { [key: string]: ExecutionNode } = {};
+      // eslint-disable-next-line func-names
+      Object.keys(json2).forEach(function (key) {
+        allNodeMap[key] = json2[key];
+      });
 
-
-  if(datanode) {
-    const stageObj = {
-      id: `${count+1}`,
-      stage: pipelineStagesMap.get(datanode) || {},
-      allNodeMap: allNodeMap,
-      tree: tree,
-      stageId: datanode,
+      if (datanode) {
+        const stageObj = {
+          id: `${count + 1}`,
+          stage: pipelineStagesMap.get(datanode) || {},
+          allNodeMap: allNodeMap,
+          tree: tree,
+          stageId: datanode,
+        };
+        setExecutionBuildStage(prev => [...prev, stageObj]);
+      }
     }
-    setExecutionBuildStage(prev => [...prev, stageObj]);
-  }
-};
-  runnode();
-  if (count < builds.length - 1) {
-    setCount(count + 1);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    runnode();
+    if (count < builds.length - 1) {
+      setCount(count + 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datanode]);
   ExecutionBuildStage.sort((a, b) => {
-    return Number(a.id) - Number(b.id)
+    return Number(a.id) - Number(b.id);
   });
-
 
   return (
     <>
@@ -216,32 +239,54 @@ export const BuildWithStepsPage = () => {
           <Link to="..">All builds</Link>
           <Typography>Build details</Typography>
         </Breadcrumbs>
-      </Box>{loading===true?(<div style={{textAlign:'center'}}><CircularProgress/></div>):<InfoCard className={pickClassName(classes, pipelineSummary.status?.toLocaleLowerCase())} title={<BuildName name={pipelineSummary.name} url={buildUrl}/>} cardClassName={classes.cardContent}>
-        <Grid container spacing={3} direction="column">
-          <Grid item>
-          {ExecutionBuildStage.map((stage) => 
-            (<Accordion className={pickClassName(classes, stage?.stage?.status?.toLowerCase() || '')} key={stage.id} TransitionProps={{ unmountOnExit: true }}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1d-content" id="panel1d-header">
-              <Typography><b>{stage.stage.name}</b></Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Grid container spacing={3} direction="column">
-                  <StepsTree
-                    allNodeMap={stage.allNodeMap}
-                    nodes={stage.tree}
-                  />
-                </Grid>
-              </AccordionDetails>
-            </Accordion>)
+      </Box>
+      {loading === true ? (
+        <div style={{ textAlign: 'center' }}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <InfoCard
+          className={pickClassName(
+            classes,
+            pipelineSummary.status?.toLocaleLowerCase(),
           )}
+          title={<BuildName name={pipelineSummary.name} url={buildUrl} />}
+          cardClassName={classes.cardContent}
+        >
+          <Grid container spacing={3} direction="column">
+            <Grid item>
+              {ExecutionBuildStage.map(stage => (
+                <Accordion
+                  className={pickClassName(
+                    classes,
+                    stage?.stage?.status?.toLowerCase() || '',
+                  )}
+                  key={stage.id}
+                  TransitionProps={{ unmountOnExit: true }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1d-content"
+                    id="panel1d-header"
+                  >
+                    <Typography>
+                      <b>{stage.stage.name}</b>
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Grid container spacing={3} direction="column">
+                      <StepsTree
+                        allNodeMap={stage.allNodeMap}
+                        nodes={stage.tree}
+                      />
+                    </Grid>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </Grid>
           </Grid>
-        </Grid>
-      </InfoCard>}
-      
+        </InfoCard>
+      )}
     </>
   );
 };
-
-
-
-

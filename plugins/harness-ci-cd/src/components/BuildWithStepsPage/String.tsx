@@ -58,11 +58,11 @@ export function String(props: StringProps): React.ReactElement | null {
     const text = getString(stringID, vars);
 
     return useRichText ? (
-      <Tag {...(rest as unknown)} dangerouslySetInnerHTML={{ __html: text }} />
+      <Tag {...(rest as object)} dangerouslySetInnerHTML={{ __html: text }} />
     ) : (
-      <Tag {...(rest as unknown)}>{text}</Tag>
+      <Tag {...(rest as object)}>{text}</Tag>
     );
-  } catch (e) {
+  } catch (e: any) {
     if (process.env.NODE_ENV !== 'production') {
       return <Tag style={{ color: 'var(--red-500)' }}>{e.message}</Tag>;
     }
