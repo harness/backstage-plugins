@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { Routes, Route } from 'react-router';
 import { harnessCIBuildRouteRef } from '../route-refs';
 import ExecutionList from './ExecutionList/ExecutionList';
 import { Entity } from '@backstage/catalog-model';
@@ -39,14 +39,12 @@ export const Router = () => {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<ExecutionList />} />
-        <Route
+    <Routes>
+      <Route path="/" element={<ExecutionList />} />
+      {/* <Route
           path={`${harnessCIBuildRouteRef.path}`}
           element={<BuildWithStepsPage />}
-        />
-      </Routes>
-    </BrowserRouter>
+        /> */}
+    </Routes>
   );
 };
