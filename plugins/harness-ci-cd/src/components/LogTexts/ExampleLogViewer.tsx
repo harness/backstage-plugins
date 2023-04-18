@@ -20,12 +20,13 @@ function sanitizeHTML(str: string): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/\u00a0/g, ' ')
+    // eslint-disable-next-line no-control-regex
     .replace(/\u001b/g, '')
     .replace(/[\r\n]/g, '');
 }
 
 function processLogsData(data: string): LogLineData[] {
-  //console.log(data);
+  // console.log(data);
   return String(data)
     .split('\n')
     .reduce<LogSectionData['data']>((accumulator, line) => {
@@ -95,6 +96,7 @@ function ExampleLogViewer(props: any) {
       setLogToken(logTokenData);
     }
     getLogToken();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -114,6 +116,7 @@ function ExampleLogViewer(props: any) {
     }
 
     if (dataSource === 'blob') run();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logToken]);
 
   const closeStream = React.useCallback(() => {
@@ -144,7 +147,7 @@ function ExampleLogViewer(props: any) {
       if (e.data) {
         const parsedData = processLogsData(e.data)[0].text;
         const parsedString: string =
-          parsedData.level + '\t' + parsedData.time + '\t\t' + parsedData.out;
+          `${parsedData.level  }\t${  parsedData.time  }\t\t${  parsedData.out}`;
         setLogStream(data => [...data, parsedString]);
       }
     };
@@ -155,21 +158,23 @@ function ExampleLogViewer(props: any) {
         closeStream();
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [closeStream, logToken]);
 
   useEffect(() => {
     function getStream(): void {
       // if token is not found, schedule the call for later
-      //console.log(logToken);
+      // console.log(logToken);
       if (!logToken) {
         timerRef.current = window.setTimeout(() => getStream(), 300);
         return;
       }
-      //console.log("started");
+      // console.log("started");
       startStream();
     }
-    //console.log(dataSource);
-    if (dataSource == 'stream') getStream();
+    // console.log(dataSource);
+    if (dataSource === 'stream') getStream();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataSource, logToken]);
 
   React.useEffect(() => {
@@ -185,15 +190,16 @@ function ExampleLogViewer(props: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line prefer-const
   let finalLog: string[] = [];
 
-  if (dataSource == 'blob') {
+  if (dataSource === 'blob') {
     let arr = [];
     arr = processLogsData(log);
     let i = 0;
     while (i < arr.length) {
       finalLog.push(
-        arr[i].text.level + '\t' + arr[i].text.time + '\t\t' + arr[i].text.out,
+        `${arr[i].text.level  }\t${  arr[i].text.time  }\t\t${  arr[i].text.out}`,
       );
       i++;
     }
@@ -204,7 +210,7 @@ function ExampleLogViewer(props: any) {
   return (
     <div style={{ height: '35vh', width: '100%' }}>
       <LogViewer
-        text={dataSource == 'blob' ? finalLog.join('\n') : logStream.join('\n')}
+        text={dataSource === 'blob' ? finalLog.join('\n') : logStream.join('\n')}
       />
     </div>
   );
