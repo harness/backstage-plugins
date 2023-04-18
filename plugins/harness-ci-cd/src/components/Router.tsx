@@ -39,12 +39,12 @@ export const Router = () => {
   }
 
   return (
-      <Routes>
-        <Route path="/" element={<ExecutionList />} />
-        <Route
-          path={`${harnessCIBuildRouteRef.path}`}
-          element={<BuildWithStepsPage />}
-        />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<ExecutionList />} />
+      <Route
+        path={`${harnessCIBuildRouteRef.path}`}
+        element={<BuildWithStepsPage />}
+      />
+    </Routes>
   );
 };
