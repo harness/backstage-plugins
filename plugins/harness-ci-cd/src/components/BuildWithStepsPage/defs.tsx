@@ -1,211 +1,250 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { isEmpty, camelCase, defaultTo } from 'lodash-es'
-import { CSSProperties, useContext, createContext } from 'react'
+import { isEmpty, camelCase, defaultTo } from 'lodash-es';
+import { CSSProperties, useContext, createContext } from 'react';
 import { IconName as BIconName, IPopoverProps } from '@blueprintjs/core';
-import type { StringsMap } from './stringTypes'
-import type { FormikErrors, FormikProps } from 'formik'
-import  { HTMLAttributes } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'
-import qs from 'qs'
-import type { IStringifyOptions, IParseOptions } from 'qs'
+import type { StringsMap } from './stringTypes';
+import type { FormikErrors, FormikProps } from 'formik';
+import { HTMLAttributes } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import qs from 'qs';
+import type { IStringifyOptions, IParseOptions } from 'qs';
 import React from 'react';
 
 export function getIconDataBasedOnType(nodeData?: ExecutionNode): {
-  icon: IconName
-  iconSize: number
-  iconStyle?: { marginBottom: string }
+  icon: IconName;
+  iconSize: number;
+  iconStyle?: { marginBottom: string };
 } {
   if (nodeData) {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     if (nodeData.stepType === StepType.Barrier) {
       return nodeData.status === 'Success'
         ? { icon: 'barrier-close', iconSize: 57 }
-        : { icon: 'barrier-open', iconSize: 70, iconStyle: { marginBottom: '38px' } }
+        : {
+            icon: 'barrier-open',
+            iconSize: 70,
+            iconStyle: { marginBottom: '38px' },
+          };
     }
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     if (nodeData.stepType === StepType.ResourceConstraint) {
-      return { icon: 'traffic-lights', iconSize: 40 }
+      return { icon: 'traffic-lights', iconSize: 40 };
     }
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    const icon = StepTypeIconsMap[nodeData?.stepType as NodeType] || factory.getStepIcon(nodeData?.stepType || '')
+    const icon =
+      StepTypeIconsMap[nodeData?.stepType as NodeType] ||
+      factory.getStepIcon(nodeData?.stepType || '');
     return {
       icon,
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      iconSize: cloudFormationSteps.includes(nodeData.stepType as StepType) ? 32 : 20
-    }
+      iconSize: cloudFormationSteps.includes(nodeData.stepType as StepType)
+        ? 32
+        : 20,
+    };
   }
 
   return {
     icon: 'cross',
-    iconSize: 20
-  }
+    iconSize: 20,
+  };
 }
 
-
-export const processExecutionData = (graph?: ExecutionGraph): Array<ExecutionPipelineNode<ExecutionNode>> => {
-  const items: Array<ExecutionPipelineNode<ExecutionNode>> = []
+export const processExecutionData = (
+  graph?: ExecutionGraph,
+): Array<ExecutionPipelineNode<ExecutionNode>> => {
+  const items: Array<ExecutionPipelineNode<ExecutionNode>> = [];
 
   /* istanbul ignore else */
   if (graph?.nodeAdjacencyListMap && graph?.rootNodeId) {
-    const nodeAdjacencyListMap = graph.nodeAdjacencyListMap
-    const rootNode = graph.rootNodeId
+    const nodeAdjacencyListMap = graph.nodeAdjacencyListMap;
+    const rootNode = graph.rootNodeId;
     // Ignore the graph when its fqn is pipeline, as this doesn't render pipeline graph
     if (graph?.nodeMap?.[rootNode].baseFqn === 'pipeline') {
-      return items
+      return items;
     }
-    let nodeId = nodeAdjacencyListMap[rootNode].children?.[0]
+    let nodeId = nodeAdjacencyListMap[rootNode].children?.[0];
     while (nodeId && nodeAdjacencyListMap[nodeId]) {
-      const nodeData = graph?.nodeMap?.[nodeId]
+      const nodeData = graph?.nodeMap?.[nodeId];
       /* istanbul ignore else */
       if (nodeData) {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        const isRollback = nodeData.name?.endsWith(StepGroupRollbackIdentifier) ?? false
+        const isRollback =
+          nodeData.name?.endsWith(StepGroupRollbackIdentifier) ?? false;
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        if (nodeData.stepType && (TopLevelNodes.indexOf(nodeData.stepType as NodeType) > -1 || isRollback)) {
+        if (
+          nodeData.stepType &&
+          (TopLevelNodes.indexOf(nodeData.stepType as NodeType) > -1 ||
+            isRollback)
+        ) {
           // NOTE: exception if we have only lite task engine in Execution group
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          if (hasOnlyLiteEngineTask(nodeAdjacencyListMap[nodeId].children, graph)) {
-            const liteTaskEngineId = nodeAdjacencyListMap?.[nodeId]?.children?.[0] || ''
+          if (
+            hasOnlyLiteEngineTask(nodeAdjacencyListMap[nodeId].children, graph)
+          ) {
+            const liteTaskEngineId =
+              nodeAdjacencyListMap?.[nodeId]?.children?.[0] || '';
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            processLiteEngineTask(graph?.nodeMap?.[liteTaskEngineId], items, nodeData)
+            processLiteEngineTask(
+              graph?.nodeMap?.[liteTaskEngineId],
+              items,
+              nodeData,
+            );
           } else if (!isEmpty(nodeAdjacencyListMap[nodeId].children)) {
             if (nodeData.identifier === 'execution') {
               items.push(
                 // eslint-disable-next-line @typescript-eslint/no-use-before-define
                 ...processNodeData(
-                  nodeAdjacencyListMap[nodeId].children || /* istanbul ignore next */ [],
+                  nodeAdjacencyListMap[nodeId].children ||
+                    /* istanbul ignore next */ [],
                   graph?.nodeMap,
                   graph?.nodeAdjacencyListMap,
-                  items
-                )
-              )
+                  items,
+                ),
+              );
             } else {
               items.push({
                 group: {
                   name: nodeData.name || /* istanbul ignore next */ '',
                   identifier: nodeId,
                   data: nodeData,
-                  skipCondition: nodeData.skipInfo?.evaluatedCondition ? nodeData.skipInfo.skipCondition : undefined,
+                  skipCondition: nodeData.skipInfo?.evaluatedCondition
+                    ? nodeData.skipInfo.skipCondition
+                    : undefined,
                   when: nodeData.nodeRunInfo,
                   containerCss: {
                     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                    ...(RollbackIdentifier === nodeData.identifier || isRollback ? RollbackContainerCss : {})
+                    ...(RollbackIdentifier === nodeData.identifier || isRollback
+                      ? RollbackContainerCss
+                      : {}),
                   },
                   status: nodeData.status as ExecutionStatus,
                   isOpen: true,
                   ...getIconDataBasedOnType(nodeData),
                   // eslint-disable-next-line @typescript-eslint/no-use-before-define
                   items: processNodeData(
-                    nodeAdjacencyListMap[nodeId].children || /* istanbul ignore next */ [],
+                    nodeAdjacencyListMap[nodeId].children ||
+                      /* istanbul ignore next */ [],
                     graph?.nodeMap,
                     graph?.nodeAdjacencyListMap,
-                    items
-                  )
-                }
-              })
+                    items,
+                  ),
+                },
+              });
             }
           }
         } else if (nodeData.stepType === NodeType.FORK) {
           items.push({
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
             parallel: processNodeData(
-              nodeAdjacencyListMap[nodeId].children || /* istanbul ignore next */ [],
+              nodeAdjacencyListMap[nodeId].children ||
+                /* istanbul ignore next */ [],
               graph?.nodeMap,
               graph?.nodeAdjacencyListMap,
-              items
-            )
-          })
+              items,
+            ),
+          });
         } else {
           items.push({
             item: {
               name: nodeData.name || /* istanbul ignore next */ '',
-              skipCondition: nodeData.skipInfo?.evaluatedCondition ? nodeData.skipInfo.skipCondition : undefined,
+              skipCondition: nodeData.skipInfo?.evaluatedCondition
+                ? nodeData.skipInfo.skipCondition
+                : undefined,
               when: nodeData.nodeRunInfo,
               ...getIconDataBasedOnType(nodeData),
               // eslint-disable-next-line @typescript-eslint/no-use-before-define
-              showInLabel: nodeData.stepType === NodeType.SERVICE || nodeData.stepType === NodeType.INFRASTRUCTURE,
+              showInLabel:
+                nodeData.stepType === NodeType.SERVICE ||
+                nodeData.stepType === NodeType.INFRASTRUCTURE,
               identifier: nodeId,
               status: nodeData.status as ExecutionStatus,
               type: getExecutionPipelineNodeType(nodeData?.stepType),
-              data: nodeData
-            }
-          })
+              data: nodeData,
+            },
+          });
         }
       }
-      nodeId = nodeAdjacencyListMap[nodeId].nextIds?.[0]
+      nodeId = nodeAdjacencyListMap[nodeId].nextIds?.[0];
     }
   }
-  return items
-}
+  return items;
+};
 
 export function getPipelineStagesMap(
   layoutNodeMap: PipelineExecutionSummary['layoutNodeMap'],
-  startingNodeId?: string
+  startingNodeId?: string,
 ): Map<string, GraphLayoutNode> {
-  const map = new Map<string, GraphLayoutNode>()
+  const map = new Map<string, GraphLayoutNode>();
 
   function recursiveSetInMap(node: GraphLayoutNode): void {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    if (node.nodeType === NodeTypes.Parallel || isNodeTypeMatrixOrFor(node.nodeType)) {
+    if (
+      node.nodeType === NodeTypes.Parallel ||
+      isNodeTypeMatrixOrFor(node.nodeType)
+    ) {
       node.edgeLayoutList?.currentNodeChildren?.forEach(item => {
         if (item && layoutNodeMap?.[item]) {
           // register nodes in case of strategy
           if (isNodeTypeMatrixOrFor(layoutNodeMap?.[item]?.nodeType)) {
-            recursiveSetInMap(layoutNodeMap[item])
-            return
+            recursiveSetInMap(layoutNodeMap[item]);
+            return;
           }
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
           const nodeId = isNodeTypeMatrixOrFor(node.nodeType)
-            ? defaultTo(layoutNodeMap[item]?.nodeExecutionId, layoutNodeMap[item].nodeUuid)
-            : layoutNodeMap[item].nodeUuid
-          map.set(nodeId || '', layoutNodeMap[item])
-          return
+            ? defaultTo(
+                layoutNodeMap[item]?.nodeExecutionId,
+                layoutNodeMap[item].nodeUuid,
+              )
+            : layoutNodeMap[item].nodeUuid;
+          map.set(nodeId || '', layoutNodeMap[item]);
+          return;
         }
-      })
+      });
     } else {
-      map.set(node.nodeUuid || '', node)
+      map.set(node.nodeUuid || '', node);
     }
 
     node.edgeLayoutList?.nextIds?.forEach(item => {
       if (item && layoutNodeMap?.[item]) {
-        recursiveSetInMap(layoutNodeMap[item])
-        return
+        recursiveSetInMap(layoutNodeMap[item]);
+        return;
       }
-    })
+    });
   }
 
   if (startingNodeId && layoutNodeMap?.[startingNodeId]) {
-    const node = layoutNodeMap[startingNodeId]
-    recursiveSetInMap(node)
+    const node = layoutNodeMap[startingNodeId];
+    recursiveSetInMap(node);
   }
 
-  return map
+  return map;
 }
-
 
 const processNodeData = (
   children: string[],
   nodeMap: ExecutionGraph['nodeMap'],
   nodeAdjacencyListMap: ExecutionGraph['nodeAdjacencyListMap'],
-  rootNodes: Array<ExecutionPipelineNode<ExecutionNode>>
+  rootNodes: Array<ExecutionPipelineNode<ExecutionNode>>,
 ): Array<ExecutionPipelineNode<ExecutionNode>> => {
-  const items: Array<ExecutionPipelineNode<ExecutionNode>> = []
+  const items: Array<ExecutionPipelineNode<ExecutionNode>> = [];
   children?.forEach(item => {
-    const nodeData = nodeMap?.[item] as ExecutionNode
-    const isRollback = nodeData?.name?.endsWith(StepGroupRollbackIdentifier) ?? false
+    const nodeData = nodeMap?.[item] as ExecutionNode;
+    const isRollback =
+      nodeData?.name?.endsWith(StepGroupRollbackIdentifier) ?? false;
     const nodeStrategyType =
       nodeData?.stepType === NodeType.STRATEGY
         ? ((nodeData?.stepParameters?.strategyType || 'MATRIX') as string)
-        : (nodeData?.stepType as string)
+        : (nodeData?.stepType as string);
     if (nodeStrategyType === NodeType.FORK) {
       items.push({
         parallel: processNodeData(
-          nodeAdjacencyListMap?.[item].children || /* istanbul ignore next */ [],
+          nodeAdjacencyListMap?.[item].children ||
+            /* istanbul ignore next */ [],
           nodeMap,
           nodeAdjacencyListMap,
-          rootNodes
-        )
-      })
+          rootNodes,
+        ),
+      });
     } else if (
       nodeStrategyType === NodeType.STEP_GROUP ||
       nodeStrategyType === NodeType.NG_SECTION ||
@@ -218,60 +257,68 @@ const processNodeData = (
           identifier: item,
           data: nodeData,
           containerCss: {
-            ...(isRollback ? RollbackContainerCss : {})
+            ...(isRollback ? RollbackContainerCss : {}),
           },
           status: nodeData.status as ExecutionStatus,
           isOpen: true,
-          skipCondition: nodeData.skipInfo?.evaluatedCondition ? nodeData.skipInfo.skipCondition : undefined,
+          skipCondition: nodeData.skipInfo?.evaluatedCondition
+            ? nodeData.skipInfo.skipCondition
+            : undefined,
           when: nodeData.nodeRunInfo,
           ...getIconDataBasedOnType(nodeData),
           items: processNodeData(
-            nodeAdjacencyListMap?.[item].children || /* istanbul ignore next */ [],
+            nodeAdjacencyListMap?.[item].children ||
+              /* istanbul ignore next */ [],
             nodeMap,
             nodeAdjacencyListMap,
-            rootNodes
-          )
-        }
-      })
+            rootNodes,
+          ),
+        },
+      });
     } else {
       if (nodeStrategyType === LITE_ENGINE_TASK) {
         const parentNodeId =
           Object.entries(nodeAdjacencyListMap || {}).find(([_, val]) => {
-            return (val?.children?.indexOf(nodeData.uuid!) ?? -1) >= 0
-          })?.[0] || ''
-        processLiteEngineTask(nodeData, rootNodes, nodeMap?.[parentNodeId])
+            return (val?.children?.indexOf(nodeData.uuid!) ?? -1) >= 0;
+          })?.[0] || '';
+        processLiteEngineTask(nodeData, rootNodes, nodeMap?.[parentNodeId]);
       } else {
         items.push({
           item: {
             name: nodeData?.name || /* istanbul ignore next */ '',
             ...getIconDataBasedOnType(nodeData),
             identifier: item,
-            skipCondition: nodeData?.skipInfo?.evaluatedCondition ? nodeData?.skipInfo.skipCondition : undefined,
+            skipCondition: nodeData?.skipInfo?.evaluatedCondition
+              ? nodeData?.skipInfo.skipCondition
+              : undefined,
             when: nodeData?.nodeRunInfo,
             status: nodeData?.status as ExecutionStatus,
             type: getExecutionPipelineNodeType(nodeStrategyType),
-            data: nodeData
-          }
-        })
+            data: nodeData,
+          },
+        });
       }
     }
-    const nextIds = nodeAdjacencyListMap?.[item].nextIds || /* istanbul ignore next */ []
+    const nextIds =
+      nodeAdjacencyListMap?.[item].nextIds || /* istanbul ignore next */ [];
     nextIds.forEach(id => {
-      const nodeDataNext = nodeMap?.[id] as ExecutionNode
-      const isRollbackNext = nodeDataNext?.name?.endsWith(StepGroupRollbackIdentifier) ?? false
+      const nodeDataNext = nodeMap?.[id] as ExecutionNode;
+      const isRollbackNext =
+        nodeDataNext?.name?.endsWith(StepGroupRollbackIdentifier) ?? false;
       const nodeNextStrategyType =
         nodeDataNext?.stepType === NodeType.STRATEGY
           ? ((nodeDataNext?.stepParameters?.strategyType || 'MATRIX') as string)
-          : (nodeDataNext?.stepType as string)
+          : (nodeDataNext?.stepType as string);
       if (nodeNextStrategyType === NodeType.FORK) {
         items.push({
           parallel: processNodeData(
-            nodeAdjacencyListMap?.[id].children || /* istanbul ignore next */ [],
+            nodeAdjacencyListMap?.[id].children ||
+              /* istanbul ignore next */ [],
             nodeMap,
             nodeAdjacencyListMap,
-            rootNodes
-          )
-        })
+            rootNodes,
+          ),
+        });
       } else if (
         nodeNextStrategyType === NodeType.STEP_GROUP ||
         isNodeTypeMatrixOrFor(nodeNextStrategyType) ||
@@ -283,72 +330,91 @@ const processNodeData = (
             identifier: id,
             data: nodeDataNext,
             containerCss: {
-              ...(isRollbackNext ? RollbackContainerCss : {})
+              ...(isRollbackNext ? RollbackContainerCss : {}),
             },
-            skipCondition: nodeDataNext.skipInfo?.evaluatedCondition ? nodeDataNext.skipInfo.skipCondition : undefined,
+            skipCondition: nodeDataNext.skipInfo?.evaluatedCondition
+              ? nodeDataNext.skipInfo.skipCondition
+              : undefined,
             when: nodeDataNext.nodeRunInfo,
             status: nodeDataNext.status as ExecutionStatus,
             isOpen: true,
             ...getIconDataBasedOnType(nodeDataNext),
             items: processNodeData(
-              nodeAdjacencyListMap?.[id].children || /* istanbul ignore next */ [],
+              nodeAdjacencyListMap?.[id].children ||
+                /* istanbul ignore next */ [],
               nodeMap,
               nodeAdjacencyListMap,
-              rootNodes
-            )
-          }
-        })
+              rootNodes,
+            ),
+          },
+        });
       } else {
         items.push({
           item: {
             name: nodeDataNext?.name || /* istanbul ignore next */ '',
             ...getIconDataBasedOnType(nodeDataNext),
             identifier: id,
-            skipCondition: nodeDataNext?.skipInfo?.evaluatedCondition ? nodeDataNext.skipInfo.skipCondition : undefined,
+            skipCondition: nodeDataNext?.skipInfo?.evaluatedCondition
+              ? nodeDataNext.skipInfo.skipCondition
+              : undefined,
             when: nodeDataNext?.nodeRunInfo,
             status: nodeDataNext?.status as ExecutionStatus,
             type: getExecutionPipelineNodeType(nodeNextStrategyType),
-            data: nodeDataNext
-          }
-        })
+            data: nodeDataNext,
+          },
+        });
       }
-      const nextLevels = nodeAdjacencyListMap?.[id].nextIds
+      const nextLevels = nodeAdjacencyListMap?.[id].nextIds;
       if (nextLevels) {
-        items.push(...processNodeData(nextLevels, nodeMap, nodeAdjacencyListMap, rootNodes))
+        items.push(
+          ...processNodeData(
+            nextLevels,
+            nodeMap,
+            nodeAdjacencyListMap,
+            rootNodes,
+          ),
+        );
       }
-    })
-  })
-  return items
-}
+    });
+  });
+  return items;
+};
 
-export const hasOnlyLiteEngineTask = (children?: string[], graph?: ExecutionGraph): boolean => {
+export const hasOnlyLiteEngineTask = (
+  children?: string[],
+  graph?: ExecutionGraph,
+): boolean => {
   return (
     !!children &&
     children.length === 1 &&
     graph?.nodeMap?.[children[0]]?.stepType === LITE_ENGINE_TASK &&
     graph?.nodeAdjacencyListMap?.[children[0]]?.nextIds?.length === 0
-  )
-}
+  );
+};
 
 export const processLiteEngineTask = (
   nodeData: ExecutionNode | undefined,
   rootNodes: ExecutionPipelineNode<ExecutionNode>[],
-  parentNode?: ExecutionNode
+  parentNode?: ExecutionNode,
 ): void => {
   // NOTE: liteEngineTask contains information about dependencies
   const serviceDependencyList: ServiceDependency[] =
     // Array check is required for legacy support
     (Array.isArray(nodeData?.outcomes)
-      ? nodeData?.outcomes?.find((_item: any) => !!_item.serviceDependencyList)?.serviceDependencyList
-      : nodeData?.outcomes?.dependencies?.serviceDependencyList) || []
+      ? nodeData?.outcomes?.find((_item: any) => !!_item.serviceDependencyList)
+          ?.serviceDependencyList
+      : nodeData?.outcomes?.dependencies?.serviceDependencyList) || [];
 
   // 1. Add dependency services
-  addDependencies(serviceDependencyList, rootNodes)
+  addDependencies(serviceDependencyList, rootNodes);
 
   // 2. Exclude Initialize duration from the parent
   if (nodeData && parentNode) {
-    const taskDuration = nodeData.endTs! - nodeData.startTs!
-    parentNode.startTs = Math.min(parentNode.startTs! + taskDuration, parentNode.endTs!)
+    const taskDuration = nodeData.endTs! - nodeData.startTs!;
+    parentNode.startTs = Math.min(
+      parentNode.startTs! + taskDuration,
+      parentNode.endTs!,
+    );
   }
 
   // 3. Add Initialize step ( at the first place in array )
@@ -359,24 +425,26 @@ export const processLiteEngineTask = (
     status: nodeData?.status as ExecutionStatus,
     icon: 'initialize-step',
     data: nodeData as ExecutionNode,
-    itemType: 'service-dependency'
-  }
-  const stepNode: ExecutionPipelineNode<ExecutionNode> = { item: stepItem }
-  rootNodes.unshift(stepNode)
-}
+    itemType: 'service-dependency',
+  };
+  const stepNode: ExecutionPipelineNode<ExecutionNode> = { item: stepItem };
+  rootNodes.unshift(stepNode);
+};
 
 export const isNodeTypeMatrixOrFor = (nodeType?: string): boolean => {
-  return [NodeTypes.Matrix, NodeTypes.Loop, NodeTypes.Parallelism].includes(nodeType as NodeTypes)
-}
+  return [NodeTypes.Matrix, NodeTypes.Loop, NodeTypes.Parallelism].includes(
+    nodeType as NodeTypes,
+  );
+};
 
 const addDependencies = (
   dependencies: ServiceDependency[],
-  stepsPipelineNodes: ExecutionPipelineNode<ExecutionNode>[]
+  stepsPipelineNodes: ExecutionPipelineNode<ExecutionNode>[],
 ): void => {
   if (dependencies && dependencies.length > 0) {
-    const items: ExecutionPipelineNode<ExecutionNode>[] = []
+    const items: ExecutionPipelineNode<ExecutionNode>[] = [];
 
-    dependencies.forEach(_service => addDependencyToArray(_service, items))
+    dependencies.forEach(_service => addDependencyToArray(_service, items));
 
     const dependenciesGroup: ExecutionPipelineGroupInfo<ExecutionNode> = {
       identifier: STATIC_SERVICE_GROUP_NAME,
@@ -386,15 +454,18 @@ const addDependencies = (
       icon: 'step-group',
       verticalStepGroup: true,
       isOpen: true,
-      items: [{ parallel: items }]
-    }
+      items: [{ parallel: items }],
+    };
 
     // dependency goes at the beginning
-    stepsPipelineNodes.unshift({ group: dependenciesGroup })
+    stepsPipelineNodes.unshift({ group: dependenciesGroup });
   }
-}
+};
 
-const addDependencyToArray = (service: ServiceDependency, arr: ExecutionPipelineNode<ExecutionNode>[]): void => {
+const addDependencyToArray = (
+  service: ServiceDependency,
+  arr: ExecutionPipelineNode<ExecutionNode>[],
+): void => {
   const stepItem: ExecutionPipelineItem<ExecutionNode> = {
     identifier: service.identifier as string,
     name: service.name as string,
@@ -402,51 +473,61 @@ const addDependencyToArray = (service: ServiceDependency, arr: ExecutionPipeline
     status: service.status as ExecutionStatus,
     icon: 'dependency-step',
     data: service as ExecutionNode,
-    itemType: 'service-dependency'
-  }
+    itemType: 'service-dependency',
+  };
 
   // add step node
-  const stepNode: ExecutionPipelineNode<ExecutionNode> = { item: stepItem }
-  arr.push(stepNode)
-}
+  const stepNode: ExecutionPipelineNode<ExecutionNode> = { item: stepItem };
+  arr.push(stepNode);
+};
 
-
-export function getExecutionPipelineNodeType(stepType?: string): ExecutionPipelineNodeType {
-  if (stepType === StepType.Barrier || stepType === StepType.ResourceConstraint) {
-    return ExecutionPipelineNodeType.ICON
+export function getExecutionPipelineNodeType(
+  stepType?: string,
+): ExecutionPipelineNodeType {
+  if (
+    stepType === StepType.Barrier ||
+    stepType === StepType.ResourceConstraint
+  ) {
+    return ExecutionPipelineNodeType.ICON;
   }
   if (isApprovalStep(stepType)) {
-    return ExecutionPipelineNodeType.DIAMOND
+    return ExecutionPipelineNodeType.DIAMOND;
   }
 
-  return ExecutionPipelineNodeType.NORMAL
+  return ExecutionPipelineNodeType.NORMAL;
 }
 
 export function isHarnessApproval(stepType?: string): boolean {
-  return stepType === StepType.HarnessApproval
+  return stepType === StepType.HarnessApproval;
 }
 
 export function isJiraApproval(stepType?: string): boolean {
-  return stepType === StepType.JiraApproval
+  return stepType === StepType.JiraApproval;
 }
 
 export function isApprovalStep(stepType?: string): boolean {
-  return isHarnessApproval(stepType) || isJiraApproval(stepType) || isServiceNowApproval(stepType)
+  return (
+    isHarnessApproval(stepType) ||
+    isJiraApproval(stepType) ||
+    isServiceNowApproval(stepType)
+  );
 }
 
 export function isServiceNowApproval(stepType?: string): boolean {
-  return stepType === StepType.ServiceNowApproval
+  return stepType === StepType.ServiceNowApproval;
 }
 
-export const StepGroupRollbackIdentifier = '(Rollback)'
-export const STATIC_SERVICE_GROUP_NAME = 'static_service_group'
-export const LITE_ENGINE_TASK = 'liteEngineTask'
-export const RollbackIdentifier = 'Rollback'
+export const StepGroupRollbackIdentifier = '(Rollback)';
+export const STATIC_SERVICE_GROUP_NAME = 'static_service_group';
+export const LITE_ENGINE_TASK = 'liteEngineTask';
+export const RollbackIdentifier = 'Rollback';
 export const RollbackContainerCss: React.CSSProperties = {
-  borderColor: 'var(--red-450)'
-}
+  borderColor: 'var(--red-450)',
+};
 
-export const ExecutionStatusEnum: Readonly<Record<ExecutionStatus, ExecutionStatus>> = {
+export const ExecutionStatusEnum: Readonly<
+  Record<ExecutionStatus, ExecutionStatus>
+> = {
   Aborted: 'Aborted',
   Expired: 'Expired',
   Failed: 'Failed',
@@ -469,24 +550,22 @@ export const ExecutionStatusEnum: Readonly<Record<ExecutionStatus, ExecutionStat
   ApprovalWaiting: 'ApprovalWaiting',
   Pausing: 'Pausing',
   InputWaiting: 'InputWaiting',
-  WaitStepRunning: 'WaitStepRunning'
-}
-
-
+  WaitStepRunning: 'WaitStepRunning',
+};
 
 const changeCase = (status?: string): string => {
-  const temp = camelCase(status)
+  const temp = camelCase(status);
 
-  return temp.charAt(0).toUpperCase() + temp.slice(1)
-}
+  return temp.charAt(0).toUpperCase() + temp.slice(1);
+};
 export function isExecutionRunning(status?: string): boolean {
-  const st = changeCase(status)
+  const st = changeCase(status);
   return (
     st === ExecutionStatusEnum.Running ||
     st === ExecutionStatusEnum.AsyncWaiting ||
     st === ExecutionStatusEnum.TimedWaiting ||
     st === ExecutionStatusEnum.TaskWaiting
-  )
+  );
 }
 
 export function isExecutionCompletedWithBadState(status?: string): boolean {
@@ -496,7 +575,7 @@ export function isExecutionCompletedWithBadState(status?: string): boolean {
     isExecutionFailed(status) ||
     isExecutionSuspended(status) ||
     isExecutionApprovalRejected(status)
-  )
+  );
 }
 
 export function isExecutionWaiting(status?: string): boolean {
@@ -506,117 +585,134 @@ export function isExecutionWaiting(status?: string): boolean {
     isExecutionWaitingForWaitStep(status) ||
     isExecutionWaitingForIntervention(status) ||
     isExecutionWaitingForInput(status)
-  )
+  );
 }
 
 export function isExecutionOnlyWaiting(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.ResourceWaiting
+  return changeCase(status) === ExecutionStatusEnum.ResourceWaiting;
 }
 
 export function isExecutionWaitingForApproval(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.ApprovalWaiting
+  return changeCase(status) === ExecutionStatusEnum.ApprovalWaiting;
 }
 export function isExecutionWaitingForWaitStep(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.WaitStepRunning
+  return changeCase(status) === ExecutionStatusEnum.WaitStepRunning;
 }
 
 export function isExecutionWaitingForIntervention(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.InterventionWaiting
+  return changeCase(status) === ExecutionStatusEnum.InterventionWaiting;
 }
 
 export function isExecutionWaitingForInput(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.InputWaiting
+  return changeCase(status) === ExecutionStatusEnum.InputWaiting;
 }
 
 export function isExecutionPausing(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.Pausing
+  return changeCase(status) === ExecutionStatusEnum.Pausing;
 }
 
 export function isExecutionPaused(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.Paused
+  return changeCase(status) === ExecutionStatusEnum.Paused;
 }
 
 export function isExecutionAborted(status?: string): boolean {
-  const st = changeCase(status)
-  return st === ExecutionStatusEnum.Aborted || st === ExecutionStatusEnum.Discontinuing
+  const st = changeCase(status);
+  return (
+    st === ExecutionStatusEnum.Aborted ||
+    st === ExecutionStatusEnum.Discontinuing
+  );
 }
 
 export function isExecutionFailed(status?: string): boolean {
-  const st = changeCase(status)
-  return st === ExecutionStatusEnum.Failed || st === ExecutionStatusEnum.Errored
+  const st = changeCase(status);
+  return (
+    st === ExecutionStatusEnum.Failed || st === ExecutionStatusEnum.Errored
+  );
 }
 
 export function isExecutionExpired(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.Expired
+  return changeCase(status) === ExecutionStatusEnum.Expired;
 }
 
 export function isExecutionSuspended(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.Suspended
+  return changeCase(status) === ExecutionStatusEnum.Suspended;
 }
 
 export function isExecutionApprovalRejected(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.ApprovalRejected
+  return changeCase(status) === ExecutionStatusEnum.ApprovalRejected;
 }
 
 export function isExecutionRunningLike(status?: string): boolean {
   return (
-    isExecutionRunning(status) || isExecutionPaused(status) || isExecutionPausing(status) || isExecutionWaiting(status)
-  )
+    isExecutionRunning(status) ||
+    isExecutionPaused(status) ||
+    isExecutionPausing(status) ||
+    isExecutionWaiting(status)
+  );
 }
 
 export function isExecutionSuccess(status?: string): boolean {
-  const st = changeCase(status)
-  return st === ExecutionStatusEnum.Success || st === ExecutionStatusEnum.IgnoreFailed
+  const st = changeCase(status);
+  return (
+    st === ExecutionStatusEnum.Success ||
+    st === ExecutionStatusEnum.IgnoreFailed
+  );
 }
 
 export function isExecutionNotStarted(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.NotStarted
+  return changeCase(status) === ExecutionStatusEnum.NotStarted;
 }
 
 export function isExecutionQueued(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.Queued
+  return changeCase(status) === ExecutionStatusEnum.Queued;
 }
 
 export function isExecutionSkipped(status?: string): boolean {
-  return changeCase(status) === ExecutionStatusEnum.Skipped
+  return changeCase(status) === ExecutionStatusEnum.Skipped;
 }
 
 export const getBackgroundStepStatus = ({
   allNodeMap,
-  identifier
+  identifier,
 }: {
-  allNodeMap: Record<string, ExecutionNode>
-  identifier: string
+  allNodeMap: Record<string, ExecutionNode>;
+  identifier: string;
 }): Omit<ExecutionStatus, 'NOT_STARTED'> | undefined => {
-  return allNodeMap[identifier]?.status
-}
+  return allNodeMap[identifier]?.status;
+};
 
 export declare function timeToDisplayText(time: number): string;
 
 export const getStepsTreeStatus = ({
   allNodeMap,
-  step
+  step,
 }: {
-  allNodeMap: Record<string, ExecutionNode>
-  step: ExecutionPipelineNode<ExecutionNode>
-// eslint-disable-next-line consistent-return
-}): undefined | Omit<ExecutionStatus, 'NOT_STARTED, undefinde'>   => {
-  const stepIdentifier = step?.item?.identifier
-  const groupIdentifier = step?.group?.identifier
+  allNodeMap: Record<string, ExecutionNode>;
+  step: ExecutionPipelineNode<ExecutionNode>;
+  // eslint-disable-next-line consistent-return
+}): undefined | Omit<ExecutionStatus, 'NOT_STARTED, undefinde'> => {
+  const stepIdentifier = step?.item?.identifier;
+  const groupIdentifier = step?.group?.identifier;
   if (stepIdentifier && step.item?.data) {
     return (
       (step.item.data?.stepType === StepType.Background &&
-        getBackgroundStepStatus({ identifier: step.item.identifier, allNodeMap })) ||
+        getBackgroundStepStatus({
+          identifier: step.item.identifier,
+          allNodeMap,
+        })) ||
       step.item.status
-    )
+    );
   } else if (groupIdentifier && step.group?.data) {
     return (
       (step.group.data?.stepType === StepType.Background &&
-        getBackgroundStepStatus({ identifier: step.group.identifier, allNodeMap })) ||
+        getBackgroundStepStatus({
+          identifier: step.group.identifier,
+          allNodeMap,
+        })) ||
       step.group.status
-    )
+    );
   }
-}
+};
 
 export enum NodeType {
   SERVICE = 'SERVICE',
@@ -639,7 +735,7 @@ export enum NodeType {
   RUNTIME_INPUT = 'RUNTIME_INPUT', // virtual node
   INFRASTRUCTURE_V2 = 'INFRASTRUCTURE_V2',
   INFRASTRUCTURE_TASKSTEP_V2 = 'INFRASTRUCTURE_TASKSTEP_V2',
-  SERVICE_V3 = 'SERVICE_V3'
+  SERVICE_V3 = 'SERVICE_V3',
 }
 
 enum NodeTypes {
@@ -647,7 +743,7 @@ enum NodeTypes {
   Stage = 'stage',
   Matrix = 'MATRIX',
   Loop = 'LOOP',
-  Parallelism = 'PARALLELISM'
+  Parallelism = 'PARALLELISM',
 }
 
 export const TopLevelNodes: NodeType[] = [
@@ -655,19 +751,19 @@ export const TopLevelNodes: NodeType[] = [
   NodeType.ROLLBACK_OPTIONAL_CHILD_CHAIN,
   NodeType.INFRASTRUCTURE_SECTION,
   NodeType.NG_SECTION_WITH_ROLLBACK_INFO,
-  NodeType.NG_EXECUTION
-]
+  NodeType.NG_EXECUTION,
+];
 
 export enum ExecutionPipelineNodeType {
   DIAMOND = 'DIAMOND',
   NORMAL = 'NORMAL',
   ICON = 'ICON',
-  MATRIX = 'MATRIX'
+  MATRIX = 'MATRIX',
 }
 
 export interface ExecutionSummaryInfo {
-  deployments?: number[]
-  lastExecutionId?: string
+  deployments?: number[];
+  lastExecutionId?: string;
   lastExecutionStatus?:
     | 'Running'
     | 'AsyncWaiting'
@@ -696,50 +792,71 @@ export interface ExecutionSummaryInfo {
     | 'INTERVENTION_WAITING'
     | 'APPROVAL_WAITING'
     | 'APPROVAL_REJECTED'
-    | 'WAITING'
-  lastExecutionTs?: number
-  numOfErrors?: number[]
+    | 'WAITING';
+  lastExecutionTs?: number;
+  numOfErrors?: number[];
 }
 
 export interface ExecutionPipeline<T> {
-  items: Array<ExecutionPipelineNode<T>>
-  identifier: string
-  status?: ExecutionStatus
-  allNodes: string[]
+  items: Array<ExecutionPipelineNode<T>>;
+  identifier: string;
+  status?: ExecutionStatus;
+  allNodes: string[];
 }
 
 export interface ExecutionPipelineItem<T> {
-  [x: string]: any
-  iconStyle?: CSSProperties
-  iconSize?: number
-  identifier: string
-  name: string
-  type: ExecutionPipelineNodeType
-  status: ExecutionStatus
-  icon: IconName
-  skipCondition?: string
-  when?: NodeRunInfo
-  barrierFound?: boolean
-  disableClick?: boolean
-  cssProps?: CSSProperties
-  data?: T
-  pipeline?: ExecutionPipeline<T>
-  itemType?: 'step' | 'service-dependency' | string
+  [x: string]: any;
+  iconStyle?: CSSProperties;
+  iconSize?: number;
+  identifier: string;
+  name: string;
+  type: ExecutionPipelineNodeType;
+  status: ExecutionStatus;
+  icon: IconName;
+  skipCondition?: string;
+  when?: NodeRunInfo;
+  barrierFound?: boolean;
+  disableClick?: boolean;
+  cssProps?: CSSProperties;
+  data?: T;
+  pipeline?: ExecutionPipeline<T>;
+  itemType?: 'step' | 'service-dependency' | string;
 }
 export type ExecutionStatus = Exclude<
   Required<ExecutionSummaryInfo>['lastExecutionStatus'],
-  'NOT_STARTED' | 'INTERVENTION_WAITING' | 'APPROVAL_WAITING' | 'APPROVAL_REJECTED' | 'WAITING'
->
+  | 'NOT_STARTED'
+  | 'INTERVENTION_WAITING'
+  | 'APPROVAL_WAITING'
+  | 'APPROVAL_REJECTED'
+  | 'WAITING'
+>;
 
 export interface Intent {
-  NONE: "none";
-  PRIMARY: "primary";
-  SUCCESS: "success";
-  WARNING: "warning";
-  DANGER: "danger";
-};
+  NONE: 'none';
+  PRIMARY: 'primary';
+  SUCCESS: 'success';
+  WARNING: 'warning';
+  DANGER: 'danger';
+}
 
-export declare type Spacing = 'none' | 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'xxxlarge' | 'huge' | 'dialog' | 'form' | 'form-section' | 'form-panel' | 'form-subsection' | 'form-panel-subsection' | 'form-action-buttons' | any;
+export declare type Spacing =
+  | 'none'
+  | 'xsmall'
+  | 'small'
+  | 'medium'
+  | 'large'
+  | 'xlarge'
+  | 'xxlarge'
+  | 'xxxlarge'
+  | 'huge'
+  | 'dialog'
+  | 'form'
+  | 'form-section'
+  | 'form-panel'
+  | 'form-subsection'
+  | 'form-panel-subsection'
+  | 'form-action-buttons'
+  | any;
 
 export interface MarginProps {
   top?: Spacing;
@@ -755,7 +872,12 @@ export interface PaddingProps {
   left?: Spacing;
 }
 
-export declare type FontSize = 'xsmall' | 'small' | 'normal' | 'medium' | 'large';
+export declare type FontSize =
+  | 'xsmall'
+  | 'small'
+  | 'normal'
+  | 'medium'
+  | 'large';
 
 export interface FontProps {
   size?: FontSize;
@@ -769,40 +891,39 @@ export interface FontProps {
 export declare type FontWeight = 'light' | 'bold' | 'semi-bold';
 export declare type TextAlignment = 'left' | 'center' | 'right';
 export declare enum FontVariation {
-    DISPLAY1 = "display1",
-    DISPLAY2 = "display2",
-    H1 = "h1",
-    H1_SEMI = "h1-semi",
-    H2 = "h2",
-    H3 = "h3",
-    H4 = "h4",
-    H5 = "h5",
-    H6 = "h6",
-    LEAD = "lead",
-    BODY = "body",
-    BODY1 = "body1",
-    BODY2 = "body2",
-    BODY2_SEMI = "body2-semi",
-    BLOCKQUOTE = "blockquote",
-    UPPERCASED = "uppercased",
-    SMALL = "small",
-    SMALL_BOLD = "small-bold",
-    SMALL_SEMI = "small-semi",
-    TABLE_HEADERS = "table-headers",
-    TINY = "tiny",
-    TINY_SEMI = "tiny-semi",
-    YAML = "yaml",
-    CARD_TITLE = "card-title",
-    FORM_TITLE = "form-title",
-    FORM_SUB_SECTION = "form-sub-section",
-    FORM_INPUT_TEXT = "form-input-text",
-    FORM_LABEL = "form-label",
-    FORM_HELP = "form-help",
-    FORM_MESSAGE_DANGER = "form-message-danger",
-    FORM_MESSAGE_WARNING = "form-message-warning",
-    FORM_MESSAGE_SUCCESS = "form-message-success"
+  DISPLAY1 = 'display1',
+  DISPLAY2 = 'display2',
+  H1 = 'h1',
+  H1_SEMI = 'h1-semi',
+  H2 = 'h2',
+  H3 = 'h3',
+  H4 = 'h4',
+  H5 = 'h5',
+  H6 = 'h6',
+  LEAD = 'lead',
+  BODY = 'body',
+  BODY1 = 'body1',
+  BODY2 = 'body2',
+  BODY2_SEMI = 'body2-semi',
+  BLOCKQUOTE = 'blockquote',
+  UPPERCASED = 'uppercased',
+  SMALL = 'small',
+  SMALL_BOLD = 'small-bold',
+  SMALL_SEMI = 'small-semi',
+  TABLE_HEADERS = 'table-headers',
+  TINY = 'tiny',
+  TINY_SEMI = 'tiny-semi',
+  YAML = 'yaml',
+  CARD_TITLE = 'card-title',
+  FORM_TITLE = 'form-title',
+  FORM_SUB_SECTION = 'form-sub-section',
+  FORM_INPUT_TEXT = 'form-input-text',
+  FORM_LABEL = 'form-label',
+  FORM_HELP = 'form-help',
+  FORM_MESSAGE_DANGER = 'form-message-danger',
+  FORM_MESSAGE_WARNING = 'form-message-warning',
+  FORM_MESSAGE_SUCCESS = 'form-message-success',
 }
-
 
 export interface StyledProps {
   /** Component intent */
@@ -838,7 +959,9 @@ export interface StyledProps {
 export declare type IconName = HarnessIconName | BIconName;
 export declare function Icon(props: IconProps): React.ReactElement;
 
-export interface IconProps extends HTMLAttributes<HTMLHeadingElement>, Omit<StyledProps, 'children'> {
+export interface IconProps
+  extends HTMLAttributes<HTMLHeadingElement>,
+    Omit<StyledProps, 'children'> {
   name: IconName;
   inverse?: boolean;
   size?: number;
@@ -848,8 +971,27 @@ export interface FlexProps {
   inline?: boolean;
   /** Component children flex layout content alignment */
   align?: 'center-center';
-  alignItems?: 'stretch' | 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'start' | 'end' | 'self-start' | 'self-end';
-  justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' | 'start' | 'end' | 'left' | 'right';
+  alignItems?:
+    | 'stretch'
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'baseline'
+    | 'start'
+    | 'end'
+    | 'self-start'
+    | 'self-end';
+  justifyContent?:
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly'
+    | 'start'
+    | 'end'
+    | 'left'
+    | 'right';
   /** Component children flex layout content distribution */
   distribution?: 'space-between';
 }
@@ -870,9 +1012,6 @@ export interface PopoverProps extends IPopoverProps {
   dataTooltipId?: string;
 }
 
-
-
-
 export interface BorderProps {
   top?: boolean;
   right?: boolean;
@@ -883,7 +1022,6 @@ export interface BorderProps {
   width?: number;
   radius?: number;
 }
-
 
 export declare const Color: {
   PRIMARY_BG: string;
@@ -1024,50 +1162,49 @@ export declare const Color: {
   SEA_GREEN_500: string;
 };
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export declare type Color = typeof Color[keyof typeof Color];
-
+export declare type Color = (typeof Color)[keyof typeof Color];
 
 export interface ExecutionPipelineGroupInfo<T> {
-  identifier: string
-  name: string
-  data: T
-  cssProps?: CSSProperties
-  icon: IconName
-  skipCondition?: string
-  when?: NodeRunInfo
-  containerCss?: CSSProperties
-  textCss?: CSSProperties
-  verticalStepGroup?: boolean
-  status: ExecutionStatus
-  isOpen: boolean
-  items: Array<ExecutionPipelineNode<T>>
+  identifier: string;
+  name: string;
+  data: T;
+  cssProps?: CSSProperties;
+  icon: IconName;
+  skipCondition?: string;
+  when?: NodeRunInfo;
+  containerCss?: CSSProperties;
+  textCss?: CSSProperties;
+  verticalStepGroup?: boolean;
+  status: ExecutionStatus;
+  isOpen: boolean;
+  items: Array<ExecutionPipelineNode<T>>;
 }
 export interface ExecutionPipelineNode<T> {
-  item?: ExecutionPipelineItem<T>
-  parallel?: Array<ExecutionPipelineNode<T>>
-  group?: ExecutionPipelineGroupInfo<T>
+  item?: ExecutionPipelineItem<T>;
+  parallel?: Array<ExecutionPipelineNode<T>>;
+  group?: ExecutionPipelineGroupInfo<T>;
 }
 
 export interface ExecutionGraph {
   nodeAdjacencyListMap?: {
-    [key: string]: ExecutionNodeAdjacencyList
-  }
+    [key: string]: ExecutionNodeAdjacencyList;
+  };
   nodeMap?: {
-    [key: string]: ExecutionNode
-  }
-  representationStrategy?: 'camelCase'
-  rootNodeId?: string
+    [key: string]: ExecutionNode;
+  };
+  representationStrategy?: 'camelCase';
+  rootNodeId?: string;
 }
 
 export interface DelegateInfo {
-  id?: string
-  name?: string
-  taskId?: string
-  taskName?: string
+  id?: string;
+  name?: string;
+  taskId?: string;
+  taskName?: string;
 }
 
 export interface ExecutableResponse {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface AdviserIssuer {
@@ -1080,45 +1217,45 @@ export interface AdviserIssuer {
     | 'MARK_SUCCESS'
     | 'IGNORE_FAILURE'
     | 'PROCEED_WITH_DEFAULT'
-    | 'UNRECOGNIZED'
+    | 'UNRECOGNIZED';
 }
 
 export interface ManualIssuer {
-  email_id: string
-  identifier: string
-  type: string
-  user_id: string
+  email_id: string;
+  identifier: string;
+  type: string;
+  user_id: string;
 }
 
 export interface TimeoutIssuer {
-  timeoutInstanceId: string
+  timeoutInstanceId: string;
 }
 
 export interface TriggerIssuer {
-  abortPrevConcurrentExecution: boolean
-  triggerRef: string
+  abortPrevConcurrentExecution: boolean;
+  triggerRef: string;
 }
 
 export interface IssuedBy {
-  adviserIssuer?: AdviserIssuer
-  issueTime: number
-  manualIssuer?: ManualIssuer
-  timeoutIssuer?: TimeoutIssuer
-  triggerIssuer?: TriggerIssuer
+  adviserIssuer?: AdviserIssuer;
+  issueTime: number;
+  manualIssuer?: ManualIssuer;
+  timeoutIssuer?: TimeoutIssuer;
+  triggerIssuer?: TriggerIssuer;
 }
 
 export interface RetryInterruptConfig {
-  retryId: string
+  retryId: string;
 }
 
 export interface InterruptConfig {
-  issuedBy: IssuedBy
-  retryInterruptConfig?: RetryInterruptConfig
+  issuedBy: IssuedBy;
+  retryInterruptConfig?: RetryInterruptConfig;
 }
 
 export interface InterruptEffectDTO {
-  interruptConfig: InterruptConfig
-  interruptId: string
+  interruptConfig: InterruptConfig;
+  interruptId: string;
   interruptType:
     | 'UNKNOWN'
     | 'ABORT'
@@ -1138,51 +1275,51 @@ export interface InterruptEffectDTO {
     | 'CUSTOM_FAILURE'
     | 'EXPIRE_ALL'
     | 'PROCEED_WITH_DEFAULT'
-    | 'UNRECOGNIZED'
-  tookEffectAt: number
+    | 'UNRECOGNIZED';
+  tookEffectAt: number;
 }
 
 export interface ServiceDependency {
-  identifier: string
-  name: string | null
-  image: string
-  status: string
-  startTime: string
-  endTime: string | null
-  errorMessage: string | null
-  errorReason: string | null
+  identifier: string;
+  name: string | null;
+  image: string;
+  status: string;
+  startTime: string;
+  endTime: string | null;
+  errorMessage: string | null;
+  errorReason: string | null;
 }
 
 export interface NodeRunInfo {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface SkipInfo {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface ExecutionNode {
-  baseFqn?: string
-  delegateInfoList?: DelegateInfo[]
-  endTs?: number
-  executableResponses?: ExecutableResponse[]
-  executionInputConfigured?: boolean
-  failureInfo?: FailureInfoDTO
-  identifier?: string
-  interruptHistories?: InterruptEffectDTO[]
-  name?: string
-  nodeRunInfo?: NodeRunInfo
+  baseFqn?: string;
+  delegateInfoList?: DelegateInfo[];
+  endTs?: number;
+  executableResponses?: ExecutableResponse[];
+  executionInputConfigured?: boolean;
+  failureInfo?: FailureInfoDTO;
+  identifier?: string;
+  interruptHistories?: InterruptEffectDTO[];
+  name?: string;
+  nodeRunInfo?: NodeRunInfo;
   outcomes?: {
     [key: string]: {
-      [key: string]: { [key: string]: any }
-    }
-  }
+      [key: string]: { [key: string]: any };
+    };
+  };
   progressData?: {
-    [key: string]: { [key: string]: any }
-  }
-  setupId?: string
-  skipInfo?: SkipInfo
-  startTs?: number
+    [key: string]: { [key: string]: any };
+  };
+  setupId?: string;
+  skipInfo?: SkipInfo;
+  startTs?: number;
   status?:
     | 'Running'
     | 'AsyncWaiting'
@@ -1211,27 +1348,27 @@ export interface ExecutionNode {
     | 'INTERVENTION_WAITING'
     | 'APPROVAL_WAITING'
     | 'APPROVAL_REJECTED'
-    | 'WAITING'
+    | 'WAITING';
   stepDetails?: {
     [key: string]: {
-      [key: string]: { [key: string]: any }
-    }
-  }
+      [key: string]: { [key: string]: any };
+    };
+  };
   stepParameters?: {
-    [key: string]: { [key: string]: any }
-  }
-  stepType?: string
-  strategyMetadata?: StrategyMetadata
-  unitProgresses?: UnitProgress[]
-  uuid?: string
+    [key: string]: { [key: string]: any };
+  };
+  stepType?: string;
+  strategyMetadata?: StrategyMetadata;
+  unitProgresses?: UnitProgress[];
+  uuid?: string;
 }
 
 export interface UnitProgress {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface StrategyMetadata {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface FailureInfoDTO {
@@ -1246,14 +1383,14 @@ export interface FailureInfoDTO {
     | 'TIMEOUT_ERROR'
     | 'POLICY_EVALUATION_FAILURE'
     | 'INPUT_TIMEOUT_FAILURE'
-  )[]
-  message?: string
-  responseMessages?: ResponseMessage[]
+  )[];
+  message?: string;
+  responseMessages?: ResponseMessage[];
 }
 
 export interface ExecutionNodeAdjacencyList {
-  children?: string[]
-  nextIds?: string[]
+  children?: string[];
+  nextIds?: string[];
 }
 
 export interface ResponseMessage {
@@ -1600,8 +1737,8 @@ export interface ResponseMessage {
     | 'AWS_ECS_CLIENT_ERROR'
     | 'AWS_STS_ERROR'
     | 'FREEZE_EXCEPTION'
-    | 'DELEGATE_TASK_EXPIRED'
-  exception?: Throwable
+    | 'DELEGATE_TASK_EXPIRED';
+  exception?: Throwable;
   failureTypes?: (
     | 'EXPIRED'
     | 'DELEGATE_PROVISIONING'
@@ -1613,29 +1750,29 @@ export interface ResponseMessage {
     | 'TIMEOUT_ERROR'
     | 'POLICY_EVALUATION_FAILURE'
     | 'INPUT_TIMEOUT_FAILURE'
-  )[]
-  level?: 'INFO' | 'ERROR'
-  message?: string
+  )[];
+  level?: 'INFO' | 'ERROR';
+  message?: string;
 }
 
 export interface Throwable {
-  cause?: Throwable
-  detailMessage?: string
-  localizedMessage?: string
-  message?: string
-  stackTrace?: StackTraceElement[]
-  suppressed?: Throwable[]
+  cause?: Throwable;
+  detailMessage?: string;
+  localizedMessage?: string;
+  message?: string;
+  stackTrace?: StackTraceElement[];
+  suppressed?: Throwable[];
 }
 
 export interface StackTraceElement {
-  classLoaderName?: string
-  className?: string
-  fileName?: string
-  lineNumber?: number
-  methodName?: string
-  moduleName?: string
-  moduleVersion?: string
-  nativeMethod?: boolean
+  classLoaderName?: string;
+  className?: string;
+  fileName?: string;
+  lineNumber?: number;
+  methodName?: string;
+  moduleName?: string;
+  moduleVersion?: string;
+  nativeMethod?: boolean;
 }
 
 export enum StepType {
@@ -1744,14 +1881,14 @@ export enum StepType {
   CustomDeployment = 'CustomDeployment',
   FetchInstanceScript = 'FetchInstanceScript',
   Wait = 'Wait',
-  ShellScriptProvision = 'ShellScriptProvision'
+  ShellScriptProvision = 'ShellScriptProvision',
 }
 
 export const cloudFormationSteps: StepType[] = [
   StepType.CloudFormationCreateStack,
   StepType.CloudFormationDeleteStack,
-  StepType.CloudFormationRollbackStack
-]
+  StepType.CloudFormationRollbackStack,
+];
 
 export const StepTypeIconsMap: { [key in NodeType]: IconName } = {
   SERVICE: 'services',
@@ -1774,26 +1911,814 @@ export const StepTypeIconsMap: { [key in NodeType]: IconName } = {
   StepGroupNode: 'step-group',
   'GITOPS CLUSTERS': 'gitops-clusters',
   STRATEGY: 'step-group',
-  RUNTIME_INPUT: 'runtime-input'
-}
+  RUNTIME_INPUT: 'runtime-input',
+};
 
-
-
-declare type HarnessIconName = 'Account' | 'CustomDeployment' | 'Edit' | 'Inline' | 'Options' | 'Stroke' | 'access-control' | 'accordion-collapsed' | 'accordion-expanded' | 'activity' | 'add-stage' | 'adminRole' | 'advanced' | 'api-docs' | 'app-aws-code-deploy' | 'app-aws-lambda' | 'app-kubernetes' | 'approval-stage-icon' | 'approval-stage' | 'approval-step' | 'argo' | 'arm' | 'arrow' | 'audit-log-created' | 'audit-trail' | 'autostopping' | 'aws-codecommit' | 'aws-ectwo-service' | 'aws-kms' | 'aws-rds' | 'aws-secret-manager' | 'azure-arm-rollback' | 'azure-arm' | 'azure-blob' | 'azure-blueprints' | 'azure-container-registry' | 'azure-key-vault' | 'azure-kubernetes-service' | 'azure-vm' | 'azurewebapp' | 'background-step' | 'banned' | 'bar-chart' | 'barrier-close' | 'barrier-open-with-links' | 'barrier-open' | 'baseline-target' | 'basic-deployment' | 'bin-main' | 'bitbucket-blue' | 'bitbucket-new' | 'bitbucket-selected' | 'bitbucket-unselected' | 'bitbucket' | 'blank-canvas-card-icon' | 'blank-canvas-header-icon' | 'blue-black-cluster' | 'blue-green' | 'bluegreen-inverse' | 'bluegreen' | 'budget-alert-light' | 'build-stage' | 'canary-delete-inverse' | 'canary-delete' | 'canary-grey' | 'canary-icon' | 'canary-inverse' | 'canary-outline' | 'canary' | 'canvas-position' | 'canvas-reset' | 'canvas-selector' | 'ccm-sketch' | 'ccm-solid' | 'ccm-with-dark-text' | 'ccm-with-text' | 'cd-hover' | 'cd-main-inverse' | 'cd-main' | 'cd-sketch' | 'cd-solid' | 'cd-with-dark-text' | 'cd-with-text' | 'cd' | 'ce-application' | 'ce-beta' | 'ce-budget_colored' | 'ce-budget_grey' | 'ce-cloud' | 'ce-cluster' | 'ce-hover' | 'ce-main-colored' | 'ce-main-grey' | 'ce-main-inverse' | 'ce-main' | 'ce-optimization' | 'ce-visibility' | 'cf-hover' | 'cf-main-inverse' | 'cf-main' | 'chained-pipeline-hover' | 'chained-pipeline' | 'change-log' | 'chaos-cube' | 'chaos-experiment-weight' | 'chaos-hubs' | 'chaos-litmuschaos' | 'chaos-main' | 'chaos-scenario-builder-faded' | 'chaos-scenario-builder' | 'chat' | 'check-alt' | 'check' | 'ci-active-build' | 'ci-build-pipeline' | 'ci-dev-exp' | 'ci-execution' | 'ci-gov' | 'ci-hover' | 'ci-infra-support' | 'ci-infra' | 'ci-integrated' | 'ci-language' | 'ci-main-inverse' | 'ci-main' | 'ci-parameterization' | 'ci-pending-build' | 'ci-sketch' | 'ci-solid-current-color' | 'ci-solid' | 'ci-ti' | 'ci-try-pipeline' | 'ci-with-dark-text' | 'ci-with-text' | 'circle-cross' | 'circle-stop' | 'clipboard-alt' | 'cloud-accounts' | 'cloud-dark' | 'cloud-formation-create' | 'cloud-formation-delete' | 'cloud-formation-rollback' | 'cloud-light' | 'cloud-sso' | 'cloudformation' | 'codebase-invalid' | 'codebase-not-configured' | 'codebase-valid' | 'codebase-validating' | 'codebase-zero-state' | 'command-approval' | 'command-artifact-check' | 'command-barrier' | 'command-calendar' | 'command-echo' | 'command-email' | 'command-http' | 'command-icon' | 'command-install' | 'command-resource-constraint' | 'command-rollback' | 'command-shell-script' | 'command-start' | 'command-stop' | 'command-swap' | 'command-switch' | 'command-winrm' | 'compare-version' | 'conditional-execution' | 'conditional-skip-filled' | 'conditional-skip-new' | 'conditional-skip' | 'conditional-when' | 'config-change' | 'config-file' | 'configure' | 'connectivity-mode' | 'connectors-blue' | 'connectors-icon' | 'connectthroughdelegate' | 'connectthroughmanager' | 'contact-support' | 'copy-alt' | 'copy-doc' | 'copy' | 'cost-data-collection' | 'coverage-status-error' | 'coverage-status-success' | 'create-pr' | 'create-via-existing-yaml' | 'create-via-pipeline-template' | 'create-via-starter-pipeline' | 'cs-hover' | 'custom-approval' | 'custom-artifact' | 'custom-remote-manifest' | 'custom-service' | 'custom-sm' | 'custom-stage-icon' | 'custom-stage' | 'customRole' | 'customize' | 'cv-hover' | 'cv-main-inverse' | 'cv-main' | 'cv-sketch' | 'cv-solid-current-color' | 'cv-solid' | 'cv-with-text' | 'danger-icon' | 'dashboard-selected' | 'dashboard' | 'data-fetch-error' | 'default-dashboard' | 'delegates-blue' | 'delegates-icon' | 'dependency-default-icon' | 'dependency-step' | 'deploy-stage' | 'deployment-aborted-legacy' | 'deployment-aborted-new' | 'deployment-failed-legacy' | 'deployment-failed-new' | 'deployment-incomplete-legacy' | 'deployment-incomplete-new' | 'deployment-inprogress-legacy' | 'deployment-inprogress-new' | 'deployment-paused-legacy' | 'deployment-paused-new' | 'deployment-queued-legacy' | 'deployment-queued-new' | 'deployment-rejected-legacy' | 'deployment-rejected-new' | 'deployment-success-legacy' | 'deployment-success-new' | 'deployment-timeout-legacy' | 'deployment-timeout-new' | 'description' | 'digital-ocean' | 'docker-hub-step' | 'docker-step-inverse' | 'docker-step' | 'docs' | 'dotnet' | 'down' | 'ecr-step-inverse' | 'ecr-step' | 'elastic-kubernetes-service' | 'elk' | 'email-inline' | 'email-step' | 'entity' | 'environment-group-outline' | 'environment-group' | 'environment' | 'environments-outline' | 'environments' | 'error-outline' | 'error-tracking' | 'error-transparent-no-outline' | 'evaluate-policy' | 'execution-abort' | 'execution-history' | 'execution-input' | 'execution-rollback' | 'execution-success' | 'execution-warning' | 'execution' | 'expired' | 'expression-input' | 'failure-strategy' | 'fat-arrow-up' | 'feature-flag-stage' | 'feedback-given' | 'ff-sketch' | 'ff-solid' | 'ff-with-dark-text' | 'ff-with-text' | 'file' | 'filestore' | 'fixed-input' | 'flag-tick' | 'flag' | 'flash' | 'folder-upload' | 'full-screen-exit' | 'full-screen' | 'functions' | 'gcp-engine' | 'gcp-kms' | 'gcp-secret-manager' | 'gcp' | 'gcr-step-inverse' | 'gcr-step' | 'gcs-step-inverse' | 'gcs-step' | 'gear' | 'git-branch-existing' | 'git-clone-step' | 'git-configure' | 'git-landing-page' | 'git-new-branch' | 'git-popover' | 'github-selected' | 'github-unselected' | 'github' | 'gitlab-selected' | 'gitlab-unselected' | 'gitlab' | 'gitops-agent-blue' | 'gitops-agent' | 'gitops-agents-blue-circle' | 'gitops-application-white' | 'gitops-application' | 'gitops-applications-blue-circle' | 'gitops-blue-circle' | 'gitops-blue' | 'gitops-clusters-blue-circle' | 'gitops-clusters-blue' | 'gitops-clusters' | 'gitops-gnupg-key-blue-circle' | 'gitops-gnupg-key-blue' | 'gitops-green' | 'gitops-missing' | 'gitops-no' | 'gitops-repo-cert-blue' | 'gitops-repository-blue-circle' | 'gitops-repository-blue' | 'gitops-repository-certificates-blue-circle' | 'gitops-suspended' | 'gitops-unknown' | 'gitops-yes' | 'golang' | 'google-kubernetes-engine' | 'google' | 'governance-policy-set' | 'governance-shield' | 'governance' | 'graph' | 'grey-cluster' | 'grid' | 'harness-logo-black' | 'harness-logo-white-bg-blue' | 'harness-logo-white' | 'harness-with-color' | 'harness' | 'hashiCorpVault' | 'health' | 'helm-oci' | 'helm-rollback' | 'help' | 'hourglass' | 'http-step' | 'infinityTrend' | 'info-message' | 'info-messaging' | 'info' | 'infrastructure' | 'initialize-step-inverse' | 'initialize-step' | 'insight-view' | 'integration' | 'java' | 'jira-approve-inverse' | 'jira-approve' | 'jira-create-inverse' | 'jira-create' | 'jira-update-inverse' | 'jira-update' | 'key-main' | 'key' | 'kustamize' | 'kustomizeparam' | 'launch' | 'layout-bottom' | 'layout-float' | 'layout-right' | 'library' | 'line-chart' | 'linkedin' | 'list-entity-infographic' | 'list-view' | 'loading' | 'looping' | 'main-abort' | 'main-account-notifications' | 'main-add' | 'main-applications' | 'main-apply' | 'main-baseline' | 'main-calendar' | 'main-canary' | 'main-caret-down' | 'main-caret-left' | 'main-caret-right' | 'main-caret-up' | 'main-changelog' | 'main-chevron-down' | 'main-chevron-left' | 'main-chevron-right' | 'main-chevron-up' | 'main-clone' | 'main-close' | 'main-cloud-providers' | 'main-cloud' | 'main-code-yaml' | 'main-dashboard' | 'main-delegates' | 'main-delete' | 'main-depricate' | 'main-destroy' | 'main-download' | 'main-email' | 'main-environments' | 'main-feedback' | 'main-filter' | 'main-flag' | 'main-folder-new' | 'main-folder-open' | 'main-folder' | 'main-fullscreen' | 'main-help' | 'main-info' | 'main-infrastructure-provisioners' | 'main-issue-filled' | 'main-issue' | 'main-like' | 'main-link' | 'main-list' | 'main-listener-update' | 'main-lock' | 'main-main-zoom_in' | 'main-maximize' | 'main-minimize' | 'main-more' | 'main-move' | 'main-notes' | 'main-notifications' | 'main-pause' | 'main-pin' | 'main-pipelines' | 'main-popularity' | 'main-refresh' | 'main-reorder' | 'main-rerun' | 'main-resume' | 'main-rollback' | 'main-saved' | 'main-scope' | 'main-search' | 'main-service-ami' | 'main-services' | 'main-setup' | 'main-share' | 'main-sort' | 'main-start' | 'main-tags' | 'main-template-library' | 'main-thumbsdown' | 'main-thumbsup' | 'main-tick' | 'main-trash' | 'main-unlock' | 'main-unpin' | 'main-upload' | 'main-user-groups' | 'main-user' | 'main-view' | 'main-workflows' | 'main-zoom-out' | 'memberRole' | 'merge-pr' | 'microsoft-azure' | 'money-icon' | 'multi-service' | 'nav-account-admin-hover' | 'nav-account-admin-selected' | 'nav-account-admin' | 'nav-cd-hover' | 'nav-cd-selected' | 'nav-cd' | 'nav-cf' | 'nav-cv-hover' | 'nav-cv-selected' | 'nav-cv' | 'nav-dashboard-hover' | 'nav-dashboard-selected' | 'nav-dashboard' | 'nav-deployments-hover' | 'nav-deployments-selected' | 'nav-deployments' | 'nav-git-sync' | 'nav-governance-hover' | 'nav-governance-selected' | 'nav-governance' | 'nav-harness-hover' | 'nav-harness-selected' | 'nav-harness' | 'nav-help' | 'nav-infrastructure-hover' | 'nav-infrastructure-selected' | 'nav-organization' | 'nav-pipelines-selected' | 'nav-pipelines' | 'nav-project' | 'nav-resources-hover' | 'nav-resources-selected' | 'nav-resources' | 'nav-settings' | 'nav-user-profile-hover' | 'nav-user-profile-selected' | 'nav-user-profile' | 'network' | 'new-artifact' | 'new-decoration' | 'new-notification' | 'ng-filter' | 'no-deployments' | 'no-feedback-given' | 'no-instances' | 'nodejs' | 'not-synced' | 'notification' | 'offline-outline' | 'onprem-dark' | 'onprem-light' | 'openshift-params' | 'openshift' | 'other-workload' | 'pdc-inverse' | 'pdc' | 'pending' | 'pipeline-advanced' | 'pipeline-approval' | 'pipeline-build-select' | 'pipeline-build' | 'pipeline-custom' | 'pipeline-deploy' | 'pipeline-deployment' | 'pipeline-executor' | 'pipeline-ng' | 'pipeline-stage-selection-caret' | 'pipeline-variables' | 'pipeline' | 'placeholder-hover' | 'placeholder-selected' | 'placeholder' | 'play-circle' | 'play-outline' | 'plugin-step' | 'pod' | 'polygon' | 'profile' | 'projects-wizard' | 'prune-skipped' | 'pruned' | 'publish-step' | 'python' | 'question' | 'queue-step' | 'queued' | 'remote-setup' | 'remote' | 'remotefile' | 'remove-minus' | 'remove' | 'report-gear-grey' | 'report-gear' | 'report-icon' | 'repository' | 'res-connectors' | 'res-delegates' | 'res-environments' | 'res-resourceGroups' | 'res-roles' | 'res-secrets' | 'res-userGroups' | 'res-users' | 'reset-icon' | 'resource-center-community-icon' | 'resource-center-docs-icon' | 'resources-icon' | 'restore-cache-gcs-step-inverse' | 'restore-cache-gcs-step' | 'restore-cache-gcs' | 'restore-cache-s3-step-inverse' | 'restore-cache-s3-step' | 'restore-cache-s3' | 'restore-cache-step' | 'right-bar-notification' | 'rollback-execution' | 'rolling-inverse' | 'rolling-update' | 'rolling' | 'run-pipeline' | 'run-step' | 'run-tests-step' | 'runtime-input' | 's3-step-inverse' | 's3-step' | 'save-cache-gcs-step-inverse' | 'save-cache-gcs-step' | 'save-cache-gcs' | 'save-cache-s3-step-inverse' | 'save-cache-s3-step' | 'save-cache-s3' | 'save-cache-step' | 'scm' | 'script' | 'search-applications' | 'search-connectors' | 'search-environments' | 'search-infra-prov' | 'search-list' | 'search-pipelines' | 'search-services' | 'search-tips' | 'search-triggers' | 'search-user-groups' | 'search-users' | 'search-workflow' | 'secret-manager' | 'secret-ssh' | 'secrets-blue' | 'secrets-icon' | 'security-stage' | 'send-data' | 'serverless-deploy-step' | 'service-amazon-ecs' | 'service-appdynamics' | 'service-artifactory-inverse' | 'service-artifactory' | 'service-aws-code-deploy' | 'service-aws-lamda' | 'service-aws-sam' | 'service-aws' | 'service-azdevops' | 'service-azure-functions' | 'service-azure' | 'service-bamboo' | 'service-bugsnag' | 'service-circleci' | 'service-cloudformation' | 'service-cloudwatch' | 'service-custom-connector' | 'service-datadog' | 'service-deployment' | 'service-dockerhub' | 'service-dynatrace' | 'service-ecs' | 'service-elastigroup' | 'service-elk' | 'service-gar' | 'service-gcp-with-text' | 'service-gcp' | 'service-github-package' | 'service-github' | 'service-gotlab' | 'service-helm' | 'service-instana' | 'service-jenkins-inverse' | 'service-jenkins' | 'service-jira-inverse' | 'service-jira' | 'service-kubernetes' | 'service-microsoft-teams' | 'service-mongodb' | 'service-msteams' | 'service-mydatacenter' | 'service-newrelic' | 'service-nexus' | 'service-ogz' | 'service-okta' | 'service-onelogin' | 'service-pagerduty' | 'service-pivotal' | 'service-prometheus' | 'service-redis' | 'service-serverless-aws' | 'service-serverless-azure' | 'service-serverless-gcp' | 'service-serverless' | 'service-service-s3' | 'service-servicenow-inverse' | 'service-servicenow' | 'service-slack' | 'service-splunk-with-name' | 'service-splunk' | 'service-spotinst' | 'service-stackdriver' | 'service-sumologic' | 'service-terraform' | 'service-vm' | 'service' | 'servicenow-approve-inverse' | 'servicenow-approve' | 'servicenow-create-inverse' | 'servicenow-create' | 'servicenow-update-inverse' | 'servicenow-update' | 'services' | 'setup-api' | 'setup-tags' | 'shield-gears' | 'skipped' | 'slider-trigger' | 'slot-deployment' | 'smtp-configuration-blue' | 'smtp' | 'spinner' | 'srm-with-dark-text' | 'stars' | 'status-pending' | 'status-running' | 'step-group' | 'step-jira' | 'step-kubernetes' | 'steps-spinner' | 'sto-color-filled' | 'sto-grey' | 'success-tick' | 'support-account' | 'support-api' | 'support-code' | 'support-dashboard' | 'support-deployment' | 'support-gitops' | 'support-onprem' | 'support-pipeline' | 'support-security' | 'support-start' | 'support-tour' | 'support-troubleshoot' | 'support-verification' | 'support-videos' | 'swap-services' | 'sync-failed' | 'synced' | 'syncing' | 'template-inputs' | 'template-library' | 'templates-blue' | 'templates-icon' | 'terraform-apply-inverse' | 'terraform-apply-new' | 'terraform-apply' | 'terraform-destroy-inverse' | 'terraform-destroy' | 'terraform-plan-inverse' | 'terraform-plan' | 'terraform-rollback-inverse' | 'terraform-rollback' | 'test-connection' | 'test-verification' | 'text' | 'thinner-search' | 'timeout' | 'tooltip-icon' | 'traffic-lights' | 'trigger-artifact' | 'trigger-execution' | 'trigger-github' | 'trigger-pipeline' | 'trigger-schedule' | 'union' | 'university' | 'up' | 'upgrade-bolt' | 'upload-box' | 'user-groups' | 'user' | 'utility' | 'valuesFIle' | 'variable' | 'variables-blue' | 'view-json' | 'viewerRole' | 'waiting' | 'warning-icon' | 'warning-outline' | 'white-cluster' | 'white-full-cluster' | 'x' | 'yaml-builder-env' | 'yaml-builder-input-sets' | 'yaml-builder-notifications' | 'yaml-builder-stages' | 'yaml-builder-steps' | 'yaml-builder-trigger' | 'zoom-in' | 'zoom-out';
-
+declare type HarnessIconName =
+  | 'Account'
+  | 'CustomDeployment'
+  | 'Edit'
+  | 'Inline'
+  | 'Options'
+  | 'Stroke'
+  | 'access-control'
+  | 'accordion-collapsed'
+  | 'accordion-expanded'
+  | 'activity'
+  | 'add-stage'
+  | 'adminRole'
+  | 'advanced'
+  | 'api-docs'
+  | 'app-aws-code-deploy'
+  | 'app-aws-lambda'
+  | 'app-kubernetes'
+  | 'approval-stage-icon'
+  | 'approval-stage'
+  | 'approval-step'
+  | 'argo'
+  | 'arm'
+  | 'arrow'
+  | 'audit-log-created'
+  | 'audit-trail'
+  | 'autostopping'
+  | 'aws-codecommit'
+  | 'aws-ectwo-service'
+  | 'aws-kms'
+  | 'aws-rds'
+  | 'aws-secret-manager'
+  | 'azure-arm-rollback'
+  | 'azure-arm'
+  | 'azure-blob'
+  | 'azure-blueprints'
+  | 'azure-container-registry'
+  | 'azure-key-vault'
+  | 'azure-kubernetes-service'
+  | 'azure-vm'
+  | 'azurewebapp'
+  | 'background-step'
+  | 'banned'
+  | 'bar-chart'
+  | 'barrier-close'
+  | 'barrier-open-with-links'
+  | 'barrier-open'
+  | 'baseline-target'
+  | 'basic-deployment'
+  | 'bin-main'
+  | 'bitbucket-blue'
+  | 'bitbucket-new'
+  | 'bitbucket-selected'
+  | 'bitbucket-unselected'
+  | 'bitbucket'
+  | 'blank-canvas-card-icon'
+  | 'blank-canvas-header-icon'
+  | 'blue-black-cluster'
+  | 'blue-green'
+  | 'bluegreen-inverse'
+  | 'bluegreen'
+  | 'budget-alert-light'
+  | 'build-stage'
+  | 'canary-delete-inverse'
+  | 'canary-delete'
+  | 'canary-grey'
+  | 'canary-icon'
+  | 'canary-inverse'
+  | 'canary-outline'
+  | 'canary'
+  | 'canvas-position'
+  | 'canvas-reset'
+  | 'canvas-selector'
+  | 'ccm-sketch'
+  | 'ccm-solid'
+  | 'ccm-with-dark-text'
+  | 'ccm-with-text'
+  | 'cd-hover'
+  | 'cd-main-inverse'
+  | 'cd-main'
+  | 'cd-sketch'
+  | 'cd-solid'
+  | 'cd-with-dark-text'
+  | 'cd-with-text'
+  | 'cd'
+  | 'ce-application'
+  | 'ce-beta'
+  | 'ce-budget_colored'
+  | 'ce-budget_grey'
+  | 'ce-cloud'
+  | 'ce-cluster'
+  | 'ce-hover'
+  | 'ce-main-colored'
+  | 'ce-main-grey'
+  | 'ce-main-inverse'
+  | 'ce-main'
+  | 'ce-optimization'
+  | 'ce-visibility'
+  | 'cf-hover'
+  | 'cf-main-inverse'
+  | 'cf-main'
+  | 'chained-pipeline-hover'
+  | 'chained-pipeline'
+  | 'change-log'
+  | 'chaos-cube'
+  | 'chaos-experiment-weight'
+  | 'chaos-hubs'
+  | 'chaos-litmuschaos'
+  | 'chaos-main'
+  | 'chaos-scenario-builder-faded'
+  | 'chaos-scenario-builder'
+  | 'chat'
+  | 'check-alt'
+  | 'check'
+  | 'ci-active-build'
+  | 'ci-build-pipeline'
+  | 'ci-dev-exp'
+  | 'ci-execution'
+  | 'ci-gov'
+  | 'ci-hover'
+  | 'ci-infra-support'
+  | 'ci-infra'
+  | 'ci-integrated'
+  | 'ci-language'
+  | 'ci-main-inverse'
+  | 'ci-main'
+  | 'ci-parameterization'
+  | 'ci-pending-build'
+  | 'ci-sketch'
+  | 'ci-solid-current-color'
+  | 'ci-solid'
+  | 'ci-ti'
+  | 'ci-try-pipeline'
+  | 'ci-with-dark-text'
+  | 'ci-with-text'
+  | 'circle-cross'
+  | 'circle-stop'
+  | 'clipboard-alt'
+  | 'cloud-accounts'
+  | 'cloud-dark'
+  | 'cloud-formation-create'
+  | 'cloud-formation-delete'
+  | 'cloud-formation-rollback'
+  | 'cloud-light'
+  | 'cloud-sso'
+  | 'cloudformation'
+  | 'codebase-invalid'
+  | 'codebase-not-configured'
+  | 'codebase-valid'
+  | 'codebase-validating'
+  | 'codebase-zero-state'
+  | 'command-approval'
+  | 'command-artifact-check'
+  | 'command-barrier'
+  | 'command-calendar'
+  | 'command-echo'
+  | 'command-email'
+  | 'command-http'
+  | 'command-icon'
+  | 'command-install'
+  | 'command-resource-constraint'
+  | 'command-rollback'
+  | 'command-shell-script'
+  | 'command-start'
+  | 'command-stop'
+  | 'command-swap'
+  | 'command-switch'
+  | 'command-winrm'
+  | 'compare-version'
+  | 'conditional-execution'
+  | 'conditional-skip-filled'
+  | 'conditional-skip-new'
+  | 'conditional-skip'
+  | 'conditional-when'
+  | 'config-change'
+  | 'config-file'
+  | 'configure'
+  | 'connectivity-mode'
+  | 'connectors-blue'
+  | 'connectors-icon'
+  | 'connectthroughdelegate'
+  | 'connectthroughmanager'
+  | 'contact-support'
+  | 'copy-alt'
+  | 'copy-doc'
+  | 'copy'
+  | 'cost-data-collection'
+  | 'coverage-status-error'
+  | 'coverage-status-success'
+  | 'create-pr'
+  | 'create-via-existing-yaml'
+  | 'create-via-pipeline-template'
+  | 'create-via-starter-pipeline'
+  | 'cs-hover'
+  | 'custom-approval'
+  | 'custom-artifact'
+  | 'custom-remote-manifest'
+  | 'custom-service'
+  | 'custom-sm'
+  | 'custom-stage-icon'
+  | 'custom-stage'
+  | 'customRole'
+  | 'customize'
+  | 'cv-hover'
+  | 'cv-main-inverse'
+  | 'cv-main'
+  | 'cv-sketch'
+  | 'cv-solid-current-color'
+  | 'cv-solid'
+  | 'cv-with-text'
+  | 'danger-icon'
+  | 'dashboard-selected'
+  | 'dashboard'
+  | 'data-fetch-error'
+  | 'default-dashboard'
+  | 'delegates-blue'
+  | 'delegates-icon'
+  | 'dependency-default-icon'
+  | 'dependency-step'
+  | 'deploy-stage'
+  | 'deployment-aborted-legacy'
+  | 'deployment-aborted-new'
+  | 'deployment-failed-legacy'
+  | 'deployment-failed-new'
+  | 'deployment-incomplete-legacy'
+  | 'deployment-incomplete-new'
+  | 'deployment-inprogress-legacy'
+  | 'deployment-inprogress-new'
+  | 'deployment-paused-legacy'
+  | 'deployment-paused-new'
+  | 'deployment-queued-legacy'
+  | 'deployment-queued-new'
+  | 'deployment-rejected-legacy'
+  | 'deployment-rejected-new'
+  | 'deployment-success-legacy'
+  | 'deployment-success-new'
+  | 'deployment-timeout-legacy'
+  | 'deployment-timeout-new'
+  | 'description'
+  | 'digital-ocean'
+  | 'docker-hub-step'
+  | 'docker-step-inverse'
+  | 'docker-step'
+  | 'docs'
+  | 'dotnet'
+  | 'down'
+  | 'ecr-step-inverse'
+  | 'ecr-step'
+  | 'elastic-kubernetes-service'
+  | 'elk'
+  | 'email-inline'
+  | 'email-step'
+  | 'entity'
+  | 'environment-group-outline'
+  | 'environment-group'
+  | 'environment'
+  | 'environments-outline'
+  | 'environments'
+  | 'error-outline'
+  | 'error-tracking'
+  | 'error-transparent-no-outline'
+  | 'evaluate-policy'
+  | 'execution-abort'
+  | 'execution-history'
+  | 'execution-input'
+  | 'execution-rollback'
+  | 'execution-success'
+  | 'execution-warning'
+  | 'execution'
+  | 'expired'
+  | 'expression-input'
+  | 'failure-strategy'
+  | 'fat-arrow-up'
+  | 'feature-flag-stage'
+  | 'feedback-given'
+  | 'ff-sketch'
+  | 'ff-solid'
+  | 'ff-with-dark-text'
+  | 'ff-with-text'
+  | 'file'
+  | 'filestore'
+  | 'fixed-input'
+  | 'flag-tick'
+  | 'flag'
+  | 'flash'
+  | 'folder-upload'
+  | 'full-screen-exit'
+  | 'full-screen'
+  | 'functions'
+  | 'gcp-engine'
+  | 'gcp-kms'
+  | 'gcp-secret-manager'
+  | 'gcp'
+  | 'gcr-step-inverse'
+  | 'gcr-step'
+  | 'gcs-step-inverse'
+  | 'gcs-step'
+  | 'gear'
+  | 'git-branch-existing'
+  | 'git-clone-step'
+  | 'git-configure'
+  | 'git-landing-page'
+  | 'git-new-branch'
+  | 'git-popover'
+  | 'github-selected'
+  | 'github-unselected'
+  | 'github'
+  | 'gitlab-selected'
+  | 'gitlab-unselected'
+  | 'gitlab'
+  | 'gitops-agent-blue'
+  | 'gitops-agent'
+  | 'gitops-agents-blue-circle'
+  | 'gitops-application-white'
+  | 'gitops-application'
+  | 'gitops-applications-blue-circle'
+  | 'gitops-blue-circle'
+  | 'gitops-blue'
+  | 'gitops-clusters-blue-circle'
+  | 'gitops-clusters-blue'
+  | 'gitops-clusters'
+  | 'gitops-gnupg-key-blue-circle'
+  | 'gitops-gnupg-key-blue'
+  | 'gitops-green'
+  | 'gitops-missing'
+  | 'gitops-no'
+  | 'gitops-repo-cert-blue'
+  | 'gitops-repository-blue-circle'
+  | 'gitops-repository-blue'
+  | 'gitops-repository-certificates-blue-circle'
+  | 'gitops-suspended'
+  | 'gitops-unknown'
+  | 'gitops-yes'
+  | 'golang'
+  | 'google-kubernetes-engine'
+  | 'google'
+  | 'governance-policy-set'
+  | 'governance-shield'
+  | 'governance'
+  | 'graph'
+  | 'grey-cluster'
+  | 'grid'
+  | 'harness-logo-black'
+  | 'harness-logo-white-bg-blue'
+  | 'harness-logo-white'
+  | 'harness-with-color'
+  | 'harness'
+  | 'hashiCorpVault'
+  | 'health'
+  | 'helm-oci'
+  | 'helm-rollback'
+  | 'help'
+  | 'hourglass'
+  | 'http-step'
+  | 'infinityTrend'
+  | 'info-message'
+  | 'info-messaging'
+  | 'info'
+  | 'infrastructure'
+  | 'initialize-step-inverse'
+  | 'initialize-step'
+  | 'insight-view'
+  | 'integration'
+  | 'java'
+  | 'jira-approve-inverse'
+  | 'jira-approve'
+  | 'jira-create-inverse'
+  | 'jira-create'
+  | 'jira-update-inverse'
+  | 'jira-update'
+  | 'key-main'
+  | 'key'
+  | 'kustamize'
+  | 'kustomizeparam'
+  | 'launch'
+  | 'layout-bottom'
+  | 'layout-float'
+  | 'layout-right'
+  | 'library'
+  | 'line-chart'
+  | 'linkedin'
+  | 'list-entity-infographic'
+  | 'list-view'
+  | 'loading'
+  | 'looping'
+  | 'main-abort'
+  | 'main-account-notifications'
+  | 'main-add'
+  | 'main-applications'
+  | 'main-apply'
+  | 'main-baseline'
+  | 'main-calendar'
+  | 'main-canary'
+  | 'main-caret-down'
+  | 'main-caret-left'
+  | 'main-caret-right'
+  | 'main-caret-up'
+  | 'main-changelog'
+  | 'main-chevron-down'
+  | 'main-chevron-left'
+  | 'main-chevron-right'
+  | 'main-chevron-up'
+  | 'main-clone'
+  | 'main-close'
+  | 'main-cloud-providers'
+  | 'main-cloud'
+  | 'main-code-yaml'
+  | 'main-dashboard'
+  | 'main-delegates'
+  | 'main-delete'
+  | 'main-depricate'
+  | 'main-destroy'
+  | 'main-download'
+  | 'main-email'
+  | 'main-environments'
+  | 'main-feedback'
+  | 'main-filter'
+  | 'main-flag'
+  | 'main-folder-new'
+  | 'main-folder-open'
+  | 'main-folder'
+  | 'main-fullscreen'
+  | 'main-help'
+  | 'main-info'
+  | 'main-infrastructure-provisioners'
+  | 'main-issue-filled'
+  | 'main-issue'
+  | 'main-like'
+  | 'main-link'
+  | 'main-list'
+  | 'main-listener-update'
+  | 'main-lock'
+  | 'main-main-zoom_in'
+  | 'main-maximize'
+  | 'main-minimize'
+  | 'main-more'
+  | 'main-move'
+  | 'main-notes'
+  | 'main-notifications'
+  | 'main-pause'
+  | 'main-pin'
+  | 'main-pipelines'
+  | 'main-popularity'
+  | 'main-refresh'
+  | 'main-reorder'
+  | 'main-rerun'
+  | 'main-resume'
+  | 'main-rollback'
+  | 'main-saved'
+  | 'main-scope'
+  | 'main-search'
+  | 'main-service-ami'
+  | 'main-services'
+  | 'main-setup'
+  | 'main-share'
+  | 'main-sort'
+  | 'main-start'
+  | 'main-tags'
+  | 'main-template-library'
+  | 'main-thumbsdown'
+  | 'main-thumbsup'
+  | 'main-tick'
+  | 'main-trash'
+  | 'main-unlock'
+  | 'main-unpin'
+  | 'main-upload'
+  | 'main-user-groups'
+  | 'main-user'
+  | 'main-view'
+  | 'main-workflows'
+  | 'main-zoom-out'
+  | 'memberRole'
+  | 'merge-pr'
+  | 'microsoft-azure'
+  | 'money-icon'
+  | 'multi-service'
+  | 'nav-account-admin-hover'
+  | 'nav-account-admin-selected'
+  | 'nav-account-admin'
+  | 'nav-cd-hover'
+  | 'nav-cd-selected'
+  | 'nav-cd'
+  | 'nav-cf'
+  | 'nav-cv-hover'
+  | 'nav-cv-selected'
+  | 'nav-cv'
+  | 'nav-dashboard-hover'
+  | 'nav-dashboard-selected'
+  | 'nav-dashboard'
+  | 'nav-deployments-hover'
+  | 'nav-deployments-selected'
+  | 'nav-deployments'
+  | 'nav-git-sync'
+  | 'nav-governance-hover'
+  | 'nav-governance-selected'
+  | 'nav-governance'
+  | 'nav-harness-hover'
+  | 'nav-harness-selected'
+  | 'nav-harness'
+  | 'nav-help'
+  | 'nav-infrastructure-hover'
+  | 'nav-infrastructure-selected'
+  | 'nav-organization'
+  | 'nav-pipelines-selected'
+  | 'nav-pipelines'
+  | 'nav-project'
+  | 'nav-resources-hover'
+  | 'nav-resources-selected'
+  | 'nav-resources'
+  | 'nav-settings'
+  | 'nav-user-profile-hover'
+  | 'nav-user-profile-selected'
+  | 'nav-user-profile'
+  | 'network'
+  | 'new-artifact'
+  | 'new-decoration'
+  | 'new-notification'
+  | 'ng-filter'
+  | 'no-deployments'
+  | 'no-feedback-given'
+  | 'no-instances'
+  | 'nodejs'
+  | 'not-synced'
+  | 'notification'
+  | 'offline-outline'
+  | 'onprem-dark'
+  | 'onprem-light'
+  | 'openshift-params'
+  | 'openshift'
+  | 'other-workload'
+  | 'pdc-inverse'
+  | 'pdc'
+  | 'pending'
+  | 'pipeline-advanced'
+  | 'pipeline-approval'
+  | 'pipeline-build-select'
+  | 'pipeline-build'
+  | 'pipeline-custom'
+  | 'pipeline-deploy'
+  | 'pipeline-deployment'
+  | 'pipeline-executor'
+  | 'pipeline-ng'
+  | 'pipeline-stage-selection-caret'
+  | 'pipeline-variables'
+  | 'pipeline'
+  | 'placeholder-hover'
+  | 'placeholder-selected'
+  | 'placeholder'
+  | 'play-circle'
+  | 'play-outline'
+  | 'plugin-step'
+  | 'pod'
+  | 'polygon'
+  | 'profile'
+  | 'projects-wizard'
+  | 'prune-skipped'
+  | 'pruned'
+  | 'publish-step'
+  | 'python'
+  | 'question'
+  | 'queue-step'
+  | 'queued'
+  | 'remote-setup'
+  | 'remote'
+  | 'remotefile'
+  | 'remove-minus'
+  | 'remove'
+  | 'report-gear-grey'
+  | 'report-gear'
+  | 'report-icon'
+  | 'repository'
+  | 'res-connectors'
+  | 'res-delegates'
+  | 'res-environments'
+  | 'res-resourceGroups'
+  | 'res-roles'
+  | 'res-secrets'
+  | 'res-userGroups'
+  | 'res-users'
+  | 'reset-icon'
+  | 'resource-center-community-icon'
+  | 'resource-center-docs-icon'
+  | 'resources-icon'
+  | 'restore-cache-gcs-step-inverse'
+  | 'restore-cache-gcs-step'
+  | 'restore-cache-gcs'
+  | 'restore-cache-s3-step-inverse'
+  | 'restore-cache-s3-step'
+  | 'restore-cache-s3'
+  | 'restore-cache-step'
+  | 'right-bar-notification'
+  | 'rollback-execution'
+  | 'rolling-inverse'
+  | 'rolling-update'
+  | 'rolling'
+  | 'run-pipeline'
+  | 'run-step'
+  | 'run-tests-step'
+  | 'runtime-input'
+  | 's3-step-inverse'
+  | 's3-step'
+  | 'save-cache-gcs-step-inverse'
+  | 'save-cache-gcs-step'
+  | 'save-cache-gcs'
+  | 'save-cache-s3-step-inverse'
+  | 'save-cache-s3-step'
+  | 'save-cache-s3'
+  | 'save-cache-step'
+  | 'scm'
+  | 'script'
+  | 'search-applications'
+  | 'search-connectors'
+  | 'search-environments'
+  | 'search-infra-prov'
+  | 'search-list'
+  | 'search-pipelines'
+  | 'search-services'
+  | 'search-tips'
+  | 'search-triggers'
+  | 'search-user-groups'
+  | 'search-users'
+  | 'search-workflow'
+  | 'secret-manager'
+  | 'secret-ssh'
+  | 'secrets-blue'
+  | 'secrets-icon'
+  | 'security-stage'
+  | 'send-data'
+  | 'serverless-deploy-step'
+  | 'service-amazon-ecs'
+  | 'service-appdynamics'
+  | 'service-artifactory-inverse'
+  | 'service-artifactory'
+  | 'service-aws-code-deploy'
+  | 'service-aws-lamda'
+  | 'service-aws-sam'
+  | 'service-aws'
+  | 'service-azdevops'
+  | 'service-azure-functions'
+  | 'service-azure'
+  | 'service-bamboo'
+  | 'service-bugsnag'
+  | 'service-circleci'
+  | 'service-cloudformation'
+  | 'service-cloudwatch'
+  | 'service-custom-connector'
+  | 'service-datadog'
+  | 'service-deployment'
+  | 'service-dockerhub'
+  | 'service-dynatrace'
+  | 'service-ecs'
+  | 'service-elastigroup'
+  | 'service-elk'
+  | 'service-gar'
+  | 'service-gcp-with-text'
+  | 'service-gcp'
+  | 'service-github-package'
+  | 'service-github'
+  | 'service-gotlab'
+  | 'service-helm'
+  | 'service-instana'
+  | 'service-jenkins-inverse'
+  | 'service-jenkins'
+  | 'service-jira-inverse'
+  | 'service-jira'
+  | 'service-kubernetes'
+  | 'service-microsoft-teams'
+  | 'service-mongodb'
+  | 'service-msteams'
+  | 'service-mydatacenter'
+  | 'service-newrelic'
+  | 'service-nexus'
+  | 'service-ogz'
+  | 'service-okta'
+  | 'service-onelogin'
+  | 'service-pagerduty'
+  | 'service-pivotal'
+  | 'service-prometheus'
+  | 'service-redis'
+  | 'service-serverless-aws'
+  | 'service-serverless-azure'
+  | 'service-serverless-gcp'
+  | 'service-serverless'
+  | 'service-service-s3'
+  | 'service-servicenow-inverse'
+  | 'service-servicenow'
+  | 'service-slack'
+  | 'service-splunk-with-name'
+  | 'service-splunk'
+  | 'service-spotinst'
+  | 'service-stackdriver'
+  | 'service-sumologic'
+  | 'service-terraform'
+  | 'service-vm'
+  | 'service'
+  | 'servicenow-approve-inverse'
+  | 'servicenow-approve'
+  | 'servicenow-create-inverse'
+  | 'servicenow-create'
+  | 'servicenow-update-inverse'
+  | 'servicenow-update'
+  | 'services'
+  | 'setup-api'
+  | 'setup-tags'
+  | 'shield-gears'
+  | 'skipped'
+  | 'slider-trigger'
+  | 'slot-deployment'
+  | 'smtp-configuration-blue'
+  | 'smtp'
+  | 'spinner'
+  | 'srm-with-dark-text'
+  | 'stars'
+  | 'status-pending'
+  | 'status-running'
+  | 'step-group'
+  | 'step-jira'
+  | 'step-kubernetes'
+  | 'steps-spinner'
+  | 'sto-color-filled'
+  | 'sto-grey'
+  | 'success-tick'
+  | 'support-account'
+  | 'support-api'
+  | 'support-code'
+  | 'support-dashboard'
+  | 'support-deployment'
+  | 'support-gitops'
+  | 'support-onprem'
+  | 'support-pipeline'
+  | 'support-security'
+  | 'support-start'
+  | 'support-tour'
+  | 'support-troubleshoot'
+  | 'support-verification'
+  | 'support-videos'
+  | 'swap-services'
+  | 'sync-failed'
+  | 'synced'
+  | 'syncing'
+  | 'template-inputs'
+  | 'template-library'
+  | 'templates-blue'
+  | 'templates-icon'
+  | 'terraform-apply-inverse'
+  | 'terraform-apply-new'
+  | 'terraform-apply'
+  | 'terraform-destroy-inverse'
+  | 'terraform-destroy'
+  | 'terraform-plan-inverse'
+  | 'terraform-plan'
+  | 'terraform-rollback-inverse'
+  | 'terraform-rollback'
+  | 'test-connection'
+  | 'test-verification'
+  | 'text'
+  | 'thinner-search'
+  | 'timeout'
+  | 'tooltip-icon'
+  | 'traffic-lights'
+  | 'trigger-artifact'
+  | 'trigger-execution'
+  | 'trigger-github'
+  | 'trigger-pipeline'
+  | 'trigger-schedule'
+  | 'union'
+  | 'university'
+  | 'up'
+  | 'upgrade-bolt'
+  | 'upload-box'
+  | 'user-groups'
+  | 'user'
+  | 'utility'
+  | 'valuesFIle'
+  | 'variable'
+  | 'variables-blue'
+  | 'view-json'
+  | 'viewerRole'
+  | 'waiting'
+  | 'warning-icon'
+  | 'warning-outline'
+  | 'white-cluster'
+  | 'white-full-cluster'
+  | 'x'
+  | 'yaml-builder-env'
+  | 'yaml-builder-input-sets'
+  | 'yaml-builder-notifications'
+  | 'yaml-builder-stages'
+  | 'yaml-builder-steps'
+  | 'yaml-builder-trigger'
+  | 'zoom-in'
+  | 'zoom-out';
 
 export interface StepData {
-  name: string
-  icon: IconName
-  type: string
-  visible?: boolean
-  referenceId?: string
+  name: string;
+  icon: IconName;
+  type: string;
+  visible?: boolean;
+  referenceId?: string;
 }
 
 export interface CompletionItemInterface {
-  label: string
-  kind: CompletionItemKind
-  insertText: string
+  label: string;
+  kind: CompletionItemKind;
+  insertText: string;
 }
 
 export declare namespace CompletionItemKind {
@@ -1825,227 +2750,273 @@ export declare namespace CompletionItemKind {
   const TypeParameter: 25;
 }
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export declare type CompletionItemKind = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25;
+export declare type CompletionItemKind =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20
+  | 21
+  | 22
+  | 23
+  | 24
+  | 25;
 
 export abstract class AbstractStepFactory {
   /**
    * Couples the factory with the steps it generates
    */
-  protected abstract type: string
+  protected abstract type: string;
 
-  protected stepBank: Map<string, Step<unknown>>
-  protected stepIconMap: Map<string, StepData>
+  protected stepBank: Map<string, Step<unknown>>;
+  protected stepIconMap: Map<string, StepData>;
   protected invocationMap: Map<
     RegExp,
-    (path: string, yaml: string, params: Record<string, unknown>) => Promise<CompletionItemInterface[]>
-  > = new Map()
+    (
+      path: string,
+      yaml: string,
+      params: Record<string, unknown>,
+    ) => Promise<CompletionItemInterface[]>
+  > = new Map();
 
   constructor() {
-    this.stepBank = new Map()
-    this.stepIconMap = new Map()
+    this.stepBank = new Map();
+    this.stepIconMap = new Map();
   }
 
   getType(): string {
-    return this.type
+    return this.type;
   }
 
   registerStep<T>(step: Step<T>): void {
-    this.stepBank.set(step.getType(), step as Step<unknown>)
+    this.stepBank.set(step.getType(), step as Step<unknown>);
     this.stepIconMap.set(step.getType(), {
       name: step.getStepName(),
       icon: step.getIconName(),
       type: step.getType(),
       visible: step.getStepPaletteVisibility(),
-      referenceId: step.getReferenceId()
-    })
-    const stepMap = step.getInvocationMap()
+      referenceId: step.getReferenceId(),
+    });
+    const stepMap = step.getInvocationMap();
     if (stepMap) {
-      this.invocationMap = new Map([...this.invocationMap, ...stepMap])
+      this.invocationMap = new Map([...this.invocationMap, ...stepMap]);
     }
   }
 
   deregisterStep(type: string): void {
-    const deletedStep = this.stepBank.get(type)
+    const deletedStep = this.stepBank.get(type);
     if (deletedStep) {
-      this.stepBank.delete(type)
-      this.stepIconMap.delete(type)
+      this.stepBank.delete(type);
+      this.stepIconMap.delete(type);
       if (deletedStep.getInvocationMap()) {
-        this.invocationMap = new Map()
+        this.invocationMap = new Map();
         this.stepBank.forEach(step => {
-          const stepMap = step.getInvocationMap()
+          const stepMap = step.getInvocationMap();
           if (stepMap) {
-            this.invocationMap = new Map([...this.invocationMap, ...stepMap])
+            this.invocationMap = new Map([...this.invocationMap, ...stepMap]);
           }
-        })
+        });
       }
     }
   }
 
   getStep<T>(type?: string): Step<T> | undefined {
     if (type && !isEmpty(type)) {
-      return this.stepBank.get(type) as Step<T>
+      return this.stepBank.get(type) as Step<T>;
     }
     // eslint-disable-next-line consistent-return
-    return
+    return;
   }
 
   getStepDescription(type: string): keyof StringsMap | undefined {
-    return this.stepBank.get(type)?.getDescription()
+    return this.stepBank.get(type)?.getDescription();
   }
 
   getStepAdditionalInfo(type: string): keyof StringsMap | undefined {
-    return this.stepBank.get(type)?.getAdditionalInfo()
+    return this.stepBank.get(type)?.getAdditionalInfo();
   }
 
   getStepName(type: string): string | undefined {
-    return this.stepBank.get(type)?.getStepName()
+    return this.stepBank.get(type)?.getStepName();
   }
 
   getStepReferenceId(type: string): string | undefined {
-    return this.stepBank.get(type)?.getReferenceId()
+    return this.stepBank.get(type)?.getReferenceId();
   }
   getStepIcon(type: string): IconName {
-    return this.stepBank.get(type)?.getIconName() || 'disable'
+    return this.stepBank.get(type)?.getIconName() || 'disable';
   }
 
   getStepIconColor(type: string): string | undefined {
-    return this.stepBank.get(type)?.getIconColor() || undefined
+    return this.stepBank.get(type)?.getIconColor() || undefined;
   }
 
   getStepIconSize(type: string): number | undefined {
-    return this.stepBank.get(type)?.getIconSize() || undefined
+    return this.stepBank.get(type)?.getIconSize() || undefined;
   }
 
   getStepIsHarnessSpecific(type: string): boolean {
-    return this.stepBank.get(type)?.getIsHarnessSpecific() || false
+    return this.stepBank.get(type)?.getIsHarnessSpecific() || false;
   }
 
   getIsStepNonDeletable(type: string): boolean | undefined {
-    return this.stepBank.get(type)?.getIsNonDeletable()
+    return this.stepBank.get(type)?.getIsNonDeletable();
   }
 
   getStepData(type: string): StepData | undefined {
-    return this.stepIconMap.get(type)
+    return this.stepIconMap.get(type);
   }
 
   getInvocationMap(): Map<
     RegExp,
-    (path: string, yaml: string, params: Record<string, unknown>) => Promise<CompletionItemInterface[]>
+    (
+      path: string,
+      yaml: string,
+      params: Record<string, unknown>,
+    ) => Promise<CompletionItemInterface[]>
   > {
-    return this.invocationMap
+    return this.invocationMap;
   }
 
   getAllStepsDataList(): Array<StepData> {
-    return Array.from(this.stepIconMap, ([_key, value]) => value).filter(step => step.visible)
+    return Array.from(this.stepIconMap, ([_key, value]) => value).filter(
+      step => step.visible,
+    );
   }
 }
 
 class PipelineStepFactory extends AbstractStepFactory {
-  protected type = 'pipeline-factory'
+  protected type = 'pipeline-factory';
 }
 
-const factory = new PipelineStepFactory()
+const factory = new PipelineStepFactory();
 
 export abstract class Step<T> {
-  protected abstract type: StepType
-  protected abstract defaultValues: T
-  protected referenceId?: string
-  protected abstract stepIcon: IconName
-  protected stepIconColor?: string
-  protected stepIconSize?: number
-  protected abstract stepName: string
-  protected stepDescription: keyof StringsMap | undefined
-  protected stepAdditionalInfo?: keyof StringsMap
-  protected _hasStepVariables = false
-  protected _hasDelegateSelectionVisible = false
-  protected isHarnessSpecific = false
-  protected isStepNonDeletable = false // If true, the step can not be deleted from pipeline execution tab view
+  protected abstract type: StepType;
+  protected abstract defaultValues: T;
+  protected referenceId?: string;
+  protected abstract stepIcon: IconName;
+  protected stepIconColor?: string;
+  protected stepIconSize?: number;
+  protected abstract stepName: string;
+  protected stepDescription: keyof StringsMap | undefined;
+  protected stepAdditionalInfo?: keyof StringsMap;
+  protected _hasStepVariables = false;
+  protected _hasDelegateSelectionVisible = false;
+  protected isHarnessSpecific = false;
+  protected isStepNonDeletable = false; // If true, the step can not be deleted from pipeline execution tab view
   protected invocationMap?: Map<
     RegExp,
-    (path: string, yaml: string, params: Record<string, unknown>) => Promise<CompletionItemInterface[]>
-  >
-  abstract validateInputSet(args: ValidateInputSetProps<T>): FormikErrors<T>
+    (
+      path: string,
+      yaml: string,
+      params: Record<string, unknown>,
+    ) => Promise<CompletionItemInterface[]>
+  >;
+  abstract validateInputSet(args: ValidateInputSetProps<T>): FormikErrors<T>;
 
-  protected stepPaletteVisible?: boolean // default to true
+  protected stepPaletteVisible?: boolean; // default to true
 
   getType(): string {
-    return this.type
+    return this.type;
   }
 
   getDefaultValues(initialValues: T, _stepViewType: StepViewType): T {
-    return { ...this.defaultValues, ...initialValues }
+    return { ...this.defaultValues, ...initialValues };
   }
 
   getIsHarnessSpecific(): boolean {
-    return this.isHarnessSpecific
+    return this.isHarnessSpecific;
   }
 
   getIsNonDeletable(): boolean {
-    return this.isStepNonDeletable
+    return this.isStepNonDeletable;
   }
 
   getReferenceId(): string | undefined {
-    return this.referenceId
+    return this.referenceId;
   }
 
   getIconName(): IconName {
-    return this.stepIcon
+    return this.stepIcon;
   }
 
   getIconColor(): string | undefined {
-    return this.stepIconColor
+    return this.stepIconColor;
   }
 
   getIconSize(): number | undefined {
-    return this.stepIconSize
+    return this.stepIconSize;
   }
 
   getDescription(): keyof StringsMap | undefined {
-    return this.stepDescription
+    return this.stepDescription;
   }
 
   getAdditionalInfo(): keyof StringsMap | undefined {
-    return this.stepAdditionalInfo
+    return this.stepAdditionalInfo;
   }
 
   getStepName(): string {
-    return this.stepName
+    return this.stepName;
   }
 
   getInvocationMap():
-    | Map<RegExp, (path: string, yaml: string, params: Record<string, unknown>) => Promise<CompletionItemInterface[]>>
+    | Map<
+        RegExp,
+        (
+          path: string,
+          yaml: string,
+          params: Record<string, unknown>,
+        ) => Promise<CompletionItemInterface[]>
+      >
     | undefined {
-    return this.invocationMap
+    return this.invocationMap;
   }
 
   getStepPaletteVisibility(): boolean {
-    return this.stepPaletteVisible ?? true
+    return this.stepPaletteVisible ?? true;
   }
 
   get hasDelegateSelectionVisible(): boolean {
-    return this._hasDelegateSelectionVisible
+    return this._hasDelegateSelectionVisible;
   }
 
   get hasStepVariables(): boolean {
-    return this._hasStepVariables
+    return this._hasStepVariables;
   }
 
-  abstract renderStep(props: StepProps<T>): JSX.Element
+  abstract renderStep(props: StepProps<T>): JSX.Element;
 }
 
 export interface StepProps<T, U = unknown> {
-  initialValues: T
-  onUpdate?: (data: T) => void
-  onChange?: (data: T) => void
-  isNewStep?: boolean
-  stepViewType?: StepViewType
-  inputSetData?: InputSetData<T>
-  factory: AbstractStepFactory
-  path: string
-  readonly?: boolean
-  formikRef?: StepFormikFowardRef<T>
-  customStepProps?: U
-  allowableTypes: AllowedTypes
+  initialValues: T;
+  onUpdate?: (data: T) => void;
+  onChange?: (data: T) => void;
+  isNewStep?: boolean;
+  stepViewType?: StepViewType;
+  inputSetData?: InputSetData<T>;
+  factory: AbstractStepFactory;
+  path: string;
+  readonly?: boolean;
+  formikRef?: StepFormikFowardRef<T>;
+  customStepProps?: U;
+  allowableTypes: AllowedTypes;
 }
 
 export enum StepViewType {
@@ -2056,17 +3027,15 @@ export enum StepViewType {
   StageVariable = 'StageVariable',
   Edit = 'Edit',
   Template = 'Template',
-  TemplateUsage = 'TemplateUsage'
+  TemplateUsage = 'TemplateUsage',
 }
 
 export interface InputSetData<T> {
-  template?: T
-  allValues?: T
-  path: string
-  readonly?: boolean
+  template?: T;
+  allValues?: T;
+  path: string;
+  readonly?: boolean;
 }
-
-
 
 export const ExecutionStatusIconMap: Record<ExecutionStatus, IconName> = {
   Success: 'tick-circle',
@@ -2091,150 +3060,177 @@ export const ExecutionStatusIconMap: Record<ExecutionStatus, IconName> = {
   ApprovalWaiting: 'waiting',
   Pausing: 'pause',
   InputWaiting: 'waiting',
-  WaitStepRunning: 'waiting'
-}
+  WaitStepRunning: 'waiting',
+};
 
-
-export type StepFormikRef<T> = Pick<FormikProps<T>, 'submitForm' | 'errors'>
+export type StepFormikRef<T> = Pick<FormikProps<T>, 'submitForm' | 'errors'>;
 
 export type StepFormikFowardRef<T = unknown> =
   | ((instance: StepFormikRef<T> | null) => void)
   | React.MutableRefObject<StepFormikRef<T> | null>
   | null;
 
-
-
-export declare type AllowedTypesWithExecutionTime = Exclude<MultiTypeInputType, MultiTypeInputType.RUNTIME>;
-export declare type AllowedTypesWithRunTime = Exclude<MultiTypeInputType, MultiTypeInputType.EXECUTION_TIME>;
-export declare type AllowedTypes = AllowedTypesWithExecutionTime[] | AllowedTypesWithRunTime[];
+export declare type AllowedTypesWithExecutionTime = Exclude<
+  MultiTypeInputType,
+  MultiTypeInputType.RUNTIME
+>;
+export declare type AllowedTypesWithRunTime = Exclude<
+  MultiTypeInputType,
+  MultiTypeInputType.EXECUTION_TIME
+>;
+export declare type AllowedTypes =
+  | AllowedTypesWithExecutionTime[]
+  | AllowedTypesWithRunTime[];
 
 export declare enum MultiTypeInputType {
-  FIXED = "FIXED",
-  RUNTIME = "RUNTIME",
-  EXECUTION_TIME = "EXECUTION_TIME",
-  EXPRESSION = "EXPRESSION"
+  FIXED = 'FIXED',
+  RUNTIME = 'RUNTIME',
+  EXECUTION_TIME = 'EXECUTION_TIME',
+  EXPRESSION = 'EXPRESSION',
 }
 
 export interface ValidateInputSetProps<T> {
-  data: T
-  template?: T
-  getString?: UseStringsReturn['getString']
-  viewType: StepViewType
+  data: T;
+  template?: T;
+  getString?: UseStringsReturn['getString'];
+  viewType: StepViewType;
 }
 
 export interface UseStringsReturn {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getString(key: StringKeys, vars?: Record<string, any>): string
+  getString(key: StringKeys, vars?: Record<string, any>): string;
 }
 
-export type StringKeys = keyof StringsMap
-
+export type StringKeys = keyof StringsMap;
 
 export interface UseUpdateQueryParamsReturn<T> {
-  updateQueryParams(values: T, options?: IStringifyOptions, replaceHistory?: boolean): void
-  replaceQueryParams(values: T, options?: IStringifyOptions, replaceHistory?: boolean): void
+  updateQueryParams(
+    values: T,
+    options?: IStringifyOptions,
+    replaceHistory?: boolean,
+  ): void;
+  replaceQueryParams(
+    values: T,
+    options?: IStringifyOptions,
+    replaceHistory?: boolean,
+  ): void;
 }
 
-export function useUpdateQueryParams<T = Record<string, string>>(): UseUpdateQueryParamsReturn<T> {
-  const { pathname } = useLocation()
+export function useUpdateQueryParams<
+  T = Record<string, string>,
+>(): UseUpdateQueryParamsReturn<T> {
+  const { pathname } = useLocation();
   const navigate = useNavigate();
-  const queryParams = useQueryParams<T>()
+  const queryParams = useQueryParams<T>();
 
   return {
-    updateQueryParams(values: T, options?: IStringifyOptions, replaceHistory?: boolean): void {
-      const path = `${pathname}?${qs.stringify({ ...queryParams, ...values }, options)}`
+    updateQueryParams(
+      values: T,
+      options?: IStringifyOptions,
+      replaceHistory?: boolean,
+    ): void {
+      const path = `${pathname}?${qs.stringify(
+        { ...queryParams, ...values },
+        options,
+      )}`;
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      replaceHistory ? navigate(path, { replace : true }) : navigate(path)
+      replaceHistory ? navigate(path, { replace: true }) : navigate(path);
     },
-    replaceQueryParams(values: T, options?: IStringifyOptions, replaceHistory?: boolean): void {
-      const path = `${pathname}?${qs.stringify(values, options)}`
+    replaceQueryParams(
+      values: T,
+      options?: IStringifyOptions,
+      replaceHistory?: boolean,
+    ): void {
+      const path = `${pathname}?${qs.stringify(values, options)}`;
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      replaceHistory ? navigate(path, { replace: true }) : navigate(path)
-    }
-  }
+      replaceHistory ? navigate(path, { replace: true }) : navigate(path);
+    },
+  };
 }
 
 export interface UseQueryParamsOptions<T> extends IParseOptions {
-  processQueryParams?(data: any): T
+  processQueryParams?(data: any): T;
 }
 
-export function useQueryParams<T = unknown>(options?: UseQueryParamsOptions<T>): T {
-  const { search } = useLocation()
+export function useQueryParams<T = unknown>(
+  options?: UseQueryParamsOptions<T>,
+): T {
+  const { search } = useLocation();
 
   const queryParams = React.useMemo(() => {
-    const params = qs.parse(search, { ignoreQueryPrefix: true, ...options })
+    const params = qs.parse(search, { ignoreQueryPrefix: true, ...options });
 
     if (typeof options?.processQueryParams === 'function') {
-      return options.processQueryParams(params)
+      return options.processQueryParams(params);
     }
 
-    return params
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, options, options?.processQueryParams])
+    return params;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, options, options?.processQueryParams]);
 
-  return queryParams as unknown as T
+  return queryParams as unknown as T;
 }
 
 export interface NGTag {
-  key: string
-  value: string
+  key: string;
+  value: string;
 }
 
 export interface ExecutionTriggerInfo {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface EntityGitDetails {
-  branch?: string
-  commitId?: string
-  filePath?: string
-  fileUrl?: string
-  objectId?: string
-  repoIdentifier?: string
-  repoName?: string
-  repoUrl?: string
-  rootFolder?: string
+  branch?: string;
+  commitId?: string;
+  filePath?: string;
+  fileUrl?: string;
+  objectId?: string;
+  repoIdentifier?: string;
+  repoName?: string;
+  repoUrl?: string;
+  rootFolder?: string;
 }
 
 export interface GovernanceMetadata {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface PipelineExecutionSummary {
-  allowStageExecutions?: boolean
-  canRetry?: boolean
-  connectorRef?: string
-  createdAt?: number
-  endTs?: number
-  executionErrorInfo?: ExecutionErrorInfo
-  executionInputConfigured?: boolean
-  executionTriggerInfo?: ExecutionTriggerInfo
-  failedStagesCount?: number
-  failureInfo?: FailureInfoDTO
-  gitDetails?: EntityGitDetails
-  governanceMetadata?: GovernanceMetadata
+  allowStageExecutions?: boolean;
+  canRetry?: boolean;
+  connectorRef?: string;
+  createdAt?: number;
+  endTs?: number;
+  executionErrorInfo?: ExecutionErrorInfo;
+  executionInputConfigured?: boolean;
+  executionTriggerInfo?: ExecutionTriggerInfo;
+  failedStagesCount?: number;
+  failureInfo?: FailureInfoDTO;
+  gitDetails?: EntityGitDetails;
+  governanceMetadata?: GovernanceMetadata;
   layoutNodeMap?: {
-    [key: string]: GraphLayoutNode
-  }
+    [key: string]: GraphLayoutNode;
+  };
   moduleInfo?: {
     [key: string]: {
-      [key: string]: { [key: string]: any }
-    }
-  }
-  modules?: string[]
-  name?: string
-  pipelineIdentifier?: string
-  planExecutionId?: string
-  runSequence?: number
-  runningStagesCount?: number
-  showRetryHistory?: boolean
-  stagesExecuted?: string[]
+      [key: string]: { [key: string]: any };
+    };
+  };
+  modules?: string[];
+  name?: string;
+  pipelineIdentifier?: string;
+  planExecutionId?: string;
+  runSequence?: number;
+  runningStagesCount?: number;
+  showRetryHistory?: boolean;
+  stagesExecuted?: string[];
   stagesExecutedNames?: {
-    [key: string]: string
-  }
-  stagesExecution?: boolean
-  startTs?: number
-  startingNodeId?: string
+    [key: string]: string;
+  };
+  stagesExecution?: boolean;
+  startTs?: number;
+  startingNodeId?: string;
   status?:
     | 'Running'
     | 'AsyncWaiting'
@@ -2263,45 +3259,45 @@ export interface PipelineExecutionSummary {
     | 'INTERVENTION_WAITING'
     | 'APPROVAL_WAITING'
     | 'APPROVAL_REJECTED'
-    | 'WAITING'
-  storeType?: 'INLINE' | 'REMOTE'
-  successfulStagesCount?: number
-  tags?: NGTag[]
-  totalStagesCount?: number
+    | 'WAITING';
+  storeType?: 'INLINE' | 'REMOTE';
+  successfulStagesCount?: number;
+  tags?: NGTag[];
+  totalStagesCount?: number;
 }
 
 export interface EdgeLayoutList {
-  currentNodeChildren?: string[]
-  nextIds?: string[]
+  currentNodeChildren?: string[];
+  nextIds?: string[];
 }
 
 export interface ExecutionErrorInfo {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface GraphLayoutNode {
-  barrierFound?: boolean
-  edgeLayoutList?: EdgeLayoutList
-  endTs?: number
-  executionInputConfigured?: boolean
-  failureInfo?: ExecutionErrorInfo
-  failureInfoDTO?: FailureInfoDTO
-  hidden?: boolean
-  module?: string
+  barrierFound?: boolean;
+  edgeLayoutList?: EdgeLayoutList;
+  endTs?: number;
+  executionInputConfigured?: boolean;
+  failureInfo?: ExecutionErrorInfo;
+  failureInfoDTO?: FailureInfoDTO;
+  hidden?: boolean;
+  module?: string;
   moduleInfo?: {
     [key: string]: {
-      [key: string]: { [key: string]: any }
-    }
-  }
-  name?: string
-  nodeExecutionId?: string
-  nodeGroup?: string
-  nodeIdentifier?: string
-  nodeRunInfo?: NodeRunInfo
-  nodeType?: string
-  nodeUuid?: string
-  skipInfo?: SkipInfo
-  startTs?: number
+      [key: string]: { [key: string]: any };
+    };
+  };
+  name?: string;
+  nodeExecutionId?: string;
+  nodeGroup?: string;
+  nodeIdentifier?: string;
+  nodeRunInfo?: NodeRunInfo;
+  nodeType?: string;
+  nodeUuid?: string;
+  skipInfo?: SkipInfo;
+  startTs?: number;
   status?:
     | 'Running'
     | 'AsyncWaiting'
@@ -2330,55 +3326,55 @@ export interface GraphLayoutNode {
     | 'INTERVENTION_WAITING'
     | 'APPROVAL_WAITING'
     | 'APPROVAL_REJECTED'
-    | 'WAITING'
+    | 'WAITING';
   stepDetails?: {
     [key: string]: {
-      [key: string]: { [key: string]: any }
-    }
-  }
-  strategyMetadata?: StrategyMetadata
+      [key: string]: { [key: string]: any };
+    };
+  };
+  strategyMetadata?: StrategyMetadata;
 }
 
 export interface PipelineExecutionDetail {
-  executionGraph?: ExecutionGraph
-  pipelineExecutionSummary?: PipelineExecutionSummary
+  executionGraph?: ExecutionGraph;
+  pipelineExecutionSummary?: PipelineExecutionSummary;
 }
 
 export interface GraphCanvasState {
-  offsetX?: number
-  offsetY?: number
-  zoom?: number
+  offsetX?: number;
+  offsetY?: number;
+  zoom?: number;
 }
 
 export interface ExecutionPageQueryParams {
-  view?: 'log' | 'graph'
-  stage?: string
-  step?: string
-  retryStep?: string
-  stageExecId?: string // strategy nodes require stageExecId + stageID
+  view?: 'log' | 'graph';
+  stage?: string;
+  step?: string;
+  retryStep?: string;
+  stageExecId?: string; // strategy nodes require stageExecId + stageID
 }
 
 export interface ExecutionContextParams {
-  pipelineExecutionDetail: PipelineExecutionDetail | null
-  allNodeMap: { [key: string]: ExecutionNode }
-  pipelineStagesMap: Map<string, GraphLayoutNode>
-  isPipelineInvalid?: boolean
-  selectedStageId: string
-  selectedStepId: string
-  selectedStageExecutionId: string
-  loading: boolean
-  isDataLoadedForSelectedStage: boolean
-  queryParams: ExecutionPageQueryParams
-  logsToken: string
-  setLogsToken: (token: string) => void
-  refetch?: (() => Promise<void>) | undefined
-  addNewNodeToMap(id: string, node: ExecutionNode): void
-  setStepsGraphCanvasState?: (canvasState: GraphCanvasState) => void
-  stepsGraphCanvasState?: GraphCanvasState
-  setSelectedStepId: (step: string) => void
-  setSelectedStageId: (stage: string) => void
-  setSelectedStageExecutionId: (stage: string) => void
-  setIsPipelineInvalid?: (flag: boolean) => void
+  pipelineExecutionDetail: PipelineExecutionDetail | null;
+  allNodeMap: { [key: string]: ExecutionNode };
+  pipelineStagesMap: Map<string, GraphLayoutNode>;
+  isPipelineInvalid?: boolean;
+  selectedStageId: string;
+  selectedStepId: string;
+  selectedStageExecutionId: string;
+  loading: boolean;
+  isDataLoadedForSelectedStage: boolean;
+  queryParams: ExecutionPageQueryParams;
+  logsToken: string;
+  setLogsToken: (token: string) => void;
+  refetch?: (() => Promise<void>) | undefined;
+  addNewNodeToMap(id: string, node: ExecutionNode): void;
+  setStepsGraphCanvasState?: (canvasState: GraphCanvasState) => void;
+  stepsGraphCanvasState?: GraphCanvasState;
+  setSelectedStepId: (step: string) => void;
+  setSelectedStageId: (stage: string) => void;
+  setSelectedStageExecutionId: (stage: string) => void;
+  setIsPipelineInvalid?: (flag: boolean) => void;
 }
 
 export const ExecutionContext = createContext<ExecutionContextParams>({
@@ -2401,15 +3397,14 @@ export const ExecutionContext = createContext<ExecutionContextParams>({
   setSelectedStepId: () => void 0,
   setSelectedStageId: () => void 0,
   setSelectedStageExecutionId: () => void 0,
-  setIsPipelineInvalid: () => void 0
-})
+  setIsPipelineInvalid: () => void 0,
+});
 
-export default ExecutionContext
+export default ExecutionContext;
 
 export function useExecutionContext(): ExecutionContextParams {
-  return useContext(ExecutionContext)
+  return useContext(ExecutionContext);
 }
-
 
 export interface PopoverProps extends IPopoverProps {
   /** If true, render BPopover in dark background and light font color */

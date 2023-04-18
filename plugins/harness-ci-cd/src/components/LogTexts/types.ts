@@ -10,7 +10,13 @@ import type { ReactNode } from 'react';
 /**
  * different statues for loading of log data
  */
-export type UnitLoadingStatus = 'SUCCESS' | 'FAILURE' | 'RUNNING' | 'NOT_STARTED' | 'LOADING' | 'QUEUED'
+export type UnitLoadingStatus =
+  | 'SUCCESS'
+  | 'FAILURE'
+  | 'RUNNING'
+  | 'NOT_STARTED'
+  | 'LOADING'
+  | 'QUEUED';
 
 /**
  * Actions for reducder
@@ -25,7 +31,7 @@ export enum ActionType {
   Search = 'Search',
   ResetSearch = 'ResetSearch',
   GoToNextSearchResult = 'GoToNextSearchResult',
-  GoToPrevSearchResult = 'GoToPrevSearchResult'
+  GoToPrevSearchResult = 'GoToPrevSearchResult',
 }
 
 /**
@@ -35,21 +41,21 @@ export interface SearchData {
   /**
    * Text being searched for
    */
-  text: string
+  text: string;
   /**
    * active index for current highlighted search result
    */
-  currentIndex: number
+  currentIndex: number;
   /**
    * List of all the line numbers in which result is found
    */
-  linesWithResults: number[]
+  linesWithResults: number[];
 }
 
 /**
  * Keys in the json from server
  */
-export type TextKeys = 'level' | 'out' | 'time'
+export type TextKeys = 'level' | 'out' | 'time';
 
 /**
  *
@@ -58,14 +64,14 @@ export interface LogLineData {
   /**
    * Text for the line
    */
-  text: Partial<Record<TextKeys, string>>
+  text: Partial<Record<TextKeys, string>>;
   /**
    * Indices of the search result with in the current line.
    * This will be a continous list
    *
    * If this values is `[3, 4]`, it means the result number 3 and 4 will be found in this line
    */
-  searchIndices?: Partial<Record<TextKeys, number[]>>
+  searchIndices?: Partial<Record<TextKeys, number[]>>;
 }
 
 /**
@@ -75,72 +81,72 @@ export interface LogSectionData {
   /**
    * Title to shown on accordion
    */
-  title: ReactNode
+  title: ReactNode;
   /**
    * The log data
    */
-  data: LogLineData[]
+  data: LogLineData[];
   /**
    * Start time for the section
    */
-  startTime?: number
+  startTime?: number;
   /**
    * End time for the section
    */
-  endTime?: number
+  endTime?: number;
   /**
    * Status of Unit. Used to show icons on the UI.
    * This will only take subset of the statues
    */
-  status: UnitLoadingStatus
+  status: UnitLoadingStatus;
   /**
    * Flag for accordion open?
    */
-  isOpen?: boolean
+  isOpen?: boolean;
   /**
    * Data source for the logs
    */
-  dataSource: 'blob' | 'stream'
+  dataSource: 'blob' | 'stream';
   /**
    * Status of data loading
    */
-  unitStatus: UnitLoadingStatus
+  unitStatus: UnitLoadingStatus;
   /**
    * Flag for if the unit/section has been toggled manually by the user
    */
-  manuallyToggled?: boolean
+  manuallyToggled?: boolean;
 }
 
 export interface State {
   /**
    * List of unit/section names
    */
-  units: string[]
+  units: string[];
   /**
    * List of logKeys which are used in APIs
    * These will have 1:1 mapping with units
    */
-  logKeys: string[]
+  logKeys: string[];
   /**
    * Map of logKeys to its data.
    */
-  dataMap: Record<string, LogSectionData>
+  dataMap: Record<string, LogSectionData>;
   /**
    * Current selected step
    */
-  selectedStep: string
+  selectedStep: string;
   /**
    * Current selected stage
    */
-  selectedStage: string
+  selectedStage: string;
   /**
    * Search related data
    */
-  searchData: SearchData
+  searchData: SearchData;
 }
 
 export interface ProgressMapValue {
-  status: UnitLoadingStatus
-  startTime?: number
-  endTime?: number
+  status: UnitLoadingStatus;
+  startTime?: number;
+  endTime?: number;
 }

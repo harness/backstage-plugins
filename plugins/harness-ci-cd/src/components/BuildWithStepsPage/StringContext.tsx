@@ -5,21 +5,23 @@
  * https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt.
  */
 
-import React from 'react'
+import React from 'react';
 
-import type { StringsMap } from './stringTypes'
+import type { StringsMap } from './stringTypes';
 
-export type StringKeys = keyof StringsMap
+export type StringKeys = keyof StringsMap;
 
-export type { StringsMap }
+export type { StringsMap };
 
 export interface StringsContextValue {
-  data: StringsMap
-  getString?(key: StringKeys, vars?: Record<string, any>): string
+  data: StringsMap;
+  getString?(key: StringKeys, vars?: Record<string, any>): string;
 }
 
-export const StringsContext = React.createContext<StringsContextValue>({} as StringsContextValue)
+export const StringsContext = React.createContext<StringsContextValue>(
+  {} as StringsContextValue,
+);
 
 export function useStringsContext(): StringsContextValue {
-  return React.useContext(StringsContext)
+  return React.useContext(StringsContext);
 }
