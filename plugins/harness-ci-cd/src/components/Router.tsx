@@ -35,11 +35,16 @@ export const Router = () => {
         <MissingAnnotationEmptyState annotation="harness.io/project-url" />
       </>
     );
-  }
+  } 
 
   return (
     <Routes>
-      <Route path="/" element={<ExecutionList />} />
+    <Route path="/" element={<ExecutionList />} />
+    <Route
+    path={`${harnessCIBuildRouteRef.path}`}
+    element={<BuildWithStepsPage />}
+      />
     </Routes>
+
   );
 };
