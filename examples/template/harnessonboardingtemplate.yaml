@@ -1,0 +1,82 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: djangoservice
+  title: Create a Django Service
+  description: An template for the scaffolder that creates a Django service
+  tags:
+    - django
+    - harness
+spec:
+  owner: himanshu.mishra@harness.io
+  type: service
+  parameters:
+    - title: Django Service Details
+      required:
+        - name
+        - repository
+        - isPublish
+      properties:
+        name:
+          title: Name of your Django Service
+          type: string
+          description: Unique name of the service
+        repository:
+          title: Name of the Repository
+          type: string
+          description: This will be the name of Repository on Github
+        isPublish:
+          title: Do you wish to publish the internal registry?
+          type: boolean
+    - title: Service Infrastructure Details
+      required:
+        - provider
+        - db
+        - cache
+        - lint
+        - owner
+      properties:
+        provider:
+          title: Choose a cloud provider for Deployment
+          type: string
+          enum: ["GCP","AWS"]
+          default: GCP
+        db:
+          title: Choose a Database Type for the Service
+          type: string
+          enum: ["None","MySQL","Postgres","MongoDB"]
+          default: None
+        cache:
+          title: Choose a caching system for the Service
+          type: string
+          enum: ["None","Redis"]
+          default: None
+        lint:
+          title: Choose a Python linter for the Service
+          type: string
+          enum: ["None","Black","Flake8"]
+          default: None
+        owner:
+          title: Choose an Owner for the Service
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            allowedKinds:
+              - Group
+  steps:
+    - id: trigger
+      name: Creating Your Django Service
+      action: trigger:harness-custom-pipeline
+      input:
+        url: "https://app.harness.io/ng/#/account/dh-iBL35SqqpuqJF0yDjpQ/home/orgs/default/projects/CIQuickstart/pipelines/fetchfromcustom/pipeline-studio/?storeType=INLINE"
+        inputset:
+          provider: ${{ parameters.provider }}
+          db: ${{ parameters.db }}
+          cache: ${{ parameters.cache }}
+          lint: ${{ parameters.lint }}
+          name: ${{ parameters.name }}
+          repository: ${{ parameters.repository }}
+  output:
+    links:
+      - title: Pipeline Details
+        url: ${{ steps.trigger.output.PipelineUrl }}
