@@ -7,6 +7,6 @@ createDevApp()
   .addPage({
     element: <HarnessCcmPage />,
     title: 'Root Page',
-    path: '/harness-ccm'
+    path: '/harness-ccm',
   })
   .render();
