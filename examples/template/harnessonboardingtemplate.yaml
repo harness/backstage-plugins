@@ -39,22 +39,22 @@ spec:
         provider:
           title: Choose a cloud provider for Deployment
           type: string
-          enum: ["GCP","AWS"]
+          enum: ['GCP', 'AWS']
           default: GCP
         db:
           title: Choose a Database Type for the Service
           type: string
-          enum: ["None","MySQL","Postgres","MongoDB"]
+          enum: ['None', 'MySQL', 'Postgres', 'MongoDB']
           default: None
         cache:
           title: Choose a caching system for the Service
           type: string
-          enum: ["None","Redis"]
+          enum: ['None', 'Redis']
           default: None
         lint:
           title: Choose a Python linter for the Service
           type: string
-          enum: ["None","Black","Flake8"]
+          enum: ['None', 'Black', 'Flake8']
           default: None
         owner:
           title: Choose an Owner for the Service
@@ -68,7 +68,7 @@ spec:
       name: Creating Your Django Service
       action: trigger:harness-custom-pipeline
       input:
-        url: "https://app.harness.io/ng/#/account/dh-iBL35SqqpuqJF0yDjpQ/home/orgs/default/projects/CIQuickstart/pipelines/fetchfromcustom/pipeline-studio/?storeType=INLINE"
+        url: 'https://app.harness.io/ng/#/account/dh-iBL35SqqpuqJF0yDjpQ/home/orgs/default/projects/CIQuickstart/pipelines/fetchfromcustom/pipeline-studio/?storeType=INLINE'
         inputset:
           provider: ${{ parameters.provider }}
           db: ${{ parameters.db }}
