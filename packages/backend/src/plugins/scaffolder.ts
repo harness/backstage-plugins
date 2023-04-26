@@ -6,7 +6,7 @@ import {
 import { ScmIntegrations } from '@backstage/integration';
 import { Router } from 'express';
 import type { PluginEnvironment } from '../types';
-import { createHarnessTriggerAction } from '../../../../plugins/scaffolder-backend-module-trigger-harness-pipelines/src';
+import { createHarnessTriggerAction } from '@internal/backstage-plugin-scaffolder-backend-module-trigger-harness-pipelines';
 
 export default async function createPlugin(
   env: PluginEnvironment,

@@ -91,13 +91,15 @@ export function createHarnessTriggerAction() {
 
         // Iterate over each variable in the inputset and generate a variable object
         for (const variableName in inputset) {
-          const variableValue = inputset[variableName];
-          const variableObject = {
-            name: variableName,
-            type: 'String',
-            value: variableValue,
-          };
-          pipeline.variables.push(variableObject);
+          if (inputset.hasOwnProperty(variableName)) {
+            const variableValue = inputset[variableName];
+            const variableObject = {
+              name: variableName,
+              type: 'String',
+              value: variableValue,
+            };
+            pipeline.variables.push(variableObject);
+          }
         }
         const yamlString = yaml.dump({ pipeline });
         return yamlString;
