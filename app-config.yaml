@@ -98,7 +98,7 @@ catalog:
       target: ../../examples/template/template.yaml
       rules:
         - allow: [Template]
-        
+
     - type: file
       target: ../../examples/template/harnessonboardingtemplate.yaml
       rules:
