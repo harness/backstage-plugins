@@ -67,8 +67,6 @@ proxy:
       'x-api-key': ${HARNESS_STAGE_API_KEY}
   '/harness/stress':
     target: 'https://stress.harness.io/'
-    allowedHeaders:
-      - authorization
     headers:
       'x-api-key': ${HARNESS_STRESS_API_KEY}
 
