@@ -72,7 +72,40 @@ export function createHarnessTriggerAction() {
       });
       const pipelineIdentifier = urlParts[urlParts.indexOf('pipelines') + 1];
 
-      const HARNESS_API_KEY = ctx.input.apikey ?? process.env['HARNESS_API_KEY'];
+      const HARNESS_API_KEY = ctx.input.apikey ?? process.env.HARNESS_API_KEY;
+      const yaml = require('js-yaml');
+      type Pipeline = {
+        identifier: string;
+        variables: {
+          name: string;
+          type: string;
+          value: any;
+        }[];
+      };
+
+      function generateYaml(inputset: any) {
+        const pipeline: Pipeline = {
+          identifier: 'pipelineIdentifier',
+          variables: [],
+        };
+
+        // Iterate over each variable in the inputset and generate a variable object
+        for (const variableName in inputset) {
+          if (inputset.hasOwnProperty(variableName)) {
+            const variableValue = inputset[variableName];
+            const variableObject = {
+              name: variableName,
+              type: 'String',
+              value: variableValue,
+            };
+            pipeline.variables.push(variableObject);
+          }
+        }
+        const yamlString = yaml.dump({ pipeline });
+        return yamlString;
+      }
+      const harnessInputset = generateYaml(ctx.input.inputset);
+
       const response = await fetch(
         `https://app.harness.io/gateway/pipeline/api/pipeline/execute/${pipelineIdentifier}?${query}`,
         {
@@ -81,34 +114,19 @@ export function createHarnessTriggerAction() {
             'Content-Type': 'application/yaml',
             'x-api-key': `${HARNESS_API_KEY}`,
           },
-          body: `pipeline:
-          identifier: ${pipelineIdentifier}
-          variables:
-            - name: repository
-              type: String
-              value: ${ctx.input.inputset.repository}
-            - name: name
-              type: String
-              value: ${ctx.input.inputset.name}
-            - name: db
-              type: String
-              value: ${ctx.input.inputset.db}
-            - name: cache
-              type: String
-              value: ${ctx.input.inputset.cache}
-            - name: lint
-              type: String
-              value: ${ctx.input.inputset.lint}
-            - name: provider
-              type: String
-              value: ${ctx.input.inputset.provider}`,
+          body: `${harnessInputset}`,
         },
       );
       const data = await response.json();
       ctx.logger.info(response.status);
-      const pipeurl= `https://app.harness.io/ng/account/${urlParts[urlParts.indexOf('account') + 1]}/home/orgs/${urlParts[urlParts.indexOf('orgs') + 1]}/projects/${urlParts[urlParts.indexOf('projects') + 1]}/pipelines/${pipelineIdentifier}/executions/${data?.data?.planExecution?.uuid}/pipeline`
-      ctx.output('PipelineUrl',pipeurl);
-
+      const pipeurl = `https://app.harness.io/ng/account/${
+        urlParts[urlParts.indexOf('account') + 1]
+      }/home/orgs/${urlParts[urlParts.indexOf('orgs') + 1]}/projects/${
+        urlParts[urlParts.indexOf('projects') + 1]
+      }/pipelines/${pipelineIdentifier}/executions/${
+        data?.data?.planExecution?.uuid
+      }/pipeline`;
+      ctx.output('PipelineUrl', pipeurl);
     },
   });
 }
