@@ -696,8 +696,8 @@ function ExecutionList() {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     refresh: boolean,
   ): Promise<void> {
-    const token = getSecureHarnessKey('harnessBearerToken');
-    const value = token ? `Bearer ${token}` : '';
+    const token = getSecureHarnessKey('token');
+    const value = token ? `${token}` : '';
 
     const headers = new Headers({
       Authorization: value,
@@ -770,8 +770,8 @@ function ExecutionList() {
   }
 
   async function fetchLicenseWithAuth(): Promise<Response> {
-    const token = getSecureHarnessKey('harnessBearerToken');
-    const value = token ? `Bearer ${token}` : '';
+    const token = getSecureHarnessKey('token');
+    const value = token ? `${token}` : '';
 
     const headers = new Headers({
       Authorization: value,
@@ -801,8 +801,8 @@ function ExecutionList() {
     const list = serviceId;
     const service1 = list?.split(',').map(item => item.trim()) || '';
 
-    const token = getSecureHarnessKey('harnessBearerToken');
-    const value = token ? `Bearer ${token}` : '';
+    const token = getSecureHarnessKey('token');
+    const value = token ? `${token}` : '';
 
     const headers = new Headers({
       'content-type': 'application/json',
@@ -1046,9 +1046,17 @@ function ExecutionList() {
       });
     }
     if (toggle) {
+      const token = getSecureHarnessKey('token');
+      const value = token ? `${token}` : '';
+
+      const headers = new Headers({
+        'content-type': 'application/json',
+        Authorization: value,
+      });
       const response = await fetch(
         `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
         {
+          headers,
           method: 'POST',
         },
       );
