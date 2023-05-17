@@ -47,6 +47,8 @@ If you would like to chat with us, join the [Harness Community Slack channel](ht
 | [<img align="center" src="./docs/assets/Chaos%20logo.png" alt="Chaos engineering logo" width="20" /> Chaos Engineering](https://harness.io/products/chaos-engineering)                                                                                                                                 | Improve application resiliency and reduce costly downtime | ⏳ Coming soon |
 | [<img align="center" src="./docs/assets/STO%20logo.png" alt="STO logo" width="20" /> Security Testing Orchestration](https://harness.io/products/security-testing-orchestration)                                                                                                                       | Shift-left application security                           | ⏳ Coming soon |
 | [<img align="center" src="./docs/assets/SRM%20logo.png" alt="SRM logo" width="20" /> Service Reliability Management](https://harness.io/products/service-reliability-management)                                                                                                                       | SLO-driven software delivery                              | ⏳ Coming soon |
+| [<img align="center" src="./docs/assets/SEI%20logo.png" alt="SEI logo" width="20" /> Software Engineering Insights](https://www.harness.io/products/software-engineering-insights)                                                                                                                       | Improve Engineering Results with Data-Driven Decisions delivery                              | ⏳ Coming soon |
+
 
 ## Code of Conduct
 
