@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   CircularProgress,
+  FormControl,
   IconButton,
   Link,
   makeStyles,
+  MenuItem,
   Typography,
 } from '@material-ui/core';
 import {
@@ -17,6 +19,8 @@ import {
   Grid,
   Tooltip,
 } from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import FormHelperText from '@mui/material/FormHelperText';
 import {
   EmptyState,
   OverflowTooltip,
@@ -41,6 +45,8 @@ import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 import Swal from 'sweetalert2';
+import { isHarnessCiCdAvailable, isHarnessCiCdAvailableQa, isHarnessCiCdAvailableStress, isHarnessCiCdAvailableStage } from '../Router';
+import { useEntity } from '@backstage/plugin-catalog-react';
 
 const getStatusComponent = (status: string | undefined = '') => {
   switch (status.toLocaleLowerCase('en-US')) {
@@ -581,6 +587,7 @@ function ExecutionList() {
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
   const [env, setEnv] = useState('prod');
+  const [envIds, setEnvIds] = useState<string[]>([]);
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -588,6 +595,21 @@ function ExecutionList() {
 
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
+    const { entity } = useEntity();
+  useEffect(() => {
+    if(isHarnessCiCdAvailable(entity)) {
+      setEnvIds(allEnvs => [...allEnvs, 'prod']);
+    }
+    if(isHarnessCiCdAvailableQa(entity)) {
+      setEnvIds(allEnvs => [...allEnvs, 'qa']);
+    }
+    if(isHarnessCiCdAvailableStress(entity)) {
+      setEnvIds(allEnvs => [...allEnvs, 'stress']);
+    }
+    if(isHarnessCiCdAvailableStage(entity)) {
+      setEnvIds(allEnvs => [...allEnvs, 'stage']);
+    }
+  }, [])
 
   const {
     projectId,
@@ -596,28 +618,10 @@ function ExecutionList() {
     pipelineId,
     serviceId,
     urlParams,
-    hostname,
     baseUrl1,
-  } = useProjectSlugFromEntity();
-
-  const stress = 'stress.harness.io';
-  const qa = 'qa.harness.io';
-  const stage = 'stage.harness.io';
-  const prod = 'app.harness.io';
+  } = useProjectSlugFromEntity(env);
 
   useEffect(() => {
-    if (hostname === prod) {
-      setEnv('prod');
-    }
-    if (hostname === stage) {
-      setEnv('stage');
-    }
-    if (hostname === stress) {
-      setEnv('stress');
-    }
-    if (hostname === qa) {
-      setEnv('qa');
-    }
     getLicense();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
@@ -1180,6 +1184,33 @@ function ExecutionList() {
     setPageSize(currentPageSize);
   };
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setEnv(event.target.value as string);
+    setRefresh(!refresh);
+    setState(AsyncStatus.Loading)
+  };
+
+
+  let dropdown;
+  if(envIds.length > 1) {
+    dropdown = <Box sx={{ minWidth: 120 }}>
+    <FormControl fullWidth>
+      <Select
+        labelId="Environment"
+        id="Environment"
+        value={env}
+        label="Environment"
+        onChange={handleChange}
+      >
+        {envIds.map(envId => (
+          <MenuItem value={envId}>{envId}</MenuItem>
+        ))}
+      </Select>
+      <FormHelperText />
+    </FormControl>
+  </Box>
+  } 
+
   if (
     state === AsyncStatus.Init ||
     state === AsyncStatus.Loading ||
@@ -1210,11 +1241,14 @@ function ExecutionList() {
       description =
         'Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.';
     return (
-      <EmptyState
-        title="Harness CI-CD pipelines"
-        description={description}
-        missing="data"
-      />
+      <>
+        {dropdown}
+        <EmptyState
+          title="Harness CI-CD pipelines"
+          description={description}
+          missing="data"
+        />
+      </>
     );
   }
 
@@ -1247,6 +1281,7 @@ function ExecutionList() {
   return (
     <>
       <div className={classes.container}>
+        {dropdown}
         <Table
           options={{
             paging: true,

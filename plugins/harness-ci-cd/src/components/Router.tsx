@@ -24,6 +24,12 @@ import { MissingAnnotationEmptyState } from '@backstage/core-components';
 /** @public */
 export const isHarnessCiCdAvailable = (entity: Entity) =>
   Boolean(entity.metadata.annotations?.['harness.io/project-url']);
+export const isHarnessCiCdAvailableQa = (entity: Entity) =>
+  Boolean(entity.metadata.annotations?.['harness.io/project-url-qa']);
+export const isHarnessCiCdAvailableStress = (entity: Entity) =>
+  Boolean(entity.metadata.annotations?.['harness.io/project-url-stress']);
+export const isHarnessCiCdAvailableStage = (entity: Entity) =>
+  Boolean(entity.metadata.annotations?.['harness.io/project-url-stage']);
 
 /** @public */
 
