@@ -35,7 +35,12 @@ export const isHarnessCiCdAvailableStage = (entity: Entity) =>
 
 export const Router = () => {
   const { entity } = useEntity();
-  if (!isHarnessCiCdAvailable(entity)) {
+  if (
+    !isHarnessCiCdAvailable(entity) &&
+    !isHarnessCiCdAvailableQa(entity) &&
+    !isHarnessCiCdAvailableStress(entity) &&
+    !isHarnessCiCdAvailableStage(entity)
+  ) {
     return (
       <>
         <MissingAnnotationEmptyState annotation="harness.io/project-url" />
