@@ -9,7 +9,7 @@ export const useProjectSlugFromEntity = (env: string) => {
   let serviceid;
   let url;
   const { entity } = useEntity();
-  if (env !== 'prod') {
+  if (env && env !== 'prod') {
     pipelineid = `harness.io/ci-pipelineIds-${env}`;
     serviceid = `harness.io/cd-serviceId-${env}`;
     url = `harness.io/project-url-${env}`;

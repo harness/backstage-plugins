@@ -34,8 +34,6 @@ import {
 } from '@backstage/core-components';
 import ReplayIcon from '@material-ui/icons/Replay';
 import RetryIcon from '@material-ui/icons/Replay';
-// import { Link as RouterLink } from 'react-router-dom';
-// import { harnessCIBuildRouteRef } from '../../route-refs';
 import {
   configApiRef,
   discoveryApiRef,
@@ -45,12 +43,6 @@ import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 import Swal from 'sweetalert2';
-import {
-  isHarnessCiCdAvailable,
-  isHarnessCiCdAvailableQa,
-  isHarnessCiCdAvailableStress,
-  isHarnessCiCdAvailableStage,
-} from '../Router';
 import { useEntity } from '@backstage/plugin-catalog-react';
 
 const getStatusComponent = (status: string | undefined = '') => {
@@ -591,8 +583,6 @@ function ExecutionList() {
   const [renderedOnce, setRenderedOnce] = useState(true);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
-  const [env, setEnv] = useState('prod');
-  const [envIds, setEnvIds] = useState<string[]>([]);
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -602,20 +592,21 @@ function ExecutionList() {
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
   const { entity } = useEntity();
 
-  useEffect(() => {
-    if (isHarnessCiCdAvailable(entity)) {
-      setEnvIds(allEnvs => [...allEnvs, 'prod']);
+  const allEnvsAnnotations = [
+    ['prod', 'harness.io/project-url'],
+    ['stage', 'harness.io/project-url-stage'],
+    ['qa', 'harness.io/project-url-qa'],
+    ['stress', 'harness.io/project-url-stress'],
+  ];
+
+  const envIds: string[] = [];
+  allEnvsAnnotations.forEach(envAnnotation => {
+    if (Boolean(entity.metadata.annotations?.[envAnnotation[1]])) {
+      envIds.push(envAnnotation[0]);
     }
-    if (isHarnessCiCdAvailableQa(entity)) {
-      setEnvIds(allEnvs => [...allEnvs, 'qa']);
-    }
-    if (isHarnessCiCdAvailableStress(entity)) {
-      setEnvIds(allEnvs => [...allEnvs, 'stress']);
-    }
-    if (isHarnessCiCdAvailableStage(entity)) {
-      setEnvIds(allEnvs => [...allEnvs, 'stage']);
-    }
-  }, [entity]);
+  });
+
+  const [env, setEnv] = useState(envIds[0]);
 
   const {
     projectId,
@@ -624,28 +615,10 @@ function ExecutionList() {
     pipelineId,
     serviceId,
     urlParams,
-    hostname,
     baseUrl1,
   } = useProjectSlugFromEntity(env);
 
-  const stress = 'stress.harness.io';
-  const qa = 'qa.harness.io';
-  const stage = 'stage.harness.io';
-  const prod = 'app.harness.io';
-
   useEffect(() => {
-    if (hostname === prod) {
-      setEnv('prod');
-    }
-    if (hostname === stage) {
-      setEnv('stage');
-    }
-    if (hostname === stress) {
-      setEnv('stress');
-    }
-    if (hostname === qa) {
-      setEnv('qa');
-    }
     getLicense();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
@@ -1194,7 +1167,7 @@ function ExecutionList() {
       setCurrTableData(getBuilds(pageSize));
       setFlag(true);
     }
-  }, [refresh, page, pageSize, toggle]);
+  }, [refresh, page, pageSize, toggle, env]);
 
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);

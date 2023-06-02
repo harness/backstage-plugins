@@ -23,24 +23,16 @@ import { useEntity } from '@backstage/plugin-catalog-react';
 import { MissingAnnotationEmptyState } from '@backstage/core-components';
 /** @public */
 export const isHarnessCiCdAvailable = (entity: Entity) =>
-  Boolean(entity.metadata.annotations?.['harness.io/project-url']);
-export const isHarnessCiCdAvailableQa = (entity: Entity) =>
-  Boolean(entity.metadata.annotations?.['harness.io/project-url-qa']);
-export const isHarnessCiCdAvailableStress = (entity: Entity) =>
-  Boolean(entity.metadata.annotations?.['harness.io/project-url-stress']);
-export const isHarnessCiCdAvailableStage = (entity: Entity) =>
+  Boolean(entity.metadata.annotations?.['harness.io/project-url']) ||
+  Boolean(entity.metadata.annotations?.['harness.io/project-url-qa']) ||
+  Boolean(entity.metadata.annotations?.['harness.io/project-url-stress']) ||
   Boolean(entity.metadata.annotations?.['harness.io/project-url-stage']);
 
 /** @public */
 
 export const Router = () => {
   const { entity } = useEntity();
-  if (
-    !isHarnessCiCdAvailable(entity) &&
-    !isHarnessCiCdAvailableQa(entity) &&
-    !isHarnessCiCdAvailableStress(entity) &&
-    !isHarnessCiCdAvailableStage(entity)
-  ) {
+  if (!isHarnessCiCdAvailable(entity)) {
     return (
       <>
         <MissingAnnotationEmptyState annotation="harness.io/project-url" />
