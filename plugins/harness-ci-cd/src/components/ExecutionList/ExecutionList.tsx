@@ -1009,21 +1009,25 @@ function ExecutionList() {
         'content-type': 'application/json',
         Authorization: value,
       });
+      let body;
+      if (serviceId) {
+        body = JSON.stringify({
+          filterType: 'PipelineExecution',
+          moduleProperties: {
+            cd: {
+              serviceIdentifiers: [
+                serviceId?.split(',').map(item => item.trim())[0],
+              ],
+            },
+          },
+        });
+      }
       const response = await fetch(
         `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
         {
           headers,
           method: 'POST',
-          body: JSON.stringify({
-            filterType: 'PipelineExecution',
-            moduleProperties: {
-              cd: {
-                serviceIdentifiers: [
-                  serviceId?.split(',').map(item => item.trim())[0],
-                ],
-              },
-            },
-          }),
+          body: body,
         },
       );
       if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
