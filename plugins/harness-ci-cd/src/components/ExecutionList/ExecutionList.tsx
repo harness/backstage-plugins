@@ -578,9 +578,7 @@ function ExecutionList() {
   const [pageSize, setPageSize] = useState(5);
   const [pipelineList, setpipelineList] = useState<any[]>([]);
   const [toggle, setToggle] = useState(false);
-  const [serviceToast, setServiceToast] = useState(false);
   const [flag, setFlag] = useState(false);
-  const [renderedOnce, setRenderedOnce] = useState(true);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
   const classes = useStyles();
@@ -609,16 +607,26 @@ function ExecutionList() {
   const [env, setEnv] = useState(envIds[0]);
 
   const {
-    projectId,
     orgId,
     accountId,
     pipelineId,
     serviceId,
     urlParams,
     baseUrl1,
+    projectIds,
   } = useProjectSlugFromEntity(env);
 
+  const [allProjects, setAllProjects] = useState(
+    projectIds?.split(',').map(item => item.trim()),
+  );
+  const [currProject, setCurrProject] = useState(
+    projectIds?.split(',').map(item => item.trim())?.[0],
+  );
+
   useEffect(() => {
+    setAllProjects(projectIds?.split(',').map(item => item.trim()));
+    setCurrProject(projectIds?.split(',').map(item => item.trim())?.[0]);
+    setRefresh(!refresh);
     getLicense();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
@@ -631,7 +639,7 @@ function ExecutionList() {
       return token ? `Bearer ${token}` : '';
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.log('Failed to read Harness tokens', err);
+      // console.log('Failed to read Harness tokens', err);
       return undefined;
     }
   }
@@ -798,58 +806,6 @@ function ExecutionList() {
     }
   }
 
-  async function getPipeLineByService() {
-    const list = serviceId;
-    const service1 = list?.split(',').map(item => item.trim()) || '';
-
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
-
-    const headers = new Headers({
-      'content-type': 'application/json',
-      Authorization: value,
-    });
-
-    const resp = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
-        service1[0]
-      }`,
-      {
-        headers,
-      },
-    );
-
-    if (resp.status !== 200) {
-      setToggle(true);
-      setServiceToast(true);
-    }
-
-    const jsondata = await resp.json();
-    const serviceName = jsondata?.data?.name;
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
-      {
-        headers,
-        body: JSON.stringify({
-          filterType: 'PipelineSetup',
-          moduleProperties: {
-            cd: {
-              serviceNames: [serviceName],
-            },
-          },
-        }),
-        method: 'POST',
-      },
-    );
-
-    const data = await response.json();
-    const filteredData = await data?.data?.content.filter((obj: any) => {
-      return obj.recentExecutionsInfo.length > 0;
-    });
-    filteredData?.map((pipe: any) => {
-      setpipelineList(pipelineData => [...pipelineData, pipe.identifier]);
-    });
-  }
   async function getPipelinefromCatalog() {
     const list = pipelineId;
     const elements = list?.split(',').map(item => item.trim());
@@ -862,13 +818,12 @@ function ExecutionList() {
   async function getAllPipelines() {
     if (!toggle) {
       if (pipelineId) await getPipelinefromCatalog();
-      if (serviceId) await getPipeLineByService();
     }
     setToggle(true);
   }
   useAsyncRetry(async () => {
     await getAllPipelines();
-  }, []);
+  }, [currProject]);
 
   const columns: TableColumn[] = [
     {
@@ -881,7 +836,7 @@ function ExecutionList() {
         paddingLeft: '30px',
       },
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${currProject}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         const id = parseInt(row.id ? row.id : '0', 10);
         return (
           <Link href={link} target="_blank">
@@ -895,7 +850,7 @@ function ExecutionList() {
       field: 'col1',
       width: '22%',
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${currProject}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         return (
           <Typography style={{ fontSize: 'small', color: 'grey' }}>
             <Link href={link} target="_blank" style={{ fontSize: '0.9rem' }}>
@@ -1017,7 +972,7 @@ function ExecutionList() {
           accountIdentifier: `${accountId}`,
           routingId: `${accountId}`,
           orgIdentifier: `${orgId}`,
-          projectIdentifier: `${projectId}`,
+          projectIdentifier: `${currProject}`,
         }).toString();
         return (
           <AlertDialog
@@ -1037,7 +992,7 @@ function ExecutionList() {
       accountIdentifier: `${accountId}`,
       routingId: `${accountId}`,
       orgIdentifier: `${orgId}`,
-      projectIdentifier: `${projectId}`,
+      projectIdentifier: `${currProject}`,
       size: `${pageSize}`,
       page: `${page}`,
     });
@@ -1059,6 +1014,16 @@ function ExecutionList() {
         {
           headers,
           method: 'POST',
+          body: JSON.stringify({
+            filterType: 'PipelineExecution',
+            moduleProperties: {
+              cd: {
+                serviceIdentifiers: [
+                  serviceId?.split(',').map(item => item.trim())[0],
+                ],
+              },
+            },
+          }),
         },
       );
       if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
@@ -1167,7 +1132,7 @@ function ExecutionList() {
       setCurrTableData(getBuilds(pageSize));
       setFlag(true);
     }
-  }, [refresh, page, pageSize, toggle, env]);
+  }, [refresh, page, pageSize, toggle]);
 
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
@@ -1181,9 +1146,18 @@ function ExecutionList() {
     setPageSize(currentPageSize);
   };
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChange = async (event: SelectChangeEvent) => {
     setEnv(event.target.value as string);
+    setToggle(false);
+    setpipelineList([]);
+    setState(AsyncStatus.Loading);
+  };
+
+  const handleChangeProject = async (event: SelectChangeEvent) => {
+    setCurrProject(event.target.value as string);
     setRefresh(!refresh);
+    setToggle(false);
+    setpipelineList([]);
     setState(AsyncStatus.Loading);
   };
 
@@ -1201,6 +1175,28 @@ function ExecutionList() {
           >
             {envIds.map(envId => (
               <MenuItem value={envId}>{envId}</MenuItem>
+            ))}
+          </Select>
+          <FormHelperText />
+        </FormControl>
+      </Box>
+    );
+  }
+
+  let projectDropdown;
+  if (allProjects && allProjects?.length > 1) {
+    projectDropdown = (
+      <Box sx={{ minWidth: 120 }}>
+        <FormControl fullWidth>
+          <Select
+            labelId="Project"
+            id="Project"
+            value={currProject}
+            label="Project"
+            onChange={handleChangeProject}
+          >
+            {allProjects.map(proj => (
+              <MenuItem value={proj}>{proj}</MenuItem>
             ))}
           </Select>
           <FormHelperText />
@@ -1241,6 +1237,7 @@ function ExecutionList() {
     return (
       <>
         {dropdown}
+        {projectDropdown}
         <EmptyState
           title="Harness CI-CD pipelines"
           description={description}
@@ -1250,36 +1247,11 @@ function ExecutionList() {
     );
   }
 
-  if (serviceToast && renderedOnce) {
-    setRenderedOnce(false);
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: '375px',
-      padding: '2px 5px',
-    });
-
-    Toast.fire({
-      icon: 'warning',
-      title: 'Incorrect Service ID',
-      text: 'Please check your service ID configuration in catalog-info.yaml',
-      showClass: {
-        backdrop: 'swal2-noanimation', // disable backdrop animation
-        popup: '', // disable popup animation
-        icon: '', // disable icon animation
-      },
-      hideClass: {
-        popup: '', // disable popup fade-out animation
-      },
-    });
-  }
-
   return (
     <>
       <div className={classes.container}>
         {dropdown}
+        {projectDropdown}
         <Table
           options={{
             paging: true,
