@@ -1143,44 +1143,40 @@ function ExecutionList() {
   let dropdown;
   if (envIds.length > 1) {
     dropdown = (
-      <Box sx={{ minWidth: 120 }}>
-        <FormControl fullWidth>
-          <Select
-            labelId="Environment"
-            id="Environment"
-            value={env}
-            label="Environment"
-            onChange={handleChange}
-          >
-            {envIds.map(envId => (
-              <MenuItem value={envId}>{envId}</MenuItem>
-            ))}
-          </Select>
-          <FormHelperText />
-        </FormControl>
-      </Box>
+      <FormControl fullWidth>
+        <Select
+          labelId="Environment"
+          id="Environment"
+          value={env}
+          label="Environment"
+          onChange={handleChange}
+        >
+          {envIds.map(envId => (
+            <MenuItem value={envId}>{envId}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
     );
   }
 
   let projectDropdown;
   if (allProjects && allProjects?.length > 1) {
     projectDropdown = (
-      <Box sx={{ minWidth: 120 }}>
-        <FormControl fullWidth>
-          <Select
-            labelId="Project"
-            id="Project"
-            value={currProject}
-            label="Project"
-            onChange={handleChangeProject}
-          >
-            {allProjects.map(proj => (
-              <MenuItem value={proj}>{proj}</MenuItem>
-            ))}
-          </Select>
-          <FormHelperText />
-        </FormControl>
-      </Box>
+      <FormControl fullWidth>
+        <Select
+          labelId="Project"
+          id="Project"
+          value={currProject}
+          label="Project"
+          onChange={handleChangeProject}
+        >
+          {allProjects.map(proj => (
+            <MenuItem value={proj}>{proj}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
     );
   }
 
@@ -1215,8 +1211,18 @@ function ExecutionList() {
         'Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.';
     return (
       <>
-        {dropdown}
-        {projectDropdown}
+        <Grid container spacing={3} marginBottom={2}>
+          {envIds.length > 1 && (
+            <Grid item md={3}>
+              {dropdown}
+            </Grid>
+          )}
+          {allProjects && allProjects?.length > 1 && (
+            <Grid item md={3}>
+              {projectDropdown}
+            </Grid>
+          )}
+        </Grid>
         <EmptyState
           title="Harness CI-CD pipelines"
           description={description}
@@ -1229,8 +1235,18 @@ function ExecutionList() {
   return (
     <>
       <div className={classes.container}>
-        {dropdown}
-        {projectDropdown}
+        <Grid container spacing={3} marginBottom={2}>
+          {envIds.length > 1 && (
+            <Grid item md={3}>
+              {dropdown}
+            </Grid>
+          )}
+          {allProjects && allProjects?.length > 1 && (
+            <Grid item md={3}>
+              {projectDropdown}
+            </Grid>
+          )}
+        </Grid>
         <Table
           options={{
             paging: true,
