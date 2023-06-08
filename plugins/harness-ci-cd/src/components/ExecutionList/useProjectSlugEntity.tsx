@@ -40,7 +40,7 @@ export const useProjectSlugFromEntity = (env: string) => {
     accountId = urlParams.params.accountId;
     orgId = urlParams.params.orgId;
     projectId = urlParams.params.projectId;
-    if(!projectIds) {
+    if (!projectIds) {
       projectIds = projectId;
     }
   }
@@ -53,6 +53,6 @@ export const useProjectSlugFromEntity = (env: string) => {
     urlParams,
     hostname,
     baseUrl1,
-    projectIds
+    projectIds,
   };
 };
