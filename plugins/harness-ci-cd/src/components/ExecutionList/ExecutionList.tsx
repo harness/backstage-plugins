@@ -576,8 +576,6 @@ function ExecutionList() {
   const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [pipelineList, setpipelineList] = useState<any[]>([]);
-  const [toggle, setToggle] = useState(false);
   const [flag, setFlag] = useState(false);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
@@ -639,7 +637,7 @@ function ExecutionList() {
       return token ? `Bearer ${token}` : '';
     } catch (err) {
       // eslint-disable-next-line no-console
-      // console.log('Failed to read Harness tokens', err);
+      console.log('Failed to read Harness tokens', err);
       return undefined;
     }
   }
@@ -805,25 +803,6 @@ function ExecutionList() {
       }
     }
   }
-
-  async function getPipelinefromCatalog() {
-    const list = pipelineId;
-    const elements = list?.split(',').map(item => item.trim());
-    let count = 0;
-    elements?.map(pipe => {
-      if (count < 10) setpipelineList(data => [...data, pipe]);
-      count++;
-    });
-  }
-  async function getAllPipelines() {
-    if (!toggle) {
-      if (pipelineId) await getPipelinefromCatalog();
-    }
-    setToggle(true);
-  }
-  useAsyncRetry(async () => {
-    await getAllPipelines();
-  }, [currProject]);
 
   const columns: TableColumn[] = [
     {
@@ -996,147 +975,147 @@ function ExecutionList() {
       size: `${pageSize}`,
       page: `${page}`,
     });
+    const pipelineList = pipelineId?.split(',').map(item => item.trim()) ?? [];
     if (pipelineList.length > 0) {
       pipelineList.map(pipe => {
         query.append('pipelineIdentifier', pipe);
       });
     }
-    if (toggle) {
-      const token = getSecureHarnessKey('token');
-      const value = token ? `${token}` : '';
 
-      const headers = new Headers({
-        'content-type': 'application/json',
-        Authorization: value,
-      });
-      let body;
-      if (serviceId) {
-        body = JSON.stringify({
-          filterType: 'PipelineExecution',
-          moduleProperties: {
-            cd: {
-              serviceIdentifiers: [
-                serviceId?.split(',').map(item => item.trim())[0],
-              ],
-            },
+    const token = getSecureHarnessKey('token');
+    const value = token ? `${token}` : '';
+
+    const headers = new Headers({
+      'content-type': 'application/json',
+      Authorization: value,
+    });
+    let body;
+    if (serviceId) {
+      body = JSON.stringify({
+        filterType: 'PipelineExecution',
+        moduleProperties: {
+          cd: {
+            serviceIdentifiers: [
+              serviceId?.split(',').map(item => item.trim())[0],
+            ],
           },
+        },
+      });
+    }
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
+      {
+        headers,
+        method: 'POST',
+        body: body,
+      },
+    );
+    if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
+      if (response.status === 200) setState(AsyncStatus.Success);
+      else if (response.status === 401) setState(AsyncStatus.Unauthorized);
+      else setState(AsyncStatus.Error);
+    }
+    const data = await response.json();
+    const tableData = data.data.content;
+    if (data.data.totalElements < 50) {
+      setTotalElements(data.data.totalElements);
+    }
+    const getBuilds = (currentPageSize: number): Array<{}> => {
+      const data1: Array<TableData> = [];
+      let request = 'pullRequest';
+      while (
+        data1.length < currentPageSize &&
+        tableData &&
+        data1.length < data.data.numberOfElements
+      ) {
+        let serviceString = '';
+        let envString = '';
+
+        if (
+          typeof tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+            ?.pullRequest === 'undefined'
+        ) {
+          request = 'branch';
+        } else {
+          request = 'pullRequest';
+        }
+        if (tableData[data1.length]?.modules?.includes('cd')) {
+          const serviceNames = new Set();
+          const envNames = new Set();
+          const mapdata = tableData[data1.length]?.layoutNodeMap;
+
+          Object.keys(mapdata).forEach(key => {
+            if (mapdata[key].nodeType === 'Deployment') {
+              if (mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name)
+                envNames.add(
+                  mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name,
+                );
+              if (mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName)
+                serviceNames.add(
+                  mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName,
+                );
+            }
+          });
+          envString = Array.from(envNames).join(',');
+          serviceString = Array.from(serviceNames).join(',');
+        }
+        data1.push({
+          id: `${page * currentPageSize + data1.length + 1}`,
+          name: `${tableData[data1.length]?.name}`,
+          status: `${tableData[data1.length]?.status}`,
+          startTime: `${tableData[data1.length]?.startTs}`,
+          endTime: `${tableData[data1.length]?.endTs}`,
+          pipelineId: `${tableData[data1.length]?.pipelineIdentifier}`,
+          planExecutionId: `${tableData[data1.length]?.planExecutionId}`,
+          runSequence: `${tableData[data1.length]?.runSequence}`,
+          commitId: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
+              request
+            ]?.commits?.['0']?.id
+          }`,
+          commitlink: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
+              request
+            ]?.commits?.['0']?.link
+          }`,
+          branch: `${tableData[data1.length]?.moduleInfo?.ci?.branch}`,
+          message: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
+              request
+            ]?.commits?.['0']?.message
+          }`,
+          prmessage: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.title
+          }`,
+          prlink: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.link
+          }`,
+          sourcebranch: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.sourceBranch
+          }`,
+          targetbranch: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.targetBranch
+          }`,
+          prId: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.id
+          }`,
+          cdenv: `${envString}`,
+          cdser: `${serviceString}`,
+          reponame: `${tableData[data1.length]?.moduleInfo?.ci?.repoName}`,
+          tag: `${tableData[data1.length]?.moduleInfo?.ci?.tag}`,
         });
       }
-      const response = await fetch(
-        `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
-        {
-          headers,
-          method: 'POST',
-          body: body,
-        },
-      );
-      if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
-        if (response.status === 200) setState(AsyncStatus.Success);
-        else if (response.status === 401) setState(AsyncStatus.Unauthorized);
-        else setState(AsyncStatus.Error);
-      }
-      const data = await response.json();
-      const tableData = data.data.content;
-      if (data.data.totalElements < 50) {
-        setTotalElements(data.data.totalElements);
-      }
-      const getBuilds = (currentPageSize: number): Array<{}> => {
-        const data1: Array<TableData> = [];
-        let request = 'pullRequest';
-        while (
-          data1.length < currentPageSize &&
-          tableData &&
-          data1.length < data.data.numberOfElements
-        ) {
-          let serviceString = '';
-          let envString = '';
+      return data1;
+    };
 
-          if (
-            typeof tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest === 'undefined'
-          ) {
-            request = 'branch';
-          } else {
-            request = 'pullRequest';
-          }
-          if (tableData[data1.length]?.modules?.includes('cd')) {
-            const serviceNames = new Set();
-            const envNames = new Set();
-            const mapdata = tableData[data1.length]?.layoutNodeMap;
-
-            Object.keys(mapdata).forEach(key => {
-              if (mapdata[key].nodeType === 'Deployment') {
-                if (mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name)
-                  envNames.add(
-                    mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name,
-                  );
-                if (mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName)
-                  serviceNames.add(
-                    mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName,
-                  );
-              }
-            });
-            envString = Array.from(envNames).join(',');
-            serviceString = Array.from(serviceNames).join(',');
-          }
-          data1.push({
-            id: `${page * currentPageSize + data1.length + 1}`,
-            name: `${tableData[data1.length]?.name}`,
-            status: `${tableData[data1.length]?.status}`,
-            startTime: `${tableData[data1.length]?.startTs}`,
-            endTime: `${tableData[data1.length]?.endTs}`,
-            pipelineId: `${tableData[data1.length]?.pipelineIdentifier}`,
-            planExecutionId: `${tableData[data1.length]?.planExecutionId}`,
-            runSequence: `${tableData[data1.length]?.runSequence}`,
-            commitId: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-                request
-              ]?.commits?.['0']?.id
-            }`,
-            commitlink: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-                request
-              ]?.commits?.['0']?.link
-            }`,
-            branch: `${tableData[data1.length]?.moduleInfo?.ci?.branch}`,
-            message: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-                request
-              ]?.commits?.['0']?.message
-            }`,
-            prmessage: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.title
-            }`,
-            prlink: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.link
-            }`,
-            sourcebranch: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.sourceBranch
-            }`,
-            targetbranch: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.targetBranch
-            }`,
-            prId: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.id
-            }`,
-            cdenv: `${envString}`,
-            cdser: `${serviceString}`,
-            reponame: `${tableData[data1.length]?.moduleInfo?.ci?.repoName}`,
-            tag: `${tableData[data1.length]?.moduleInfo?.ci?.tag}`,
-          });
-        }
-        return data1;
-      };
-
-      setCurrTableData(getBuilds(pageSize));
-      setFlag(true);
-    }
-  }, [refresh, page, pageSize, toggle]);
+    setCurrTableData(getBuilds(pageSize));
+    setFlag(true);
+  }, [refresh, page, pageSize]);
 
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
@@ -1152,16 +1131,12 @@ function ExecutionList() {
 
   const handleChange = async (event: SelectChangeEvent) => {
     setEnv(event.target.value as string);
-    setToggle(false);
-    setpipelineList([]);
     setState(AsyncStatus.Loading);
   };
 
   const handleChangeProject = async (event: SelectChangeEvent) => {
     setCurrProject(event.target.value as string);
     setRefresh(!refresh);
-    setToggle(false);
-    setpipelineList([]);
     setState(AsyncStatus.Loading);
   };
 
