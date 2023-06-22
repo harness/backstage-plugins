@@ -3363,6 +3363,27 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
+"@harnessio/backstage-plugin-ci-cd@workspace:^":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-ci-cd/-/backstage-plugin-ci-cd-0.5.0.tgz#4075bf2cea7a71820e029134735b95f207986b53"
+  integrity sha512-aP1EtyFKjum4+zElfVtvmKh5/nv8+QPOdAHqVV3Wh+BfKscp1ztXibK3qa0bM2Qv8tPmTConKxKEOiEmlwaEcQ==
+  dependencies:
+    "@backstage/catalog-model" "^1.1.3"
+    "@backstage/core-components" "^0.11.1"
+    "@backstage/core-plugin-api" "^1.0.6"
+    "@backstage/plugin-catalog-react" "^1.2.1"
+    "@backstage/theme" "^0.2.16"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+    "@material-ui/core" "^4.9.13"
+    "@material-ui/icons" "^4.9.1"
+    "@material-ui/lab" "4.0.0-alpha.57"
+    "@mui/material" "^5.10.13"
+    dayjs "^1.11.6"
+    path-to-regexp "^6.2.1"
+    react-use "^17.2.4"
+    sweetalert2 "^11.6.14"
+
 "@humanwhocodes/config-array@^0.11.6":
   version "0.11.7"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.7.tgz#38aec044c6c828f6ed51d5d7ae3d9b9faf6dbb0f"
@@ -7189,7 +7210,7 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@backstage/plugin-techdocs-react" "^1.0.5"
     "@backstage/plugin-user-settings" "^0.5.0"
     "@backstage/theme" "^0.2.16"
-    "@harnessio/backstage-plugin-ci-cd" "0.3.0"
+    "@harnessio/backstage-plugin-ci-cd" "workspace:^"
     "@harnessio/backstage-plugin-feature-flags" "^0.1.0"
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
