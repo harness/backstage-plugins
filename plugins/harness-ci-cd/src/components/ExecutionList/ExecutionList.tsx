@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   CircularProgress,
+  FormControl,
   IconButton,
   Link,
   makeStyles,
+  MenuItem,
   Typography,
 } from '@material-ui/core';
 import {
@@ -17,6 +19,8 @@ import {
   Grid,
   Tooltip,
 } from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import FormHelperText from '@mui/material/FormHelperText';
 import {
   EmptyState,
   OverflowTooltip,
@@ -30,8 +34,6 @@ import {
 } from '@backstage/core-components';
 import ReplayIcon from '@material-ui/icons/Replay';
 import RetryIcon from '@material-ui/icons/Replay';
-// import { Link as RouterLink } from 'react-router-dom';
-// import { harnessCIBuildRouteRef } from '../../route-refs';
 import {
   configApiRef,
   discoveryApiRef,
@@ -41,6 +43,7 @@ import { durationHumanized, relativeTimeTo } from '../../util';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 import Swal from 'sweetalert2';
+import { useEntity } from '@backstage/plugin-catalog-react';
 
 const getStatusComponent = (status: string | undefined = '') => {
   switch (status.toLocaleLowerCase('en-US')) {
@@ -573,14 +576,9 @@ function ExecutionList() {
   const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [pipelineList, setpipelineList] = useState<any[]>([]);
-  const [toggle, setToggle] = useState(false);
-  const [serviceToast, setServiceToast] = useState(false);
   const [flag, setFlag] = useState(false);
-  const [renderedOnce, setRenderedOnce] = useState(true);
   const [totalElements, setTotalElements] = useState(50);
   const [licenses, setLicenses] = useState('cd');
-  const [env, setEnv] = useState('prod');
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -588,36 +586,45 @@ function ExecutionList() {
 
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
+  const { entity } = useEntity();
+
+  const allEnvsAnnotations = [
+    ['prod', 'harness.io/project-url'],
+    ['stage', 'harness.io/project-url-stage'],
+    ['qa', 'harness.io/project-url-qa'],
+    ['stress', 'harness.io/project-url-stress'],
+  ];
+
+  const envIds: string[] = [];
+  allEnvsAnnotations.forEach(envAnnotation => {
+    if (Boolean(entity.metadata.annotations?.[envAnnotation[1]])) {
+      envIds.push(envAnnotation[0]);
+    }
+  });
+
+  const [env, setEnv] = useState(envIds[0]);
 
   const {
-    projectId,
     orgId,
     accountId,
     pipelineId,
     serviceId,
     urlParams,
-    hostname,
     baseUrl1,
-  } = useProjectSlugFromEntity();
+    projectIds,
+  } = useProjectSlugFromEntity(env);
 
-  const stress = 'stress.harness.io';
-  const qa = 'qa.harness.io';
-  const stage = 'stage.harness.io';
-  const prod = 'app.harness.io';
+  const [allProjects, setAllProjects] = useState(
+    projectIds?.split(',').map(item => item.trim()),
+  );
+  const [currProject, setCurrProject] = useState(
+    projectIds?.split(',').map(item => item.trim())?.[0],
+  );
 
   useEffect(() => {
-    if (hostname === prod) {
-      setEnv('prod');
-    }
-    if (hostname === stage) {
-      setEnv('stage');
-    }
-    if (hostname === stress) {
-      setEnv('stress');
-    }
-    if (hostname === qa) {
-      setEnv('qa');
-    }
+    setAllProjects(projectIds?.split(',').map(item => item.trim()));
+    setCurrProject(projectIds?.split(',').map(item => item.trim())?.[0]);
+    setRefresh(!refresh);
     getLicense();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
@@ -797,78 +804,6 @@ function ExecutionList() {
     }
   }
 
-  async function getPipeLineByService() {
-    const list = serviceId;
-    const service1 = list?.split(',').map(item => item.trim()) || '';
-
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
-
-    const headers = new Headers({
-      'content-type': 'application/json',
-      Authorization: value,
-    });
-
-    const resp = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/dashboard/getServiceHeaderInfo?routingId=${accountId}&accountIdentifier=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}&serviceId=${
-        service1[0]
-      }`,
-      {
-        headers,
-      },
-    );
-
-    if (resp.status !== 200) {
-      setToggle(true);
-      setServiceToast(true);
-    }
-
-    const jsondata = await resp.json();
-    const serviceName = jsondata?.data?.name;
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/list?routingId=${accountId}&accountIdentifier=${accountId}&projectIdentifier=${projectId}&orgIdentifier=${orgId}&page=0&sort=lastUpdatedAt%2CDESC&size=5`,
-      {
-        headers,
-        body: JSON.stringify({
-          filterType: 'PipelineSetup',
-          moduleProperties: {
-            cd: {
-              serviceNames: [serviceName],
-            },
-          },
-        }),
-        method: 'POST',
-      },
-    );
-
-    const data = await response.json();
-    const filteredData = await data?.data?.content.filter((obj: any) => {
-      return obj.recentExecutionsInfo.length > 0;
-    });
-    filteredData?.map((pipe: any) => {
-      setpipelineList(pipelineData => [...pipelineData, pipe.identifier]);
-    });
-  }
-  async function getPipelinefromCatalog() {
-    const list = pipelineId;
-    const elements = list?.split(',').map(item => item.trim());
-    let count = 0;
-    elements?.map(pipe => {
-      if (count < 10) setpipelineList(data => [...data, pipe]);
-      count++;
-    });
-  }
-  async function getAllPipelines() {
-    if (!toggle) {
-      if (pipelineId) await getPipelinefromCatalog();
-      if (serviceId) await getPipeLineByService();
-    }
-    setToggle(true);
-  }
-  useAsyncRetry(async () => {
-    await getAllPipelines();
-  }, []);
-
   const columns: TableColumn[] = [
     {
       title: 'NO',
@@ -880,7 +815,7 @@ function ExecutionList() {
         paddingLeft: '30px',
       },
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${currProject}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         const id = parseInt(row.id ? row.id : '0', 10);
         return (
           <Link href={link} target="_blank">
@@ -894,7 +829,7 @@ function ExecutionList() {
       field: 'col1',
       width: '22%',
       render: (row: Partial<TableData>) => {
-        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${projectId}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
+        const link = `${baseUrl1}/ng/#/account/${accountId}/${licenses}/orgs/${orgId}/projects/${currProject}/pipelines/${row.pipelineId}/deployments/${row.planExecutionId}/pipeline`;
         return (
           <Typography style={{ fontSize: 'small', color: 'grey' }}>
             <Link href={link} target="_blank" style={{ fontSize: '0.9rem' }}>
@@ -1016,7 +951,7 @@ function ExecutionList() {
           accountIdentifier: `${accountId}`,
           routingId: `${accountId}`,
           orgIdentifier: `${orgId}`,
-          projectIdentifier: `${projectId}`,
+          projectIdentifier: `${currProject}`,
         }).toString();
         return (
           <AlertDialog
@@ -1036,137 +971,151 @@ function ExecutionList() {
       accountIdentifier: `${accountId}`,
       routingId: `${accountId}`,
       orgIdentifier: `${orgId}`,
-      projectIdentifier: `${projectId}`,
+      projectIdentifier: `${currProject}`,
       size: `${pageSize}`,
       page: `${page}`,
     });
+    const pipelineList = pipelineId?.split(',').map(item => item.trim()) ?? [];
     if (pipelineList.length > 0) {
       pipelineList.map(pipe => {
         query.append('pipelineIdentifier', pipe);
       });
     }
-    if (toggle) {
-      const token = getSecureHarnessKey('token');
-      const value = token ? `${token}` : '';
 
-      const headers = new Headers({
-        'content-type': 'application/json',
-        Authorization: value,
-      });
-      const response = await fetch(
-        `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
-        {
-          headers,
-          method: 'POST',
+    const token = getSecureHarnessKey('token');
+    const value = token ? `${token}` : '';
+
+    const headers = new Headers({
+      'content-type': 'application/json',
+      Authorization: value,
+    });
+    let body;
+    if (serviceId) {
+      body = JSON.stringify({
+        filterType: 'PipelineExecution',
+        moduleProperties: {
+          cd: {
+            serviceIdentifiers: [
+              serviceId?.split(',').map(item => item.trim())[0],
+            ],
+          },
         },
-      );
-      if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
-        if (response.status === 200) setState(AsyncStatus.Success);
-        else if (response.status === 401) setState(AsyncStatus.Unauthorized);
-        else setState(AsyncStatus.Error);
-      }
-      const data = await response.json();
-      const tableData = data.data.content;
-      if (data.data.totalElements < 50) {
-        setTotalElements(data.data.totalElements);
-      }
-      const getBuilds = (currentPageSize: number): Array<{}> => {
-        const data1: Array<TableData> = [];
-        let request = 'pullRequest';
-        while (
-          data1.length < currentPageSize &&
-          tableData &&
-          data1.length < data.data.numberOfElements
-        ) {
-          let serviceString = '';
-          let envString = '';
-
-          if (
-            typeof tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest === 'undefined'
-          ) {
-            request = 'branch';
-          } else {
-            request = 'pullRequest';
-          }
-          if (tableData[data1.length]?.modules?.includes('cd')) {
-            const serviceNames = new Set();
-            const envNames = new Set();
-            const mapdata = tableData[data1.length]?.layoutNodeMap;
-
-            Object.keys(mapdata).forEach(key => {
-              if (mapdata[key].nodeType === 'Deployment') {
-                if (mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name)
-                  envNames.add(
-                    mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name,
-                  );
-                if (mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName)
-                  serviceNames.add(
-                    mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName,
-                  );
-              }
-            });
-            envString = Array.from(envNames).join(',');
-            serviceString = Array.from(serviceNames).join(',');
-          }
-          data1.push({
-            id: `${page * currentPageSize + data1.length + 1}`,
-            name: `${tableData[data1.length]?.name}`,
-            status: `${tableData[data1.length]?.status}`,
-            startTime: `${tableData[data1.length]?.startTs}`,
-            endTime: `${tableData[data1.length]?.endTs}`,
-            pipelineId: `${tableData[data1.length]?.pipelineIdentifier}`,
-            planExecutionId: `${tableData[data1.length]?.planExecutionId}`,
-            runSequence: `${tableData[data1.length]?.runSequence}`,
-            commitId: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-                request
-              ]?.commits?.['0']?.id
-            }`,
-            commitlink: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-                request
-              ]?.commits?.['0']?.link
-            }`,
-            branch: `${tableData[data1.length]?.moduleInfo?.ci?.branch}`,
-            message: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-                request
-              ]?.commits?.['0']?.message
-            }`,
-            prmessage: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.title
-            }`,
-            prlink: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.link
-            }`,
-            sourcebranch: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.sourceBranch
-            }`,
-            targetbranch: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.targetBranch
-            }`,
-            prId: `${
-              tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-                ?.pullRequest?.id
-            }`,
-            cdenv: `${envString}`,
-            cdser: `${serviceString}`,
-            reponame: `${tableData[data1.length]?.moduleInfo?.ci?.repoName}`,
-            tag: `${tableData[data1.length]?.moduleInfo?.ci?.tag}`,
-          });
-        }
-        return data1;
-      };
-
-      setCurrTableData(getBuilds(pageSize));
-      setFlag(true);
+      });
     }
-  }, [refresh, page, pageSize, toggle]);
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
+      {
+        headers,
+        method: 'POST',
+        body: body,
+      },
+    );
+    if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
+      if (response.status === 200) setState(AsyncStatus.Success);
+      else if (response.status === 401) setState(AsyncStatus.Unauthorized);
+      else setState(AsyncStatus.Error);
+    }
+    const data = await response.json();
+    const tableData = data.data.content;
+    if (data.data.totalElements < 50) {
+      setTotalElements(data.data.totalElements);
+    }
+    const getBuilds = (currentPageSize: number): Array<{}> => {
+      const data1: Array<TableData> = [];
+      let request = 'pullRequest';
+      while (
+        data1.length < currentPageSize &&
+        tableData &&
+        data1.length < data.data.numberOfElements
+      ) {
+        let serviceString = '';
+        let envString = '';
+
+        if (
+          typeof tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+            ?.pullRequest === 'undefined'
+        ) {
+          request = 'branch';
+        } else {
+          request = 'pullRequest';
+        }
+        if (tableData[data1.length]?.modules?.includes('cd')) {
+          const serviceNames = new Set();
+          const envNames = new Set();
+          const mapdata = tableData[data1.length]?.layoutNodeMap;
+
+          Object.keys(mapdata).forEach(key => {
+            if (mapdata[key].nodeType === 'Deployment') {
+              if (mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name)
+                envNames.add(
+                  mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name,
+                );
+              if (mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName)
+                serviceNames.add(
+                  mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName,
+                );
+            }
+          });
+          envString = Array.from(envNames).join(',');
+          serviceString = Array.from(serviceNames).join(',');
+        }
+        data1.push({
+          id: `${page * currentPageSize + data1.length + 1}`,
+          name: `${tableData[data1.length]?.name}`,
+          status: `${tableData[data1.length]?.status}`,
+          startTime: `${tableData[data1.length]?.startTs}`,
+          endTime: `${tableData[data1.length]?.endTs}`,
+          pipelineId: `${tableData[data1.length]?.pipelineIdentifier}`,
+          planExecutionId: `${tableData[data1.length]?.planExecutionId}`,
+          runSequence: `${tableData[data1.length]?.runSequence}`,
+          commitId: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
+              request
+            ]?.commits?.['0']?.id
+          }`,
+          commitlink: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
+              request
+            ]?.commits?.['0']?.link
+          }`,
+          branch: `${tableData[data1.length]?.moduleInfo?.ci?.branch}`,
+          message: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
+              request
+            ]?.commits?.['0']?.message
+          }`,
+          prmessage: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.title
+          }`,
+          prlink: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.link
+          }`,
+          sourcebranch: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.sourceBranch
+          }`,
+          targetbranch: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.targetBranch
+          }`,
+          prId: `${
+            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
+              ?.pullRequest?.id
+          }`,
+          cdenv: `${envString}`,
+          cdser: `${serviceString}`,
+          reponame: `${tableData[data1.length]?.moduleInfo?.ci?.repoName}`,
+          tag: `${tableData[data1.length]?.moduleInfo?.ci?.tag}`,
+        });
+      }
+      return data1;
+    };
+
+    setCurrTableData(getBuilds(pageSize));
+    setFlag(true);
+  }, [refresh, page, pageSize]);
 
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
@@ -1179,6 +1128,57 @@ function ExecutionList() {
     setPage(0);
     setPageSize(currentPageSize);
   };
+
+  const handleChange = async (event: SelectChangeEvent) => {
+    setEnv(event.target.value as string);
+    setState(AsyncStatus.Loading);
+  };
+
+  const handleChangeProject = async (event: SelectChangeEvent) => {
+    setCurrProject(event.target.value as string);
+    setRefresh(!refresh);
+    setState(AsyncStatus.Loading);
+  };
+
+  let dropdown;
+  if (envIds.length > 1) {
+    dropdown = (
+      <FormControl fullWidth>
+        <Select
+          labelId="Environment"
+          id="Environment"
+          value={env}
+          label="Environment"
+          onChange={handleChange}
+        >
+          {envIds.map(envId => (
+            <MenuItem value={envId}>{envId}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
+    );
+  }
+
+  let projectDropdown;
+  if (allProjects && allProjects?.length > 1) {
+    projectDropdown = (
+      <FormControl fullWidth>
+        <Select
+          labelId="Project"
+          id="Project"
+          value={currProject}
+          label="Project"
+          onChange={handleChangeProject}
+        >
+          {allProjects.map(proj => (
+            <MenuItem value={proj}>{proj}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
+    );
+  }
 
   if (
     state === AsyncStatus.Init ||
@@ -1210,43 +1210,43 @@ function ExecutionList() {
       description =
         'Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.';
     return (
-      <EmptyState
-        title="Harness CI-CD pipelines"
-        description={description}
-        missing="data"
-      />
+      <>
+        <Grid container spacing={3} marginBottom={2}>
+          {envIds.length > 1 && (
+            <Grid item md={3}>
+              {dropdown}
+            </Grid>
+          )}
+          {allProjects && allProjects?.length > 1 && (
+            <Grid item md={3}>
+              {projectDropdown}
+            </Grid>
+          )}
+        </Grid>
+        <EmptyState
+          title="Harness CI-CD pipelines"
+          description={description}
+          missing="data"
+        />
+      </>
     );
-  }
-
-  if (serviceToast && renderedOnce) {
-    setRenderedOnce(false);
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top',
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: '375px',
-      padding: '2px 5px',
-    });
-
-    Toast.fire({
-      icon: 'warning',
-      title: 'Incorrect Service ID',
-      text: 'Please check your service ID configuration in catalog-info.yaml',
-      showClass: {
-        backdrop: 'swal2-noanimation', // disable backdrop animation
-        popup: '', // disable popup animation
-        icon: '', // disable icon animation
-      },
-      hideClass: {
-        popup: '', // disable popup fade-out animation
-      },
-    });
   }
 
   return (
     <>
       <div className={classes.container}>
+        <Grid container spacing={3} marginBottom={2}>
+          {envIds.length > 1 && (
+            <Grid item md={3}>
+              {dropdown}
+            </Grid>
+          )}
+          {allProjects && allProjects?.length > 1 && (
+            <Grid item md={3}>
+              {projectDropdown}
+            </Grid>
+          )}
+        </Grid>
         <Table
           options={{
             paging: true,
