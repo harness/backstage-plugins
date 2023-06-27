@@ -1,6 +1,20 @@
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { match } from 'path-to-regexp';
 
+function convertStringToObject(inputString: string | undefined) {
+  if (!inputString) return {};
+  const object: Record<string, string> = {};
+  const lines = inputString.split('\n');
+  for (const line of lines) {
+    if (line === '') continue;
+    const [label, url] = line.split(':');
+    const trimmedLabel = label.trim();
+    const trimmedUrl = url.trim();
+    object[trimmedLabel] = trimmedUrl;
+  }
+  return object;
+}
+
 export const useProjectSlugFromEntity = (env: string) => {
   let accountId;
   let orgId;
@@ -10,6 +24,11 @@ export const useProjectSlugFromEntity = (env: string) => {
   let url;
   let projectids;
   const { entity } = useEntity();
+
+  const harnessPipelineObject = convertStringToObject(
+    entity.metadata.annotations?.['harness.io/pipelines'],
+  );
+
   if (env && env !== 'prod') {
     pipelineid = `harness.io/ci-pipelineIds-${env}`;
     serviceid = `harness.io/cd-serviceId-${env}`;
