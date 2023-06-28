@@ -12,7 +12,7 @@ import {
 import { durationHumanized, relativeTimeTo } from '../../util';
 import RetryIcon from '@material-ui/icons/Replay';
 import { PrintCard } from './ExecutionTableColumns';
-import { AsyncStatus, TableData } from '../types';
+import { TableData } from '../types';
 import { AlertDialog } from './AlertDialog';
 
 const getStatusComponent = (status: string | undefined = '') => {
@@ -70,7 +70,7 @@ const ExecutionTable: React.FC<any> = ({
   refresh,
   pageSize,
   currTableData,
-  setState,
+  // setState,
   page,
   handleChangePage,
   totalElements,
@@ -259,7 +259,6 @@ const ExecutionTable: React.FC<any> = ({
           isFreeAction: true,
           onClick: () => {
             setRefresh(!refresh);
-            setState(AsyncStatus.Loading);
           },
         },
       ]}

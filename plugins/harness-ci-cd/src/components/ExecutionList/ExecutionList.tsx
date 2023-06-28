@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  CircularProgress,
-  FormControl,
-  makeStyles,
-  MenuItem,
-} from '@material-ui/core';
+import { CircularProgress, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import FormHelperText from '@mui/material/FormHelperText';
 import {
   EmptyState,
   Select as SelectComponent,
@@ -19,11 +12,13 @@ import {
   useApi,
 } from '@backstage/core-plugin-api';
 import Swal from 'sweetalert2';
-import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import ExecutionTable from './ExecutionTable';
 import { AsyncStatus, TableData } from '../types';
+import useGetExecutionsList from '../../hooks/useGetExecutionsList';
+import useGetLicenseWithAuth from '../../hooks/useGetLicenseWithAuth';
+import useMutateRunPipeline from '../../hooks/useMutateRunPipeline';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -38,13 +33,8 @@ const useStyles = makeStyles(theme => ({
 
 function ExecutionList() {
   const [refresh, setRefresh] = useState(false);
-  const [currTableData, setCurrTableData] = useState<any[]>([]);
-  const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [flag, setFlag] = useState(false);
-  const [totalElements, setTotalElements] = useState(50);
-  const [licenses, setLicenses] = useState('cd');
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
@@ -86,242 +76,49 @@ function ExecutionList() {
   useEffect(() => {
     setRefresh(!refresh);
     setCurrProject(allProjects?.[0]);
-    getLicense();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
 
-  function getSecureHarnessKey(key: string): string | undefined {
-    try {
-      const token = JSON.parse(
-        decodeURI(atob(localStorage.getItem(key) || '')),
-      );
-      return token ? `Bearer ${token}` : '';
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.log('Failed to read Harness tokens', err);
-      return undefined;
-    }
-  }
+  const {
+    status: state,
+    currTableData,
+    totalElements,
+    flag,
+  } = useGetExecutionsList({
+    accountId,
+    orgId,
+    currProject,
+    pageSize,
+    page,
+    pipelineId,
+    serviceId,
+    env,
+    backendBaseUrl,
+    refresh,
+  });
 
-  async function fetchLicenseWithAuth(): Promise<Response> {
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
+  const { licenses } = useGetLicenseWithAuth({
+    backendBaseUrl,
+    env,
+    accountId,
+  });
 
-    const headers = new Headers({
-      Authorization: value,
-    });
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
-      {
-        headers,
-      },
-    );
-
-    return response;
-  }
-
-  async function getLicense() {
-    const response = await fetchLicenseWithAuth();
-
-    if (response.status === 200) {
-      const data = await response.json();
-      if (data?.data?.allModuleLicenses?.CD?.length === 0) {
-        setLicenses('ci');
-      }
-    }
-  }
-
-  useAsyncRetry(async () => {
-    const query = new URLSearchParams({
-      accountIdentifier: `${accountId}`,
-      routingId: `${accountId}`,
-      orgIdentifier: `${orgId}`,
-      projectIdentifier: `${currProject}`,
-      size: `${pageSize}`,
-      page: `${page}`,
-    });
-    const pipelineList = pipelineId?.split(',').map(item => item.trim()) ?? [];
-    if (pipelineList.length > 0) {
-      pipelineList.map(pipe => {
-        query.append('pipelineIdentifier', pipe);
-      });
-    }
-
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
-
-    const headers = new Headers({
-      'content-type': 'application/json',
-      Authorization: value,
-    });
-    let body;
-    if (serviceId) {
-      body = JSON.stringify({
-        filterType: 'PipelineExecution',
-        moduleProperties: {
-          cd: {
-            serviceIdentifiers: [
-              serviceId?.split(',').map(item => item.trim())[0],
-            ],
-          },
-        },
-      });
-    }
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
-      {
-        headers,
-        method: 'POST',
-        body: body,
-      },
-    );
-    if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
-      if (response.status === 200) setState(AsyncStatus.Success);
-      else if (response.status === 401) setState(AsyncStatus.Unauthorized);
-      else setState(AsyncStatus.Error);
-    }
-    const data = await response.json();
-    const tableData = data.data.content;
-    if (data.data.totalElements < 50) {
-      setTotalElements(data.data.totalElements);
-    }
-    const getBuilds = (currentPageSize: number): Array<{}> => {
-      const data1: Array<TableData> = [];
-      let request = 'pullRequest';
-      while (
-        data1.length < currentPageSize &&
-        tableData &&
-        data1.length < data.data.numberOfElements
-      ) {
-        let serviceString = '';
-        let envString = '';
-
-        if (
-          typeof tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-            ?.pullRequest === 'undefined'
-        ) {
-          request = 'branch';
-        } else {
-          request = 'pullRequest';
-        }
-        if (tableData[data1.length]?.modules?.includes('cd')) {
-          const serviceNames = new Set();
-          const envNames = new Set();
-          const mapdata = tableData[data1.length]?.layoutNodeMap;
-
-          Object.keys(mapdata).forEach(key => {
-            if (mapdata[key].nodeType === 'Deployment') {
-              if (mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name)
-                envNames.add(
-                  mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name,
-                );
-              if (mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName)
-                serviceNames.add(
-                  mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName,
-                );
-            }
-          });
-          envString = Array.from(envNames).join(',');
-          serviceString = Array.from(serviceNames).join(',');
-        }
-        data1.push({
-          id: `${page * currentPageSize + data1.length + 1}`,
-          name: `${tableData[data1.length]?.name}`,
-          status: `${tableData[data1.length]?.status}`,
-          startTime: `${tableData[data1.length]?.startTs}`,
-          endTime: `${tableData[data1.length]?.endTs}`,
-          pipelineId: `${tableData[data1.length]?.pipelineIdentifier}`,
-          planExecutionId: `${tableData[data1.length]?.planExecutionId}`,
-          runSequence: `${tableData[data1.length]?.runSequence}`,
-          commitId: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-              request
-            ]?.commits?.['0']?.id
-          }`,
-          commitlink: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-              request
-            ]?.commits?.['0']?.link
-          }`,
-          branch: `${tableData[data1.length]?.moduleInfo?.ci?.branch}`,
-          message: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO?.[
-              request
-            ]?.commits?.['0']?.message
-          }`,
-          prmessage: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest?.title
-          }`,
-          prlink: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest?.link
-          }`,
-          sourcebranch: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest?.sourceBranch
-          }`,
-          targetbranch: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest?.targetBranch
-          }`,
-          prId: `${
-            tableData[data1.length]?.moduleInfo?.ci?.ciExecutionInfoDTO
-              ?.pullRequest?.id
-          }`,
-          cdenv: `${envString}`,
-          cdser: `${serviceString}`,
-          reponame: `${tableData[data1.length]?.moduleInfo?.ci?.repoName}`,
-          tag: `${tableData[data1.length]?.moduleInfo?.ci?.tag}`,
-        });
-      }
-      return data1;
-    };
-
-    setCurrTableData(getBuilds(pageSize));
-    setFlag(true);
-  }, [refresh, page, pageSize]);
+  const { runPipeline: executePipeline } = useMutateRunPipeline({
+    backendBaseUrl,
+    env,
+  });
 
   async function runPipeline(
     row: TableData,
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    backendBaseUrl: Object,
     query1: string,
     // eslint-disable-next-line @typescript-eslint/no-shadow
     setRefresh: React.Dispatch<React.SetStateAction<boolean>>,
     // eslint-disable-next-line @typescript-eslint/no-shadow
     refresh: boolean,
   ): Promise<void> {
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
+    const resp2 = await executePipeline(row, query1);
 
-    const headers = new Headers({
-      Authorization: value,
-    });
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/${
-        row.planExecutionId
-      }/inputset?${query1}`,
-      {
-        headers,
-      },
-    );
-
-    const data = await response.text();
-
-    const resp2 = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipeline/execute/rerun/${
-        row.planExecutionId
-      }/${row.pipelineId}?${query1}&moduleType=ci`,
-      {
-        headers: {
-          'content-type': 'application/yaml',
-          Authorization: value,
-        },
-        body: `${data}`,
-        method: 'POST',
-      },
-    );
     if (resp2.status === 200) {
       const Toast = Swal.mixin({
         toast: true,
@@ -368,8 +165,8 @@ function ExecutionList() {
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
     setPageSize(currentPageSize);
-    setState(AsyncStatus.Loading);
-    setFlag(false);
+    // setState(AsyncStatus.Loading);
+    // setFlag(false);
   };
 
   const handleChangeRowsPerPage = (currentPageSize: number) => {
@@ -379,13 +176,13 @@ function ExecutionList() {
 
   const handleChange = (event: SelectedItems) => {
     setEnv(event as string);
-    setState(AsyncStatus.Loading);
+    // setState(AsyncStatus.Loading);
   };
 
   const handleChangeProject = (event: SelectedItems) => {
     setCurrProject(event as string);
     setRefresh(!refresh);
-    setState(AsyncStatus.Loading);
+    // setState(AsyncStatus.Loading);
   };
 
   let dropdown;
@@ -394,7 +191,6 @@ function ExecutionList() {
       <SelectComponent
         selected={env}
         onChange={handleChange}
-        placeholder="Select Environment"
         label="Environment"
         items={envIds.map(envId => ({ value: envId, label: envId }))}
       />
@@ -407,7 +203,6 @@ function ExecutionList() {
       <SelectComponent
         selected={currProject}
         onChange={handleChangeProject}
-        placeholder="Select Project"
         label="Project"
         items={allProjects.map(proj => ({ value: proj, label: proj }))}
       />
@@ -494,7 +289,6 @@ function ExecutionList() {
           refresh={refresh}
           pageSize={pageSize}
           currTableData={currTableData}
-          setState={setState}
           page={page}
           handleChangePage={handleChangePage}
           totalElements={totalElements}
