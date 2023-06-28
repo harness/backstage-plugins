@@ -1,33 +1,44 @@
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { match } from 'path-to-regexp';
 
-function convertStringToObject(inputString: string | undefined) {
-  if (!inputString) return {};
-  const object: Record<string, string> = {};
-  const lines = inputString.split('\n');
-  for (const line of lines) {
-    if (line === '') continue;
-    const [label, url] = line.split(':');
-    const trimmedLabel = label.trim();
-    const trimmedUrl = url.trim();
-    object[trimmedLabel] = trimmedUrl;
-  }
-  return object;
-}
-
-export const useProjectSlugFromEntity = (env: string) => {
+export const useProjectSlugFromEntity = (
+  env: string,
+  isNewAnnotationPresent: boolean,
+  selectedPipelineUrl: string,
+) => {
   let accountId;
   let orgId;
   let projectId;
   let pipelineid;
   let serviceid;
   let url;
-  let projectids;
+  let projectids: string | undefined;
   const { entity } = useEntity();
 
-  const harnessPipelineObject = convertStringToObject(
-    entity.metadata.annotations?.['harness.io/pipelines'],
-  );
+  if (isNewAnnotationPresent) {
+    const urlMatch = match(
+      '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
+      {
+        decode: decodeURIComponent,
+      },
+    );
+    const hostname = new URL(selectedPipelineUrl).hostname;
+    const baseUrl1 = new URL(selectedPipelineUrl).origin;
+
+    const envAB = hostname.split('.')[0];
+    const envFromUrl = envAB === 'app' ? 'prod' : envAB;
+
+    const urlParams: any = urlMatch(selectedPipelineUrl);
+    return {
+      orgId: urlParams.params.orgId,
+      accountId: urlParams.params.accountId,
+      pipelineId: urlParams.params.pipelineId,
+      urlParams,
+      baseUrl1: baseUrl1,
+      projectIds: urlParams.params.projectId as string,
+      envFromUrl: envFromUrl,
+    };
+  }
 
   if (env && env !== 'prod') {
     pipelineid = `harness.io/ci-pipelineIds-${env}`;

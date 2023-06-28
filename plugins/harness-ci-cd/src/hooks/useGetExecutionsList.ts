@@ -85,11 +85,7 @@ const useGetExecutionsList = ({
 
     const data = await response.json();
 
-    const tableData = data.data.content;
-    if (data.data.totalElements < 50) {
-      setTotalElements(data.data.totalElements);
-    }
-    const getBuilds = (currentPageSize: number): Array<{}> => {
+    const getBuilds = (tableData: any, currentPageSize: number): Array<{}> => {
       return tableData.map((dataItem: any, index: number) => {
         let serviceString = '';
         let envString = '';
@@ -147,10 +143,16 @@ const useGetExecutionsList = ({
       });
     };
 
-    if (response.status === 200) setStatus(AsyncStatus.Success);
-    else if (response.status === 401) setStatus(AsyncStatus.Unauthorized);
+    if (response.status === 200) {
+      setStatus(AsyncStatus.Success);
+      const responseData = data.data.content;
+      if (data.data.totalElements < 50) {
+        setTotalElements(data.data.totalElements);
+      }
+      setCurrTableData(getBuilds(responseData, pageSize));
+    } else if (response.status === 401) setStatus(AsyncStatus.Unauthorized);
     else setStatus(AsyncStatus.Error);
-    setCurrTableData(getBuilds(pageSize));
+
     setFlag(true);
   }, [
     refresh,

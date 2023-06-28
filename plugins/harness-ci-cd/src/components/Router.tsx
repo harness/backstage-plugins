@@ -41,8 +41,6 @@ export const Router = () => {
     );
   }
 
-  const newAnnotationPresent = Boolean(entity.metadata.annotations?.['harness.io/pipelines'])
-
   return (
     <Routes>
       <Route path="/" element={<ExecutionList />} />

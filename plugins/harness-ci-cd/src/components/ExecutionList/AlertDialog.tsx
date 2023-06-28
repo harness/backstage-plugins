@@ -56,7 +56,6 @@ export function AlertDialog(props: AlertDialogProps) {
               handleClose();
               runPipeline(
                 Object(props.row),
-                props.backendBaseUrl,
                 props.query1,
                 props.setRefresh,
                 props.refresh,

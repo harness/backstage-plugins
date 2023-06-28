@@ -12,13 +12,14 @@ import {
   useApi,
 } from '@backstage/core-plugin-api';
 import Swal from 'sweetalert2';
-import { useProjectSlugFromEntity } from './useProjectSlugEntity';
+import { useProjectSlugFromEntity } from '../../hooks/useProjectSlugEntity';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import ExecutionTable from './ExecutionTable';
 import { AsyncStatus, TableData } from '../types';
 import useGetExecutionsList from '../../hooks/useGetExecutionsList';
 import useGetLicenseWithAuth from '../../hooks/useGetLicenseWithAuth';
 import useMutateRunPipeline from '../../hooks/useMutateRunPipeline';
+import usePipelineSlugEntity from '../../hooks/usePipelineSlugEntity';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -39,6 +40,18 @@ function ExecutionList() {
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
+  const { isNewAnnotationPresent, harnessPipelineObject } =
+    usePipelineSlugEntity();
+  const [selectedPipelineUrl, setSelectedPipelineUrl] = useState(
+    harnessPipelineObject[Object.keys(harnessPipelineObject)[0]],
+  );
+
+  const urlDropDownOptions = Object.keys(harnessPipelineObject).map(key => {
+    return {
+      label: key,
+      value: harnessPipelineObject[key],
+    };
+  });
 
   const boolDisableRunPipeline =
     config.getOptionalBoolean('harness.disableRunPipeline') ?? false;
@@ -68,7 +81,14 @@ function ExecutionList() {
     urlParams,
     baseUrl1,
     projectIds,
-  } = useProjectSlugFromEntity(env);
+    envFromUrl,
+  } = useProjectSlugFromEntity(
+    env,
+    isNewAnnotationPresent,
+    selectedPipelineUrl,
+  );
+
+  const envToUse = isNewAnnotationPresent && envFromUrl ? envFromUrl : env;
 
   const allProjects = projectIds?.split(',').map(item => item.trim());
   const [currProject, setCurrProject] = useState(allProjects?.[0]);
@@ -92,20 +112,20 @@ function ExecutionList() {
     page,
     pipelineId,
     serviceId,
-    env,
+    env: envToUse,
     backendBaseUrl,
     refresh,
   });
 
   const { licenses } = useGetLicenseWithAuth({
     backendBaseUrl,
-    env,
+    env: envToUse,
     accountId,
   });
 
   const { runPipeline: executePipeline } = useMutateRunPipeline({
     backendBaseUrl,
-    env,
+    env: envToUse,
   });
 
   async function runPipeline(
@@ -165,8 +185,6 @@ function ExecutionList() {
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
     setPageSize(currentPageSize);
-    // setState(AsyncStatus.Loading);
-    // setFlag(false);
   };
 
   const handleChangeRowsPerPage = (currentPageSize: number) => {
@@ -176,38 +194,66 @@ function ExecutionList() {
 
   const handleChange = (event: SelectedItems) => {
     setEnv(event as string);
-    // setState(AsyncStatus.Loading);
   };
 
   const handleChangeProject = (event: SelectedItems) => {
     setCurrProject(event as string);
     setRefresh(!refresh);
-    // setState(AsyncStatus.Loading);
   };
 
-  let dropdown;
-  if (envIds.length > 1) {
-    dropdown = (
+  const handlePipelineUrlChange = (value: SelectedItems) => {
+    setSelectedPipelineUrl(value as string);
+    setRefresh(!refresh);
+  };
+
+  const EnvDropDown =
+    envIds.length > 1 ? (
       <SelectComponent
         selected={env}
         onChange={handleChange}
         label="Environment"
         items={envIds.map(envId => ({ value: envId, label: envId }))}
       />
-    );
-  }
+    ) : null;
 
-  let projectDropdown;
-  if (allProjects && allProjects?.length > 1) {
-    projectDropdown = (
+  const ProjectDropDown =
+    allProjects && allProjects?.length > 1 ? (
       <SelectComponent
         selected={currProject}
         onChange={handleChangeProject}
         label="Project"
         items={allProjects.map(proj => ({ value: proj, label: proj }))}
       />
-    );
-  }
+    ) : null;
+
+  const UrlDropDown = (
+    <SelectComponent
+      items={urlDropDownOptions}
+      label="Pipeline"
+      selected={selectedPipelineUrl}
+      onChange={handlePipelineUrlChange}
+    />
+  );
+
+  const DropDownComponent = (
+    <Grid container spacing={3} marginBottom={4}>
+      {envIds.length > 1 && !isNewAnnotationPresent ? (
+        <Grid item md={3}>
+          {EnvDropDown}
+        </Grid>
+      ) : null}
+      {allProjects && allProjects?.length > 1 && !isNewAnnotationPresent ? (
+        <Grid item md={3}>
+          {ProjectDropDown}
+        </Grid>
+      ) : null}
+      {isNewAnnotationPresent ? (
+        <Grid item md={3}>
+          {UrlDropDown}
+        </Grid>
+      ) : null}
+    </Grid>
+  );
 
   if (
     state === AsyncStatus.Init ||
@@ -241,18 +287,7 @@ function ExecutionList() {
         'Could not find the pipeline executions, please check your configurations in catalog-info.yaml or check your permissions.';
     return (
       <>
-        <Grid container spacing={3} marginBottom={2}>
-          {envIds.length > 1 && (
-            <Grid item md={3}>
-              {dropdown}
-            </Grid>
-          )}
-          {allProjects && allProjects?.length > 1 && (
-            <Grid item md={3}>
-              {projectDropdown}
-            </Grid>
-          )}
-        </Grid>
+        {DropDownComponent}
         <EmptyState
           title="Harness CI-CD pipelines"
           description={description}
@@ -265,18 +300,7 @@ function ExecutionList() {
   return (
     <>
       <div className={classes.container}>
-        <Grid container spacing={3} marginBottom={4}>
-          {envIds.length > 1 && (
-            <Grid item md={3}>
-              {dropdown}
-            </Grid>
-          )}
-          {allProjects && allProjects?.length > 1 && (
-            <Grid item md={3}>
-              {projectDropdown}
-            </Grid>
-          )}
-        </Grid>
+        {DropDownComponent}
         <ExecutionTable
           baseUrl1={baseUrl1}
           accountId={accountId}
