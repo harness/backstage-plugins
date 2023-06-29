@@ -27,7 +27,8 @@ export const isHarnessCiCdAvailable = (entity: Entity) =>
   Boolean(entity.metadata.annotations?.['harness.io/project-url-qa']) ||
   Boolean(entity.metadata.annotations?.['harness.io/project-url-stress']) ||
   Boolean(entity.metadata.annotations?.['harness.io/project-url-stage']) ||
-  Boolean(entity.metadata.annotations?.['harness.io/pipelines']);
+  Boolean(entity.metadata.annotations?.['harness.io/pipelines']) ||
+  Boolean(entity.metadata.annotations?.['harness.io/services']);
 
 /** @public */
 

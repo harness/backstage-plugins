@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { CircularProgress, makeStyles } from '@material-ui/core';
-import { Grid } from '@mui/material';
 import {
-  EmptyState,
-  Select as SelectComponent,
-  SelectedItems,
-} from '@backstage/core-components';
+  CircularProgress,
+  makeStyles,
+  FormControl,
+  MenuItem,
+} from '@material-ui/core';
+import FormHelperText from '@mui/material/FormHelperText';
+import InputLabel from '@mui/material/InputLabel';
+import ListSubheader from '@mui/material/ListSubheader';
+import { Grid } from '@mui/material';
+import { EmptyState } from '@backstage/core-components';
 import {
   configApiRef,
   discoveryApiRef,
   useApi,
 } from '@backstage/core-plugin-api';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Swal from 'sweetalert2';
 import { useProjectSlugFromEntity } from '../../hooks/useProjectSlugEntity';
 import { useEntity } from '@backstage/plugin-catalog-react';
@@ -24,6 +29,10 @@ import usePipelineSlugEntity from '../../hooks/usePipelineSlugEntity';
 const useStyles = makeStyles(theme => ({
   container: {
     width: '100%',
+  },
+  label: {
+    marginBottom: '2px',
+    fontSize: '14px !important',
   },
   empty: {
     padding: theme.spacing(2),
@@ -40,17 +49,16 @@ function ExecutionList() {
   const discoveryApi = useApi(discoveryApiRef);
   const config = useApi(configApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
-  const { isNewAnnotationPresent, harnessPipelineObject } =
-    usePipelineSlugEntity();
-  const [selectedPipelineUrl, setSelectedPipelineUrl] = useState(
-    harnessPipelineObject[Object.keys(harnessPipelineObject)[0]],
-  );
-
-  const urlDropDownOptions = Object.keys(harnessPipelineObject).map(key => {
-    return {
-      label: key,
-      value: harnessPipelineObject[key],
-    };
+  const {
+    isNewAnnotationPresent,
+    harnessPipelineObject,
+    harnessServicesObject,
+  } = usePipelineSlugEntity();
+  const [selectedPipelineUrl, setSelectedPipelineUrl] = useState(() => {
+    if (Object.keys(harnessServicesObject).length) {
+      return harnessServicesObject[Object.keys(harnessServicesObject)[0]];
+    }
+    return harnessPipelineObject[Object.keys(harnessPipelineObject)[0]];
   });
 
   const boolDisableRunPipeline =
@@ -88,10 +96,10 @@ function ExecutionList() {
     selectedPipelineUrl,
   );
 
-  const envToUse = isNewAnnotationPresent && envFromUrl ? envFromUrl : env;
-
   const allProjects = projectIds?.split(',').map(item => item.trim());
   const [currProject, setCurrProject] = useState(allProjects?.[0]);
+  const envToUse = isNewAnnotationPresent && envFromUrl ? envFromUrl : env;
+  const projectToUse = isNewAnnotationPresent ? projectIds : currProject;
 
   useEffect(() => {
     setRefresh(!refresh);
@@ -107,7 +115,7 @@ function ExecutionList() {
   } = useGetExecutionsList({
     accountId,
     orgId,
-    currProject,
+    currProject: projectToUse,
     pageSize,
     page,
     pipelineId,
@@ -192,47 +200,102 @@ function ExecutionList() {
     setPageSize(currentPageSize);
   };
 
-  const handleChange = (event: SelectedItems) => {
-    setEnv(event as string);
+  const handleChange = async (event: SelectChangeEvent) => {
+    setEnv(event.target.value as string);
   };
 
-  const handleChangeProject = (event: SelectedItems) => {
-    setCurrProject(event as string);
-    setRefresh(!refresh);
-  };
-
-  const handlePipelineUrlChange = (value: SelectedItems) => {
-    setSelectedPipelineUrl(value as string);
+  const handleChangeProject = async (event: SelectChangeEvent) => {
+    setCurrProject(event.target.value as string);
     setRefresh(!refresh);
   };
 
   const EnvDropDown =
     envIds.length > 1 ? (
-      <SelectComponent
-        selected={env}
-        onChange={handleChange}
-        label="Environment"
-        items={envIds.map(envId => ({ value: envId, label: envId }))}
-      />
+      <FormControl fullWidth>
+        <InputLabel
+          htmlFor="Environment"
+          classes={{
+            root: classes.label,
+          }}
+        >
+          Environment
+        </InputLabel>
+        <Select
+          labelId="Environment"
+          id="Environment"
+          value={env}
+          onChange={handleChange}
+        >
+          {envIds.map(envId => (
+            <MenuItem value={envId}>{envId}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
     ) : null;
 
   const ProjectDropDown =
     allProjects && allProjects?.length > 1 ? (
-      <SelectComponent
-        selected={currProject}
-        onChange={handleChangeProject}
-        label="Project"
-        items={allProjects.map(proj => ({ value: proj, label: proj }))}
-      />
+      <FormControl fullWidth>
+        <InputLabel
+          htmlFor="Project"
+          classes={{
+            root: classes.label,
+          }}
+        >
+          Project
+        </InputLabel>
+        <Select
+          labelId="Project"
+          id="Project"
+          value={currProject}
+          onChange={handleChangeProject}
+        >
+          {allProjects.map(proj => (
+            <MenuItem value={proj}>{proj}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
     ) : null;
 
-  const UrlDropDown = (
-    <SelectComponent
-      items={urlDropDownOptions}
-      label="Pipeline"
-      selected={selectedPipelineUrl}
-      onChange={handlePipelineUrlChange}
-    />
+  const handleUrlChange = async (event: SelectChangeEvent) => {
+    setSelectedPipelineUrl(event.target.value as string);
+    setRefresh(!refresh);
+  };
+
+  const NewUrlDropDown = (
+    <FormControl fullWidth>
+      <InputLabel
+        htmlFor="Service/Pipeline"
+        classes={{
+          root: classes.label,
+        }}
+      >
+        Service / Pipeline
+      </InputLabel>
+      <Select
+        displayEmpty
+        labelId="Service/Pipeline"
+        id="Service/Pipeline"
+        value={selectedPipelineUrl}
+        onChange={handleUrlChange}
+      >
+        {Object.keys(harnessServicesObject).length ? (
+          <ListSubheader>Services</ListSubheader>
+        ) : null}
+        {Object.keys(harnessServicesObject).map(envId => (
+          <MenuItem value={harnessServicesObject[envId]}>{envId}</MenuItem>
+        ))}
+        {Object.keys(harnessPipelineObject).length > 0 ? (
+          <ListSubheader>Pipelines</ListSubheader>
+        ) : null}
+        {Object.keys(harnessPipelineObject).map(envId => (
+          <MenuItem value={harnessPipelineObject[envId]}>{envId}</MenuItem>
+        ))}
+      </Select>
+      <FormHelperText />
+    </FormControl>
   );
 
   const DropDownComponent = (
@@ -249,7 +312,7 @@ function ExecutionList() {
       ) : null}
       {isNewAnnotationPresent ? (
         <Grid item md={3}>
-          {UrlDropDown}
+          {NewUrlDropDown}
         </Grid>
       ) : null}
     </Grid>
@@ -306,7 +369,7 @@ function ExecutionList() {
           accountId={accountId}
           licenses={licenses}
           orgId={orgId}
-          currProject={currProject}
+          currProject={projectToUse}
           boolDisableRunPipeline={boolDisableRunPipeline}
           backendBaseUrl={backendBaseUrl}
           setRefresh={setRefresh}

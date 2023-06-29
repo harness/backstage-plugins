@@ -16,26 +16,48 @@ export const useProjectSlugFromEntity = (
   const { entity } = useEntity();
 
   if (isNewAnnotationPresent) {
-    const urlMatch = match(
+    const pipelineUrlMatch = match(
       '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
       {
         decode: decodeURIComponent,
       },
     );
+
+    const serviceUrlMatch = match(
+      '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
+      {
+        decode: decodeURIComponent,
+      },
+    );
+
     const hostname = new URL(selectedPipelineUrl).hostname;
     const baseUrl1 = new URL(selectedPipelineUrl).origin;
 
     const envAB = hostname.split('.')[0];
     const envFromUrl = envAB === 'app' ? 'prod' : envAB;
 
-    const urlParams: any = urlMatch(selectedPipelineUrl);
+    const urlParams: any = pipelineUrlMatch(selectedPipelineUrl);
+    if (urlParams) {
+      return {
+        orgId: urlParams.params.orgId,
+        accountId: urlParams.params.accountId,
+        pipelineId: urlParams.params.pipelineId,
+        urlParams,
+        baseUrl1: baseUrl1,
+        projectIds: urlParams.params.projectId as string,
+        envFromUrl: envFromUrl,
+      };
+    }
+
+    const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl);
+
     return {
-      orgId: urlParams.params.orgId,
-      accountId: urlParams.params.accountId,
-      pipelineId: urlParams.params.pipelineId,
-      urlParams,
+      orgId: serviceUrlParams.params.orgId,
+      accountId: serviceUrlParams.params.accountId,
+      serviceId: serviceUrlParams.params.serviceId,
+      urlParams: serviceUrlParams,
       baseUrl1: baseUrl1,
-      projectIds: urlParams.params.projectId as string,
+      projectIds: serviceUrlParams.params.projectId as string,
       envFromUrl: envFromUrl,
     };
   }

@@ -16,15 +16,23 @@ function convertStringToObject(inputString: string | undefined) {
 
 const usePipelineSlugEntity = () => {
   const { entity } = useEntity();
-  const isNewAnnotationPresent = Boolean(
-    entity.metadata.annotations?.['harness.io/pipelines'],
-  );
+  const isNewAnnotationPresent =
+    Boolean(entity.metadata.annotations?.['harness.io/pipelines']) ||
+    Boolean(entity.metadata.annotations?.['harness.io/services']);
 
   const harnessPipelineObject = convertStringToObject(
     entity.metadata.annotations?.['harness.io/pipelines'],
   );
 
-  return { isNewAnnotationPresent, harnessPipelineObject };
+  const harnessServicesObject = convertStringToObject(
+    entity.metadata.annotations?.['harness.io/services'],
+  );
+
+  return {
+    isNewAnnotationPresent,
+    harnessPipelineObject,
+    harnessServicesObject,
+  };
 };
 
 export default usePipelineSlugEntity;
