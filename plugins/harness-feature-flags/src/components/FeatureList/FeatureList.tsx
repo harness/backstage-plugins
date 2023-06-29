@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   CircularProgress,
-  FormControl,
-  InputLabel,
   Link,
   makeStyles,
-  MenuItem,
   Typography,
 } from '@material-ui/core';
-import { EmptyState, Table, TableColumn } from '@backstage/core-components';
+import {
+  EmptyState,
+  Table,
+  TableColumn,
+  Select as SelectComponent,
+  SelectedItems,
+} from '@backstage/core-components';
 import RetryIcon from '@material-ui/icons/Replay';
 import {
   discoveryApiRef,
@@ -17,42 +20,10 @@ import {
   configApiRef,
 } from '@backstage/core-plugin-api';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import FormHelperText from '@mui/material/FormHelperText';
 import dayjs from 'dayjs';
-import useAsyncRetry from 'react-use/lib/useAsyncRetry';
-
-enum AsyncStatus {
-  Init,
-  Loading,
-  Success,
-  Error,
-  Unauthorized,
-}
-
-interface TableData {
-  name: string;
-  archived: string;
-  owner: string;
-  createdAt?: any;
-  modifiedAt?: string;
-  kind?: string;
-  identifier: string;
-  status: string;
-  state: string;
-  pipelineConfigured: string;
-}
-interface Feature {
-  name?: string;
-  archived?: string;
-  owner?: string[];
-  createdAt?: any;
-  modifiedAt?: string;
-  kind?: string;
-  identifier?: string;
-  status?: { status: any };
-  envProperties?: { state: string; pipelineConfigured: string };
-}
+import { AsyncStatus, TableData } from '../../types';
+import useGetFeatureEnv from '../../hooks/useGetFeatureEnv';
+import useGetFeatureStatus from '../../hooks/useGetFeatureStatus';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -64,17 +35,10 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
   },
 }));
-/// /
 
 function FeatureList() {
   const [refresh, setRefresh] = useState(false);
-  const [currTableData, setCurrTableData] = useState<any[]>([]);
-  const [state, setState] = useState<AsyncStatus>(AsyncStatus.Init);
-  const [envIds, setEnvIds] = useState<string[]>([]);
   const [envId, setEnvId] = React.useState('');
-  const [totalElements, setTotalElements] = useState(50);
-  const [done, setDone] = useState<boolean>(false);
-  const [flag, setFlag] = useState(false);
 
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
@@ -83,28 +47,34 @@ function FeatureList() {
   const baseUrl =
     config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
 
-  const { projectId, orgId, accountId, urlParams } = useProjectSlugFromEntity();
+  const { projectId, orgId, accountId, urlParams, envFromUrl } =
+    useProjectSlugFromEntity();
 
-  async function getFeatureEnv() {
-    const resp = await fetch(
-      `${await backendBaseUrl}/harness/gateway/ng/api/environments?accountId=${accountId}&routingId=${accountId}&orgIdentifier=${orgId}&projectIdentifier=${projectId}`,
-    );
-    if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
-      if (resp.status === 200) setState(AsyncStatus.Success);
-      else if (resp.status === 401) setState(AsyncStatus.Unauthorized);
-      else setState(AsyncStatus.Error);
-    }
-    const data = await resp.json();
-    data?.data?.content.map((obj: any) => {
-      setEnvIds(env => [...env, obj.identifier]);
-    });
-    setDone(true);
-    setRefresh(!refresh);
-  }
+  const { ffEnvIds, status: state } = useGetFeatureEnv({
+    backendBaseUrl,
+    accountId,
+    orgId,
+    projectId,
+    refresh,
+    envFromUrl,
+  });
+
+  const { currTableData, totalElements, isCallDone } = useGetFeatureStatus({
+    accountId,
+    projectId,
+    envId,
+    orgId,
+    backendBaseUrl,
+    refresh,
+    envFromUrl,
+  });
+
   useEffect(() => {
-    getFeatureEnv();
+    if (!envId) {
+      setEnvId(ffEnvIds[0]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ffEnvIds]);
 
   const columns: TableColumn[] = [
     {
@@ -212,59 +182,15 @@ function FeatureList() {
     },
   ];
 
-  useAsyncRetry(async () => {
-    const query = new URLSearchParams({
-      routingId: `${accountId}`,
-      projectIdentifier: `${projectId}`,
-      environmentIdentifier: `${envId}`,
-      accountIdentifier: `${accountId}`,
-      orgIdentifier: `${orgId}`,
-    });
-    if (done) {
-      if (!envId) {
-        setEnvId(envIds[0]);
-      } else {
-        const fn = async function fetchFeatures() {
-          const resp2 = await fetch(
-            `${await backendBaseUrl}/harness/gateway/cf/admin/features?${query}&metrics=true&flagCounts=true&name=&summary=true`,
-          );
-          const data = await resp2.json();
-          if (data.itemCount < data.featureCounts.totalFeatures) {
-            setTotalElements(data.itemCount);
-          }
-          const getFeatureList = (): Feature[] => {
-            const data1 = data.features.map((feature: Feature) => ({
-              name: feature?.name,
-              owner: feature?.owner?.[0],
-              modifiedAt: feature?.modifiedAt,
-              createdAt: feature?.createdAt,
-              archived: feature?.archived,
-              kind: feature?.kind,
-              identifier: feature?.identifier,
-              status: feature?.status?.status,
-              state: feature?.envProperties?.state,
-              pipelineConfigured: feature?.envProperties?.pipelineConfigured,
-            }));
-            return data1;
-          };
-          setCurrTableData(getFeatureList());
-          setFlag(true);
-        };
-        fn();
-      }
-    }
-  }, [refresh, envId]);
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setEnvId(event.target.value as string);
-    setState(AsyncStatus.Success);
+  const handleChange = (event: SelectedItems) => {
+    setEnvId(event as string);
   };
 
   if (
     !urlParams ||
     state === AsyncStatus.Error ||
     state === AsyncStatus.Unauthorized ||
-    (state === AsyncStatus.Success && currTableData.length === 0 && flag)
+    (state === AsyncStatus.Success && currTableData.length === 0 && isCallDone)
   ) {
     let description = '';
     if (state === AsyncStatus.Unauthorized)
@@ -290,34 +216,14 @@ function FeatureList() {
   return (
     <>
       <div className={classes.container}>
-        <Box sx={{ minWidth: 120 }}>
-          <FormControl fullWidth>
-            <InputLabel
-              htmlFor="Environment"
-              id="Environment"
-              style={{
-                marginLeft: 10,
-                top: '100%',
-                transform: 'translate(0,-10%)',
-              }}
-            >
-              Environment
-            </InputLabel>
-            <Select
-              labelId="Environment"
-              id="Environment"
-              value={envId}
-              label="Environment"
-              onChange={handleChange}
-            >
-              {envIds.map(env => (
-                <MenuItem value={env}>{env}</MenuItem>
-              ))}
-            </Select>
-            <FormHelperText />
-          </FormControl>
+        <Box marginBottom={4}>
+          <SelectComponent
+            label="Enviornment"
+            items={ffEnvIds.map(item => ({ value: item, label: item }))}
+            onChange={handleChange}
+            selected={envId}
+          />
         </Box>
-        &nbsp;&nbsp;
         <Table
           options={{ paging: true }}
           data={currTableData ?? []}
