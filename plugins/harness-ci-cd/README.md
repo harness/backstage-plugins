@@ -5,10 +5,11 @@ Website: [https://harness.io/](https://harness.io/)
 Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
 ## Screenshots
-
+<img src="./src/assets/harness-new-annotation.png">
 <img src="./src/assets/ci-executions.png" />
 <img src="./src/assets/cd-executions.png" />
 <img src="./src/assets/ci-cd-executions.png" />
+
 
 ## Getting started
 
@@ -37,7 +38,7 @@ For testing purposes, you can also clone this repository to try out the plugin. 
 
 proxy:
   # ... existing proxy settings
-  '/harness':
+  '/harness/prod':
     target: 'https://app.harness.io/'
     headers:
       'x-api-key': '<YOUR PAT/SAT>'
@@ -105,6 +106,26 @@ kind: Component
 metadata:
   # ...
   annotations:
+    harness.io/pipelines: |
+      labelA: <harness_pipeline_url>
+      labelB: <harness_pipeline_url>
+  # here labelA / labelB denotes the value you will see in dropdown in execution list. Refer screentshot 1
+    harness.io/services: |
+      labelA: <harness_service_url>
+      labelB: <harness_service_url>
+spec:
+  type: service
+  # ...
+```
+
+
+#### Old Annotation
+```yaml
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  # ...
+  annotations:
     # mandatory annotation
     harness.io/project-url: <harness_project_url>
 
@@ -116,6 +137,9 @@ spec:
   # ...
 ```
 
+
+
+Note: With  `harness.io/pipelines` & `harness.io/services` you can choose to skip `harness.io/project-url`  
 Note: Refer to [this](./PluginConfiguation.md) page on how to get these values from your Harness account.
 
 By default, the plugin will take all the pipelines inside the configured Harness project and show their executions. However, if your service has quiet a few pipelines, you can additionally configure the pipelines as well as associated services to show those specific execution details for the display.
