@@ -98,18 +98,22 @@ const serviceEntityPage = (
 
 </details>
 
-4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file. Here is an example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml
+4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file.
 
+Here is an example: [catalog-info-new.yaml](../../examples/catalog-harness-cicd-new.yaml)
 ```yaml
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   # ...
   annotations:
+    # optional annotation
     harness.io/pipelines: |
       labelA: <harness_pipeline_url>
       labelB: <harness_pipeline_url>
   # here labelA / labelB denotes the value you will see in dropdown in execution list. Refer screentshot 1
+
+    # optional annotation
     harness.io/services: |
       labelA: <harness_service_url>
       labelB: <harness_service_url>
@@ -120,6 +124,7 @@ spec:
 
 
 #### Old Annotation
+Here is an example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml
 ```yaml
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -139,7 +144,7 @@ spec:
 
 
 
-Note: With  `harness.io/pipelines` & `harness.io/services` you can choose to skip `harness.io/project-url`  
+Note: If new annotation is present then old annotation will be ignored for that particular catalog.  
 Note: Refer to [this](./PluginConfiguation.md) page on how to get these values from your Harness account.
 
 By default, the plugin will take all the pipelines inside the configured Harness project and show their executions. However, if your service has quiet a few pipelines, you can additionally configure the pipelines as well as associated services to show those specific execution details for the display.
