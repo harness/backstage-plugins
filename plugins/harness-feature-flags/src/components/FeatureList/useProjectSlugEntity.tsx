@@ -7,14 +7,19 @@ export const useProjectSlugFromEntity = () => {
   let projectId;
   const { entity } = useEntity();
   const url = 'harness.io/project-url';
-  const URL = entity.metadata.annotations?.[url];
+  const ffProjectUrl = entity.metadata.annotations?.[url] as string;
   const urlMatch = match(
-    '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/(.*)',
+    '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/(.*)?',
     {
       decode: decodeURIComponent,
     },
   );
-  const urlParams: any = urlMatch(URL ?? '');
+
+  const hostname = new URL(ffProjectUrl).hostname;
+  const envAB = hostname.split('.')[0];
+  const envFromUrl = envAB === 'app' ? 'prod' : envAB;
+
+  const urlParams: any = urlMatch(ffProjectUrl ?? '');
 
   if (urlParams) {
     accountId = urlParams.params.accountId;
@@ -22,5 +27,5 @@ export const useProjectSlugFromEntity = () => {
     projectId = urlParams.params.projectId;
   }
 
-  return { projectId, orgId, accountId, urlParams };
+  return { projectId, orgId, accountId, urlParams, envFromUrl };
 };
