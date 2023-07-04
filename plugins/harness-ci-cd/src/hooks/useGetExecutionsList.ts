@@ -83,8 +83,6 @@ const useGetExecutionsList = ({
       },
     );
 
-    const data = await response.json();
-
     const getBuilds = (tableData: any, currentPageSize: number): Array<{}> => {
       return tableData.map((dataItem: any, index: number) => {
         let serviceString = '';
@@ -144,6 +142,7 @@ const useGetExecutionsList = ({
     };
 
     if (response.status === 200) {
+      const data = await response.json();
       setStatus(AsyncStatus.Success);
       const responseData = data.data.content;
       if (data.data.totalElements < 50) {
