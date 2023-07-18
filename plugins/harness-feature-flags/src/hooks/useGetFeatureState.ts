@@ -1,6 +1,6 @@
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { useState } from 'react';
-import { FeatureStatus } from '../types';
+import { Feature } from '../types';
 import { getSecureHarnessKey } from '../utils/getHarnessToken';
 
 interface useGetFeatureStatusEnv {
@@ -13,7 +13,7 @@ interface useGetFeatureStatusEnv {
   envFromUrl: string;
 }
 
-const useGetFeatureStatus = ({
+const useGetFeatureState = ({
   accountId,
   projectId,
   envId,
@@ -22,9 +22,9 @@ const useGetFeatureStatus = ({
   refresh,
   envFromUrl,
 }: useGetFeatureStatusEnv) => {
-  const [featureStatusMap, setFeatureStatusMap] = useState<
-    Record<string, FeatureStatus>
-  >({});
+  const [totalElements, setTotalElements] = useState(50);
+  const [currTableData, setCurrTableData] = useState<Feature[]>([]);
+  const [isCallDone, setIsCallDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useAsyncRetry(async () => {
@@ -49,7 +49,7 @@ const useGetFeatureStatus = ({
     setLoading(true);
 
     const resp = await fetch(
-      `${await backendBaseUrl}/harness/${envFromUrl}/gateway/cf/admin/features/metrics?${query}&pageSize=100&pageNumber=0&metrics=false&flagCounts=true&name=&summary=true`,
+      `${await backendBaseUrl}/harness/${envFromUrl}/gateway/cf/admin/features?${query}&metrics=true&flagCounts=true&name=&summary=true`,
       {
         headers,
       },
@@ -58,21 +58,32 @@ const useGetFeatureStatus = ({
     if (resp.status === 200) {
       const data = await resp.json();
 
-      const getFeatureStatusMap = () => {
-        const featureMap: Record<string, FeatureStatus> = {};
-        data.forEach((d: FeatureStatus) => {
-          featureMap[d.identifier] = d;
-        });
-        return featureMap;
+      if (data.itemCount < data.featureCounts.totalFeatures) {
+        setTotalElements(data.itemCount);
+      }
+      const getFeatureList = (): Feature[] => {
+        return data.features.map((feature: Feature) => ({
+          name: feature?.name,
+          owner: feature?.owner?.[0],
+          modifiedAt: feature?.modifiedAt,
+          createdAt: feature?.createdAt,
+          archived: feature?.archived,
+          kind: feature?.kind,
+          identifier: feature?.identifier,
+          status: feature?.status?.status,
+          state: feature?.envProperties?.state,
+          pipelineConfigured: feature?.envProperties?.pipelineConfigured,
+        }));
       };
-
-      setFeatureStatusMap(getFeatureStatusMap());
-      // setCurrTableData(getFeatureList());
+      if (!isCallDone) {
+        setIsCallDone(true);
+      }
+      setCurrTableData(getFeatureList());
     }
     setLoading(false);
   }, [accountId, projectId, envId, orgId, refresh, envFromUrl]);
 
-  return { featureStatusMap, loading };
+  return { totalElements, currTableData, isCallDone, loading };
 };
 
-export default useGetFeatureStatus;
+export default useGetFeatureState;

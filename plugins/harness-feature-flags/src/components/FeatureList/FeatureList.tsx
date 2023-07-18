@@ -23,7 +23,19 @@ import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 import dayjs from 'dayjs';
 import { AsyncStatus, TableData } from '../../types';
 import useGetFeatureEnv from '../../hooks/useGetFeatureEnv';
+import useGetFeatureState from '../../hooks/useGetFeatureState';
 import useGetFeatureStatus from '../../hooks/useGetFeatureStatus';
+
+const statusMapDisplay: Record<string, string> = {
+  'never-requested': 'Never Requested',
+  active: 'Active',
+  inactive: 'Inactive',
+};
+
+const fontColorMap: Record<string, string> = {
+  active: 'green',
+  inactive: 'red',
+};
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -59,7 +71,22 @@ function FeatureList() {
     envFromUrl,
   });
 
-  const { currTableData, totalElements, isCallDone } = useGetFeatureStatus({
+  const {
+    currTableData,
+    totalElements,
+    isCallDone,
+    loading: ffStateLoading,
+  } = useGetFeatureState({
+    accountId,
+    projectId,
+    envId,
+    orgId,
+    backendBaseUrl,
+    refresh,
+    envFromUrl,
+  });
+
+  const { featureStatusMap, loading: ffStatusLoading } = useGetFeatureStatus({
     accountId,
     projectId,
     envId,
@@ -82,7 +109,9 @@ function FeatureList() {
       field: 'col1',
       width: '10%',
       render: (row: Partial<TableData>) => {
-        return (
+        return ffStateLoading ? (
+          <CircularProgress size={20} />
+        ) : (
           <Typography style={{ fontSize: 'medium', color: 'brown' }}>
             <b>{row.state} </b>
           </Typography>
@@ -142,9 +171,22 @@ function FeatureList() {
       field: 'col4',
       type: 'string',
       render: (row: Partial<TableData>) => {
+        if (ffStatusLoading) {
+          return <CircularProgress size={20} />;
+        }
+
+        const ffIdentifier = row.identifier as string;
+
+        const ffStatus = featureStatusMap[ffIdentifier]?.status?.status;
+        const statusText = ffStatus ? statusMapDisplay[ffStatus] : '';
         return (
-          <Typography style={{ fontSize: 'small', color: 'green' }}>
-            <b>{row.status} </b>
+          <Typography
+            style={{
+              fontSize: 'small',
+              color: fontColorMap[ffStatus] || '',
+            }}
+          >
+            <b>{statusText} </b>
           </Typography>
         );
       },
@@ -156,7 +198,7 @@ function FeatureList() {
       render: (row: Partial<TableData>) => {
         return (
           <Typography style={{ fontSize: 'small', color: 'green' }}>
-            <b>{row.pipelineConfigured} </b>
+            <b>{`${row.pipelineConfigured}`} </b>
           </Typography>
         );
       },

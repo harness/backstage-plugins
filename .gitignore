@@ -49,3 +49,5 @@ site
 
 # vscode database functionality support files
 *.session.sql
+.vscode/
+.idea/
