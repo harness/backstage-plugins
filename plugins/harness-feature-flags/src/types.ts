@@ -29,3 +29,13 @@ export interface Feature {
   status?: { status: any };
   envProperties?: { state: string; pipelineConfigured: string };
 }
+
+export interface FeatureStatus {
+  identifier: string;
+  name: string;
+  results: Array<any>;
+  status: {
+    lastAccess: number;
+    status: string;
+  };
+}
