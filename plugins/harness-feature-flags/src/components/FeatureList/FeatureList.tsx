@@ -29,6 +29,12 @@ import useGetFeatureStatus from '../../hooks/useGetFeatureStatus';
 const statusMapDisplay: Record<string, string> = {
   'never-requested': 'Never Requested',
   active: 'Active',
+  inactive: 'Inactive',
+};
+
+const fontColorMap: Record<string, string> = {
+  active: 'green',
+  inactive: 'red',
 };
 
 const useStyles = makeStyles(theme => ({
@@ -173,12 +179,11 @@ function FeatureList() {
 
         const ffStatus = featureStatusMap[ffIdentifier]?.status?.status;
         const statusText = ffStatus ? statusMapDisplay[ffStatus] : '';
-
         return (
           <Typography
             style={{
               fontSize: 'small',
-              color: ffStatus === 'active' ? 'green' : '',
+              color: fontColorMap[ffStatus] || '',
             }}
           >
             <b>{statusText} </b>
@@ -193,7 +198,7 @@ function FeatureList() {
       render: (row: Partial<TableData>) => {
         return (
           <Typography style={{ fontSize: 'small', color: 'green' }}>
-            <b>{row.pipelineConfigured} </b>
+            <b>{`${row.pipelineConfigured}`} </b>
           </Typography>
         );
       },
