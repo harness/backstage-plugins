@@ -1,5 +1,6 @@
 import { getSecureHarnessKey } from '../util/getHarnessToken';
 import { TableData } from '../components/types';
+import { useBackstageToken } from './useBackstageToken';
 
 interface useMutateRunPipelineProps {
   backendBaseUrl: Promise<string>;
@@ -10,12 +11,10 @@ const useMutateRunPipeline = ({
   backendBaseUrl,
   env,
 }: useMutateRunPipelineProps) => {
+  const token = useBackstageToken();
   const runPipeline = async (row: TableData, query1: string) => {
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
-
     const headers = new Headers({
-      Authorization: value,
+      Authorization: `Bearer ${token.value}`,
     });
 
     const response = await fetch(
@@ -34,10 +33,10 @@ const useMutateRunPipeline = ({
         row.planExecutionId
       }/${row.pipelineId}?${query1}&moduleType=ci`,
       {
-        headers: {
+        headers: new Headers({
           'content-type': 'application/yaml',
-          Authorization: value,
-        },
+          Authorization: `Bearer ${token}`,
+        }),
         body: `${data}`,
         method: 'POST',
       },

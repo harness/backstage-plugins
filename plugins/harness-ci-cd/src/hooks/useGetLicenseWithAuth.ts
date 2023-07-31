@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getSecureHarnessKey } from '../util/getHarnessToken';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
+import { useBackstageToken } from './useBackstageToken';
 
 interface useGetLicenseWithAuthProps {
   env: string;
@@ -13,13 +14,11 @@ const useGetLicenseWithAuth = ({
   accountId,
 }: useGetLicenseWithAuthProps) => {
   const [licenses, setLicenses] = useState('cd');
+  const token = useBackstageToken();
 
   useAsyncRetry(async () => {
-    const token = getSecureHarnessKey('token');
-    const value = token ? `${token}` : '';
-
     const headers = new Headers({
-      Authorization: value,
+      Authorization: `Bearer ${token.value}`,
     });
 
     const response = await fetch(
