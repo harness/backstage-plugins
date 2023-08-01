@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { AsyncStatus } from '../components/types';
-import { getSecureHarnessKey } from '../util/getHarnessToken';
-import { useBackstageToken } from "./useBackstageToken";
+import {
+  identityApiRef,
+  useApi
+} from '@backstage/core-plugin-api';
 
 interface useGetExecutionsListProps {
   accountId: string;
@@ -32,9 +34,10 @@ const useGetExecutionsList = ({
   const [currTableData, setCurrTableData] = useState<any[]>([]);
   const [totalElements, setTotalElements] = useState(50);
   const [flag, setFlag] = useState(false);
-  const token = useBackstageToken();
+  const identityApi = useApi(identityApiRef);
 
   useAsyncRetry(async () => {
+    const { token } = await identityApi.getCredentials();
     const query = new URLSearchParams({
       accountIdentifier: `${accountId}`,
       routingId: `${accountId}`,
@@ -53,12 +56,7 @@ const useGetExecutionsList = ({
       });
     }
 
-    const headers = new Headers({
-      'content-type': 'application/json',
-      Authorization: `Bearer ${token.value}`,
-    });
-
-    let body: string;
+    let body: string = "";
 
     if (serviceId) {
       body = JSON.stringify({
@@ -78,9 +76,12 @@ const useGetExecutionsList = ({
     const response = await fetch(
       `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
       {
-        headers,
+        headers: new Headers({
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }),
         method: 'POST',
-        body: body,
+        body,
       },
     );
 

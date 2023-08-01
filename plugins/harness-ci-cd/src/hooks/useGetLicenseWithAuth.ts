@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { getSecureHarnessKey } from '../util/getHarnessToken';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
-import { useBackstageToken } from './useBackstageToken';
+import {
+  identityApiRef,
+  useApi
+} from '@backstage/core-plugin-api';
 
 interface useGetLicenseWithAuthProps {
   env: string;
@@ -14,17 +16,17 @@ const useGetLicenseWithAuth = ({
   accountId,
 }: useGetLicenseWithAuthProps) => {
   const [licenses, setLicenses] = useState('cd');
-  const token = useBackstageToken();
+  const identityApi = useApi(identityApiRef);
 
   useAsyncRetry(async () => {
-    const headers = new Headers({
-      Authorization: `Bearer ${token.value}`,
-    });
-
+    const { token } = await identityApi.getCredentials();
     const response = await fetch(
       `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
       {
-        headers,
+        headers: new Headers({
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        })
       },
     );
 

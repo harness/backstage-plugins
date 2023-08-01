@@ -1,6 +1,8 @@
-import { getSecureHarnessKey } from '../util/getHarnessToken';
 import { TableData } from '../components/types';
-import { useBackstageToken } from './useBackstageToken';
+import {
+  identityApiRef,
+  useApi
+} from '@backstage/core-plugin-api';
 
 interface useMutateRunPipelineProps {
   backendBaseUrl: Promise<string>;
@@ -11,18 +13,19 @@ const useMutateRunPipeline = ({
   backendBaseUrl,
   env,
 }: useMutateRunPipelineProps) => {
-  const token = useBackstageToken();
+  const identityApi = useApi(identityApiRef);
   const runPipeline = async (row: TableData, query1: string) => {
-    const headers = new Headers({
-      Authorization: `Bearer ${token.value}`,
-    });
+    const { token } = await identityApi.getCredentials();
 
     const response = await fetch(
       `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/${
         row.planExecutionId
       }/inputset?${query1}`,
       {
-        headers,
+        headers: new Headers({
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }),
       },
     );
 
@@ -34,8 +37,8 @@ const useMutateRunPipeline = ({
       }/${row.pipelineId}?${query1}&moduleType=ci`,
       {
         headers: new Headers({
-          'content-type': 'application/yaml',
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/yaml",
         }),
         body: `${data}`,
         method: 'POST',
