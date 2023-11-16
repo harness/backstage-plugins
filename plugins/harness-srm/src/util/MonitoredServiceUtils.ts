@@ -14,28 +14,7 @@ export enum ChangeTypes {
     CHAOS_EXPERIMENT = 'ChaosExperiment'
 }
 
-export const getRiskLabelStringId = (
-    riskStatus?: String
-) => {
-    switch (riskStatus) {
-        case RiskValues.NO_DATA:
-            return 'No Data'
-        case RiskValues.NO_ANALYSIS:
-            return 'No Analysis'
-        case RiskValues.HEALTHY:
-            return 'Healthy'
-        case RiskValues.OBSERVE:
-            return 'Observe'
-        case RiskValues.WARNING:
-            return 'Warning'
-        case RiskValues.NEED_ATTENTION:
-            return 'Need Attention'
-        case RiskValues.UNHEALTHY:
-            return 'Unhealthy'
-        default:
-            return 'NA'
-    }
-}
+
 
 enum RiskValues {
     NO_DATA = 'NO_DATA',
@@ -74,6 +53,13 @@ export const getRiskColorValue = (
     }
 }
 
+export const getFixed = (value: number, places = 1): number => {
+    if (value % 1 === 0) {
+        return value
+    }
+    return parseFloat(value.toFixed(places))
+}
+
 export const numberFormatter: (value?: number, options?: NumberFormatterOptions) => string = (
     value?: number,
     options = { truncate: true }
@@ -101,11 +87,11 @@ export const numberFormatter: (value?: number, options?: NumberFormatterOptions)
     return `${getFixed(value)}`
 }
 
-export const getFixed = (value: number, places = 1): number => {
-    if (value % 1 === 0) {
-        return value
-    }
-    return parseFloat(value.toFixed(places))
+
+export const DefaultChangePercentage = {
+    color: "#0b0b0d",
+    percentage: 0,
+    icon: 'symbol-triangle-up'
 }
 
 export const calculateTotalChangePercentage = (
@@ -122,11 +108,6 @@ export const calculateTotalChangePercentage = (
     return DefaultChangePercentage
 }
 
-export const DefaultChangePercentage = {
-    color: "#0b0b0d",
-    percentage: 0,
-    icon: 'symbol-triangle-up'
-}
 
 export const getChangeIcon = (changeCategory?: ChangeTypes) => {
     switch (changeCategory) {
@@ -159,5 +140,28 @@ export const getChangeTooltipText = (changeCategory?: ChangeTypes) => {
             return "Feature Flag Change"
         default:
             return "Change";
+    }
+}
+
+export const getRiskLabelStringId = (
+    riskStatus?: String
+) => {
+    switch (riskStatus) {
+        case RiskValues.NO_DATA:
+            return 'No Data'
+        case RiskValues.NO_ANALYSIS:
+            return 'No Analysis'
+        case RiskValues.HEALTHY:
+            return 'Healthy'
+        case RiskValues.OBSERVE:
+            return 'Observe'
+        case RiskValues.WARNING:
+            return 'Warning'
+        case RiskValues.NEED_ATTENTION:
+            return 'Need Attention'
+        case RiskValues.UNHEALTHY:
+            return 'Unhealthy'
+        default:
+            return 'NA'
     }
 }

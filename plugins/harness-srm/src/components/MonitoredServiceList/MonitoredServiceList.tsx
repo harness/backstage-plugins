@@ -70,12 +70,14 @@ function MonitoredServiceList() {
     accountId,
   });
 
-  if (licenses == "NA") {
-    return <EmptyState
-      title="SRM Module License not subscribed"
-      missing="info"
-      description="You need to subscribe to SRM Module to view this page."
-    />
+  if (licenses === "NA") {
+    return (
+      <EmptyState
+        title="SRM Module License not subscribed"
+        missing="info"
+        description="You need to subscribe to SRM Module to view this page."
+      />
+    )
   }
 
 

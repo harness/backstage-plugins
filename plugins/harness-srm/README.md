@@ -6,7 +6,7 @@ Welcome to the Harness Service Reliability Management plugin for Backstage!
 
 ## Screenshots
 
-<img src="./src/assets/MonitoredServiceList.png" />
+<img src="./src/assets/MonitoredServicesList.png" />
 
 ## Setup steps
 

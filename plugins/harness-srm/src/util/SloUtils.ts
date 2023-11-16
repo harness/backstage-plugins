@@ -77,8 +77,8 @@ export function getTextColor(riskStatus?: RiskTypes) {
 }
 
 export function objectLength(obj: any) {
-    var result = 0;
-    for (var prop in obj) {
+    let result = 0;
+    for (const prop in obj) {
         if (obj.hasOwnProperty(prop)) {
             result++;
         }

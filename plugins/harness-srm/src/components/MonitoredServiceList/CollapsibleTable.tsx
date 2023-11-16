@@ -40,12 +40,12 @@ export interface TableData {
 
 const RenderErrorBudgetRemainingPercentage: React.FC<any> = ({ row }) => {
     const { evaluationType = ' ', errorBudgetRemainingPercentage = ' ', errorBudgetRemaining } = row
-    const isRequest = evaluationType == EvaluationType.REQUEST;
+    const isRequest = evaluationType === EvaluationType.REQUEST;
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', margin: '0 8px' }} >
             <div>
-                {<span style={{ font: 'serif' }}>{isRequest ? "NA" : ` ${Number(errorBudgetRemainingPercentage || 0).toFixed(2)}%`}</span>}
+                <span style={{ font: 'serif' }}>{isRequest ? "NA" : ` ${Number(errorBudgetRemainingPercentage || 0).toFixed(2)}%`}</span>
             </div>
             {!isRequest && <span
                 style={{
@@ -143,7 +143,7 @@ const DropdownRow: React.FC<any> = ({ accountId, orgId, projectId, monitoredServ
         );
     }
 
-    let link2 = `${baseUrl1}/ng/account/${accountId}/cv/orgs/${orgId}/projects/${projectId}/slos/`
+    const link2 = `${baseUrl1}/ng/account/${accountId}/cv/orgs/${orgId}/projects/${projectId}/slos/`
     return (
         <>
             {
@@ -167,7 +167,7 @@ const DropdownRow: React.FC<any> = ({ accountId, orgId, projectId, monitoredServ
                             {` ${Number((Number(row.burnRate) || 0).toFixed(2))}%`}
                         </TableCell>
                         <TableCell align="left">
-                            {row.userJourneyName != "undefined" ? row.userJourneyName : ''}
+                            {row.userJourneyName !== "undefined" ? row.userJourneyName : ''}
                         </TableCell>
                     </TableRow>
                 ))
@@ -185,9 +185,15 @@ const Row: React.FC<any> = ({ row, accountId, projectId, orgId, backendBaseUrl, 
             <React.Fragment>
                 <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                     <TableCell align="left">
-                        <span onClick={() => setOpen(!open)}>
+                        <button style={{
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            textAlign: 'inherit'
+                        }}
+                            onClick={() => setOpen(!open)}
+                        >
                             {open ? <span>{React.createElement(UpIcon)}</span> : <span>{React.createElement(DownIcon)}</span>}
-                        </span>
+                        </button>
                     </TableCell>
                     <TableCell component="th" scope="row" >
                         <>
@@ -246,48 +252,54 @@ const Row: React.FC<any> = ({ row, accountId, projectId, orgId, backendBaseUrl, 
                 </TableRow>
             </React.Fragment>
         );
-    } else {
-        return (
-            <React.Fragment>
-                <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                    <TableCell align="left">
-                        <span onClick={() => setOpen(!open)}>
-                            {open ? <span>{React.createElement(UpIcon)}</span> : <span>{React.createElement(DownIcon)}</span>}
-                        </span>
-                    </TableCell>
-
-                    <TableCell component="th" scope="row">
-                        <>
-                            <Link href={link} style={{ textDecoration: 'none' }} target="_blank">
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
-                                    <div style={{ margin: '4px 0' }}>
-                                        <b>{row.serviceRef}</b>
-                                    </div>
-                                    <div style={{ margin: '4px 0' }}>
-                                        {row.environmentRef}
-                                    </div>
-                                </div>
-                            </Link>
-                        </>
-                    </TableCell>
-                    <TableCell align="left">{objectLength(row.sloHealthIndicators)}</TableCell>
-                    <TableCell align="left"><RenderChangeComponent row={row} /></TableCell>
-                    <TableCell align="left"><RenderHealthScore riskStatus={row.currentHealthScore.riskStatus} healthScore={row.currentHealthScore.healthScore} /></TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                        <Collapse in={open} timeout="auto" unmountOnExit>
-                            <Box sx={{ margin: 1 }} p={2}>
-                                <Typography variant="h6" gutterBottom component="div" >
-                                    No SLOs have been configured for this Monitored Service
-                                </Typography>
-                            </Box>
-                        </Collapse>
-                    </TableCell>
-                </TableRow>
-            </React.Fragment>
-        );
     }
+    return (
+        <React.Fragment>
+            <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+                <TableCell align="left">
+                    <button style={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        textAlign: 'inherit'
+                    }}
+                        onClick={() => setOpen(!open)}
+                    >
+                        {open ? <span>{React.createElement(UpIcon)}</span> : <span>{React.createElement(DownIcon)}</span>}
+                    </button>
+                </TableCell>
+
+                <TableCell component="th" scope="row">
+                    <>
+                        <Link href={link} style={{ textDecoration: 'none' }} target="_blank">
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
+                                <div style={{ margin: '4px 0' }}>
+                                    <b>{row.serviceRef}</b>
+                                </div>
+                                <div style={{ margin: '4px 0' }}>
+                                    {row.environmentRef}
+                                </div>
+                            </div>
+                        </Link>
+                    </>
+                </TableCell>
+                <TableCell align="left">{objectLength(row.sloHealthIndicators)}</TableCell>
+                <TableCell align="left"><RenderChangeComponent row={row} /></TableCell>
+                <TableCell align="left"><RenderHealthScore riskStatus={row.currentHealthScore.riskStatus} healthScore={row.currentHealthScore.healthScore} /></TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                    <Collapse in={open} timeout="auto" unmountOnExit>
+                        <Box sx={{ margin: 1 }} p={2}>
+                            <Typography variant="h6" gutterBottom component="div" >
+                                No SLOs have been configured for this Monitored Service
+                            </Typography>
+                        </Box>
+                    </Collapse>
+                </TableCell>
+            </TableRow>
+        </React.Fragment>
+    );
+
 
 }
 
