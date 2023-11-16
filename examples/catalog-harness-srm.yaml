@@ -6,7 +6,7 @@ metadata:
   annotations:
     harness.io/services: |
       Service: <harness_service_url>
-   
+
   tags:
     - java
 

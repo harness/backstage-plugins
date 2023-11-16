@@ -67,10 +67,8 @@ import {
 
 import {
   EntityHarnessSrmContent,
-  isHarnessSRMAvailable
+  isHarnessSRMAvailable,
 } from '@harnessio/backstage-plugin-harness-srm';
-
-
 
 const techdocsContent = (
   <EntityTechdocsContent>
