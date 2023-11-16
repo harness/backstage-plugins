@@ -4,6 +4,7 @@ export function getSecureHarnessKey(key: string): string | undefined {
     return token ? `Bearer ${token}` : '';
   } catch (err) {
     // eslint-disable-next-line no-console
+    console.log('Failed to read Harness tokens');
     return undefined;
   }
 }
