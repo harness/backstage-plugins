@@ -24,7 +24,6 @@ const useGetMonitoredServiceList = ({
   const [flag, setFlag] = useState(false);
 
   useAsyncRetry(async () => {
-
     const token = getSecureHarnessKey('token');
     const value = token ? `${token}` : '';
 
@@ -45,8 +44,6 @@ const useGetMonitoredServiceList = ({
 
     const getBuilds = (tableData: any): Array<{}> => {
       return tableData.map((dataItem: any, index: number) => {
-
-
         return {
           id: `${index + 1}`,
           name: `${dataItem?.name}`,
@@ -57,12 +54,10 @@ const useGetMonitoredServiceList = ({
           serviceRef: `${dataItem?.serviceRef}`,
           changeSummary: dataItem?.changeSummary,
           currentHealthScore: dataItem?.currentHealthScore,
-          sloHealthIndicators: dataItem?.sloHealthIndicators
+          sloHealthIndicators: dataItem?.sloHealthIndicators,
         };
       });
     };
-
-
 
     if (response.status === 200) {
       const data = await response.json();
@@ -72,16 +67,8 @@ const useGetMonitoredServiceList = ({
     } else if (response.status === 401) setStatus(AsyncStatus.Unauthorized);
     else setStatus(AsyncStatus.Error);
     setFlag(true);
-  }, [
-    accountId,
-    orgId,
-    currProject,
-    serviceId,
-    env,
-  ]);
+  }, [accountId, orgId, currProject, serviceId, env]);
   return { status, currTableData, flag };
 };
 
-
 export default useGetMonitoredServiceList;
-

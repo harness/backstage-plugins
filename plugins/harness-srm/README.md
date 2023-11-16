@@ -96,6 +96,7 @@ const serviceEntityPage = (
 4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file.
 
 Here is an example: [catalog-info.yaml](../../examples/catalog-harness-srm.yaml)
+
 ```yaml
 apiVersion: backstage.io/v1alpha1
 kind: Component
@@ -128,5 +129,3 @@ harness:
 - Connect a Backstage service with a Harness project and view the Monitored Services associated with that service.
 - See details about Monitored Service - the changes, health score, and the SLOs asscoiated with it.
 - See details about the SLOs like their status, burn rate, target, error budget remaining for a given Monitored Service on clicking the dropdown.
-
-

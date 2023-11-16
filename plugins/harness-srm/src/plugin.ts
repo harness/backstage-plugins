@@ -1,4 +1,7 @@
-import {  createPlugin, createRoutableExtension } from '@backstage/core-plugin-api';
+import {
+  createPlugin,
+  createRoutableExtension,
+} from '@backstage/core-plugin-api';
 
 import { rootRouteRef } from './routes';
 import { harnessSrmRouteRef } from './route-refs';
@@ -24,5 +27,3 @@ export const EntityHarnessSrmContent = harnessSrmPlugin.provide(
     mountPoint: harnessSrmRouteRef,
   }),
 );
-
-

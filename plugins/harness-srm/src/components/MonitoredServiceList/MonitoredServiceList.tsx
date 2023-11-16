@@ -9,7 +9,6 @@ import CollapsibleTable from './CollapsibleTable';
 import useGetLicencse from '../../hooks/useGetLicense';
 import { EmptyState } from '@backstage/core-components';
 
-
 const useStyles = makeStyles(theme => ({
   container: {
     width: '100%',
@@ -29,11 +28,10 @@ function MonitoredServiceList() {
   const discoveryApi = useApi(discoveryApiRef);
   const classes = useStyles();
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
-  const {
-    harnessServicesObject,
-  } = useServiceSlugEntity();
+  const { harnessServicesObject } = useServiceSlugEntity();
 
-  const selectedServiceUrl = harnessServicesObject[Object.keys(harnessServicesObject)[0]];
+  const selectedServiceUrl =
+    harnessServicesObject[Object.keys(harnessServicesObject)[0]];
 
   const {
     orgId,
@@ -42,10 +40,8 @@ function MonitoredServiceList() {
     baseUrl1,
     projectIds,
     envFromUrl,
-    urlParams
-  } = useProjectSlugFromEntity(
-    selectedServiceUrl
-  );
+    urlParams,
+  } = useProjectSlugFromEntity(selectedServiceUrl);
 
   const allProjects = projectIds?.split(',').map(item => item.trim());
   const envToUse = envFromUrl;
@@ -70,16 +66,15 @@ function MonitoredServiceList() {
     accountId,
   });
 
-  if (licenses === "NA") {
+  if (licenses === 'NA') {
     return (
       <EmptyState
         title="SRM Module License not subscribed"
         missing="info"
         description="You need to subscribe to SRM Module to view this page."
       />
-    )
+    );
   }
-
 
   if (
     state === AsyncStatus.Init ||
@@ -132,13 +127,11 @@ function MonitoredServiceList() {
           currProject={projectToUse}
           backendBaseUrl={backendBaseUrl}
           data={currTableData}
-          env={envToUse} />
+          env={envToUse}
+        />
       </div>
     </>
   );
 }
 
 export default MonitoredServiceList;
-
-
-

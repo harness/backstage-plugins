@@ -7,4 +7,3 @@ export function getSecureHarnessKey(key: string): string | undefined {
     return undefined;
   }
 }
-

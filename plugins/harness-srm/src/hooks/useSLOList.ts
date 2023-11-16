@@ -24,14 +24,13 @@ const useSLOList = ({
   const [flag, setFlag] = useState(false);
 
   useAsyncRetry(async () => {
-
     const token = getSecureHarnessKey('token');
     const value = token ? `${token}` : '';
 
     const headers = new Headers({
       'content-type': 'application/json',
-       Authorization : value
-});
+      Authorization: value,
+    });
 
     setStatus(AsyncStatus.Loading);
 
@@ -55,33 +54,22 @@ const useSLOList = ({
           burnRate: `${dataItem?.burnRate}`,
           errorBudgetRemainingPercentage: `${dataItem?.errorBudgetRemainingPercentage}`,
           errorBudgetRisk: `${dataItem?.errorBudgetRisk}`,
-          errorBudgetRemaining:`${dataItem?.errorBudgetRemaining}`
+          errorBudgetRemaining: `${dataItem?.errorBudgetRemaining}`,
         };
       });
     };
 
-
-    
     if (response.status === 200) {
-        const data = await response.json();
-        setStatus(AsyncStatus.Success);
-        const responseData = data.data.content;
-        setCurrTableData(getBuilds(responseData));
-      
+      const data = await response.json();
+      setStatus(AsyncStatus.Success);
+      const responseData = data.data.content;
+      setCurrTableData(getBuilds(responseData));
     } else if (response.status === 401) setStatus(AsyncStatus.Unauthorized);
     else setStatus(AsyncStatus.Error);
 
     setFlag(true);
-  }, [
-    accountId,
-    orgId,
-    projectId,
-    monitoredServiceId,
-    env,
-  ]);
+  }, [accountId, orgId, projectId, monitoredServiceId, env]);
   return { status, currTableData, flag };
-  };
-
+};
 
 export default useSLOList;
-

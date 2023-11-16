@@ -1,8 +1,7 @@
-
 export {
-    harnessSrmPlugin,
-    HarnessSrmPage,
-    EntityHarnessSrmContent,
+  harnessSrmPlugin,
+  HarnessSrmPage,
+  EntityHarnessSrmContent,
 } from './plugin';
 export { Router } from './components/Router';
 export * from './route-refs';

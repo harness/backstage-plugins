@@ -7,6 +7,6 @@ createDevApp()
   .addPage({
     element: <HarnessSrmPage />,
     title: 'Root Page',
-    path: '/harness-srm'
+    path: '/harness-srm',
   })
   .render();

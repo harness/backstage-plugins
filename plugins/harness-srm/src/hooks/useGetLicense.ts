@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { getSecureHarnessKey } from "../util/getHarnessToken";
-import useAsyncRetry from "react-use/lib/useAsyncRetry";
-
+import { useState } from 'react';
+import { getSecureHarnessKey } from '../util/getHarnessToken';
+import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 
 interface useGetLicenseWithAuthProps {
   env: string;
