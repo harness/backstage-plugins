@@ -65,6 +65,11 @@ import {
   EntityHarnessFeatureFlagContent,
 } from '@harnessio/backstage-plugin-feature-flags';
 
+import {
+  EntityHarnessSrmContent,
+  isHarnessSRMAvailable,
+} from '@harnessio/backstage-plugin-harness-srm';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -148,6 +153,31 @@ const entityWarningContent = (
   </>
 );
 
+const srmContent = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={isHarnessSRMAvailable}>
+      <EntityHarnessSrmContent />
+    </EntitySwitch.Case>
+
+    <EntitySwitch.Case>
+      <EmptyState
+        title="No SRM available for this entity"
+        missing="info"
+        description="You need to add an annotation to your component if you want to enable SRM for it. You can read more about annotations in Backstage by clicking the button below."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
+          >
+            Read more
+          </Button>
+        }
+      />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
+
 const overviewContent = (
   <Grid container spacing={3} alignItems="stretch">
     {entityWarningContent}
@@ -175,6 +205,10 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/srm" title="Service Reliability">
+      {srmContent}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">

@@ -45,6 +45,7 @@
     "@backstage/theme": "^0.2.16",
     "@harnessio/backstage-plugin-ci-cd": "^0.6.0",
     "@harnessio/backstage-plugin-feature-flags": "^0.2.0",
+    "@harnessio/backstage-plugin-harness-srm": "^0.1.0",
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "history": "^5.0.0",
