@@ -34,7 +34,7 @@ const useGetLicense = ({
       if (data?.data?.allModuleLicenses?.SRM?.length === 0) {
         setLicenses('NA');
       }
-    }else if(response.status === 401){
+    } else if (response.status === 401) {
       setLicenses('Unauthorized');
     }
   }, [env, accountId]);

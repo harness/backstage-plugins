@@ -74,9 +74,9 @@ function MonitoredServiceList() {
         description="You need to subscribe to SRM Module to view this page."
       />
     );
-  }else if(licenses === "Unauthorized"){
+  } else if (licenses === 'Unauthorized') {
     return (
-    <EmptyState
+      <EmptyState
         title="Harness Service Reliability Management"
         missing="info"
         description="The x-api-key is either missing or incorrect in app-config.yaml under proxy settings."
