@@ -47,7 +47,7 @@ proxy:
 
 Notes:
 
-- Plugin uses token configured here to make Harness API calls. Make sure this token has the necessary permissions
+- Plugin uses token configured here to make Harness API calls. Make sure the user creating this API token has necessary permissions, which include `project view` permission along with `pipeline view` and `execute` permissions and same applies for service accounts as well it must have a role assigned that has the roles with adequate permissions as described before. 
 
 - Set the value of target to your on-prem URL if you are using the Harness on-prem offering
 
