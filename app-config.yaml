@@ -7,7 +7,7 @@ organization:
 
 backend:
   # Used for enabling authentication, secret is shared by all backend plugins
-  # See https://backstage.io/docs/tutorials/backend-to-backend-auth for
+  # See https://backstage.io/docs/auth/service-to-service-auth for
   # information on the format
   # auth:
   #   keys:
@@ -15,9 +15,8 @@ backend:
   baseUrl: http://localhost:7007
   listen:
     port: 7007
-    # Uncomment the following host directive to bind to all IPv4 interfaces and
-    # not just the baseUrl hostname.
-    # host: 0.0.0.0
+    # Uncomment the following host directive to bind to specific interfaces
+    # host: 127.0.0.1
   csp:
     connect-src: ["'self'", 'http:', 'https:']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
@@ -31,8 +30,7 @@ backend:
   database:
     client: better-sqlite3
     connection: ':memory:'
-  cache:
-    store: memory
+
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
 integrations:
@@ -47,22 +45,23 @@ integrations:
     #   token: ${GHE_TOKEN}
 
 proxy:
-  '/harness/prod':
-    target: 'https://app.harness.io/'
-    headers:
-      'x-api-key': ${HARNESS_PROD_API_KEY}
-  '/harness/qa':
-    target: 'https://qa.harness.io/'
-    headers:
-      'x-api-key': ${HARNESS_QA_API_KEY}
-  '/harness/stage':
-    target: 'https://stage.harness.io/'
-    headers:
-      'x-api-key': ${HARNESS_STAGE_API_KEY}
-  '/harness/stress':
-    target: 'https://stress.harness.io/'
-    headers:
-      'x-api-key': ${HARNESS_STRESS_API_KEY}
+  endpoints:
+    '/harness/prod':
+      target: 'https://app.harness.io/'
+      headers:
+        'x-api-key': ${HARNESS_PROD_API_KEY}
+    '/harness/qa':
+      target: 'https://qa.harness.io/'
+      headers:
+        'x-api-key': ${HARNESS_QA_API_KEY}
+    '/harness/stage':
+      target: 'https://stage.harness.io/'
+      headers:
+        'x-api-key': ${HARNESS_STAGE_API_KEY}
+    '/harness/stress':
+      target: 'https://stress.harness.io/'
+      headers:
+        'x-api-key': ${HARNESS_STRESS_API_KEY}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs

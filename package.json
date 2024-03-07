@@ -3,23 +3,25 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "14 || 16"
+    "node": "18 || 20"
   },
   "scripts": {
     "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
     "start": "yarn workspace app start",
     "start-backend": "yarn workspace backend start",
-    "build": "backstage-cli repo build --all",
+    "build:backend": "yarn workspace backend build",
+    "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
     "tsc": "tsc",
     "tsc:full": "tsc --skipLibCheck false --incremental false",
     "clean": "backstage-cli repo clean",
     "test": "backstage-cli repo test",
     "test:all": "backstage-cli repo test --coverage",
+    "test:e2e": "playwright test",
+    "fix": "backstage-cli repo fix",
     "lint": "backstage-cli repo lint --since origin/main",
     "lint:all": "backstage-cli repo lint",
     "prettier:check": "prettier --check .",
-    "create-plugin": "backstage-cli create-plugin --scope internal",
     "new": "backstage-cli new --scope internal"
   },
   "workspaces": {
@@ -29,17 +31,20 @@
     ]
   },
   "devDependencies": {
-    "@backstage/cli": "^0.20.0",
+    "@backstage/cli": "^0.25.0",
+    "@backstage/e2e-test-utils": "^0.1.0",
+    "@playwright/test": "^1.32.3",
     "@spotify/prettier-config": "^12.0.0",
-    "concurrently": "^6.0.0",
-    "lerna": "^4.0.0",
+    "concurrently": "^8.0.0",
+    "lerna": "^7.3.0",
     "node-gyp": "^9.0.0",
     "prettier": "^2.3.2",
-    "typescript": "~4.6.4"
+    "typescript": "~5.2.0"
   },
   "resolutions": {
     "@types/react": "^17",
-    "@types/react-dom": "^17"
+    "@types/react-dom": "^17",
+    "swagger-ui-react": "5.10.5"
   },
   "prettier": "@spotify/prettier-config",
   "lint-staged": {

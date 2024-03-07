@@ -24,13 +24,13 @@
     "postpack": "backstage-cli package postpack"
   },
   "dependencies": {
-    "@backstage/plugin-scaffolder-backend": "^1.7.0",
+    "@backstage/plugin-scaffolder-backend": "^1.19.2",
     "js-yaml": "^4.1.0",
     "node-fetch": "2.6.2"
   },
   "devDependencies": {
-    "@backstage/backend-common": "^0.15.2",
-    "@backstage/cli": "^0.20.0"
+    "@backstage/backend-common": "^0.20.0",
+    "@backstage/cli": "^0.25.0"
   },
   "files": [
     "dist"
