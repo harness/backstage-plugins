@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -21,7 +21,7 @@ jobs:
       - run: yarn install
       - run: yarn lint
       - run: yarn tsc
-      - run: yarn build
+      - run: yarn build:all
       - run: yarn prettier:check
         env:
           CI: true
