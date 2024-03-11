@@ -8,7 +8,6 @@
       name="description"
       content="Backstage is an open platform for building developer portals"
     />
-    <link rel="apple-touch-icon" href="<%= publicPath %>/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -43,24 +42,6 @@
       color="#5bbad5"
     />
     <title><%= config.getString('app.title') %></title>
-    <% if (config.has('app.googleAnalyticsTrackingId')) { %>
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=<%= config.getString('app.googleAnalyticsTrackingId') %>"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag(
-        'config',
-        '<%= config.getString("app.googleAnalyticsTrackingId") %>',
-      );
-    </script>
-    <% } %>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -72,8 +53,8 @@
       You can add webfonts, meta tags, or analytics to this file.
       The build step will place the bundled scripts into the <body> tag.
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+     To begin the development, run `yarn start`.
+      To create a production bundle, use `yarn build`.
     -->
   </body>
 </html>
