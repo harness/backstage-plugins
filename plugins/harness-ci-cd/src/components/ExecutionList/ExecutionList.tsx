@@ -8,6 +8,7 @@ import {
 import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import ListSubheader from '@mui/material/ListSubheader';
+// eslint-disable-next-line no-restricted-imports
 import { Grid } from '@mui/material';
 import { EmptyState } from '@backstage/core-components';
 import {
