@@ -25,6 +25,8 @@ import {
   isKind,
   hasCatalogProcessingErrors,
   isOrphan,
+  hasRelationWarnings,
+  EntityRelationWarning,
 } from '@backstage/plugin-catalog';
 import {
   isGithubActionsAvailable,
@@ -139,6 +141,14 @@ const entityWarningContent = (
       <EntitySwitch.Case if={isOrphan}>
         <Grid item xs={12}>
           <EntityOrphanWarning />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+
+    <EntitySwitch>
+      <EntitySwitch.Case if={hasRelationWarnings}>
+        <Grid item xs={12}>
+          <EntityRelationWarning />
         </Grid>
       </EntitySwitch.Case>
     </EntitySwitch>
@@ -369,8 +379,11 @@ const groupPage = (
         <Grid item xs={12} md={6}>
           <EntityOwnershipCard variant="gridItem" />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} md={6}>
           <EntityMembersListCard />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <EntityLinksCard />
         </Grid>
       </Grid>
     </EntityLayout.Route>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Link, Typography } from '@material-ui/core';
+// eslint-disable-next-line no-restricted-imports
 import { Grid, Tooltip } from '@mui/material';
 import { OverflowTooltip } from '@backstage/core-components';
 
