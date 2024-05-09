@@ -72,6 +72,11 @@ import {
   isHarnessSRMAvailable,
 } from '@harnessio/backstage-plugin-harness-srm';
 
+import {
+  EntityHarnessChaosContent,
+  isHarnessChaosAvailable,
+} from '@harnessio/backstage-plugin-harness-chaos';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -188,6 +193,31 @@ const srmContent = (
   </EntitySwitch>
 );
 
+const chaosContent = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={isHarnessChaosAvailable}>
+      <EntityHarnessChaosContent />
+    </EntitySwitch.Case>
+
+    <EntitySwitch.Case>
+      <EmptyState
+        title="No Chaos available for this entity"
+        missing="info"
+        description="You need to add an annotation to your component if you want to enable Chaos for it. You can read more about annotations in Backstage by clicking the button below."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
+          >
+            Read more
+          </Button>
+        }
+      />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
+
 const overviewContent = (
   <Grid container spacing={3} alignItems="stretch">
     {entityWarningContent}
@@ -219,6 +249,10 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/srm" title="Service Reliability">
       {srmContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/chaos" title="Chaos Engineering">
+      {chaosContent}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">
@@ -265,6 +299,10 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">
       {featureFlagList}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/chaos" title="Chaos Engineering">
+      {chaosContent}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/dependencies" title="Dependencies">
