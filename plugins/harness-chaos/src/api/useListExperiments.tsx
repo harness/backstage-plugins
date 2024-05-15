@@ -1,6 +1,6 @@
 import { listExperimentsQuery } from '../queries/listExperimentsQuery';
 import useFetcher, { AsyncStatus } from '../hooks/useFetcher';
-import { Experiment, ListExperimentsResponse } from './types';
+import { ListWorkflowResponse, Workflow } from './types';
 
 interface UseGetExperimentsListProps {
   accountId: string;
@@ -13,7 +13,7 @@ interface UseGetExperimentsListProps {
 }
 
 interface UseGetExperimentsListReturn {
-  experiments: Experiment[] | undefined;
+  experiments: Workflow[] | undefined;
   totalExperiments: number;
   status: AsyncStatus;
   error: Error | undefined;
@@ -43,7 +43,7 @@ const useGetExperimentsList = ({
     },
   });
 
-  const { data, ...fetcherProps } = useFetcher<ListExperimentsResponse>({
+  const { data, ...fetcherProps } = useFetcher<ListWorkflowResponse>({
     ...props,
     method: 'POST',
     body,

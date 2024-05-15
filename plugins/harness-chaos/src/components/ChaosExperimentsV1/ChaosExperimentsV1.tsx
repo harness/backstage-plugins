@@ -25,7 +25,7 @@ const ChaosExperimentsV1: React.FC = () => {
   // get all projects from entity
   const harnessChaosUrl = useProjectUrlFromEntity();
 
-  const { accountId, orgId, projectId, env } = getIdentifiersFromUrl(
+  const { accountId, orgId, projectId, env, baseUrl } = getIdentifiersFromUrl(
     harnessChaosUrl || '',
   );
 
@@ -36,6 +36,7 @@ const ChaosExperimentsV1: React.FC = () => {
         env={env}
         orgId={orgId}
         projectId={projectId}
+        baseUrl={baseUrl}
       />
     </div>
   );

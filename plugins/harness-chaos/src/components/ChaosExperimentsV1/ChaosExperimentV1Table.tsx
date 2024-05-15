@@ -3,16 +3,21 @@ import React, { useState } from 'react';
 import { ErrorPanel, Progress } from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { cloneDeep } from 'lodash-es';
-import parser from 'cron-parser';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import LaunchIcon from '@mui/icons-material/Launch';
 import SyncIcon from '@mui/icons-material/Sync';
 import useGetExperimentsList from '../../api/useListExperiments';
-
-import { makeStyles } from '@material-ui/core';
-import { ExperimentRunStatus, RecentExecutions } from '../../api/types';
+import Typography from '@mui/material/Typography';
+import { ListItemText, makeStyles } from '@material-ui/core';
+import {
+  ExperimentRunStatus,
+  InfrastructureType,
+  RecentWorkflowRun,
+} from '../../api/types';
+import { StatusHeatMap } from '../StatusHeatMap/StatusHeatMap';
+import { timeDifference } from '../../utils/getTimeDifference';
 
 export const useStyles = makeStyles({
   gridItemCard: {
@@ -24,12 +29,12 @@ export const useStyles = makeStyles({
 });
 
 const columns: TableColumn[] = [
-  { field: 'name', title: 'name' },
-  { field: 'nextRun', title: 'next run' },
-  { field: 'runs', title: 'recent experiment runs' },
-  { field: 'infra', title: 'infra' },
-  { field: 'execute', title: '' },
-  { field: 'launch', title: '' },
+  { field: 'name', title: 'name', width: '20%' },
+  { field: 'infra', title: 'infra', width: '20%' },
+  { field: 'runs', title: 'recent experiment runs', width: '26%' },
+  { field: 'updatedBy', title: 'last updated by', width: '22%' },
+  { field: 'execute', title: '', width: '6%' },
+  { field: 'launch', title: '', width: '6%' },
 ];
 
 interface ChaosExperimentTableProps {
@@ -37,6 +42,7 @@ interface ChaosExperimentTableProps {
   orgId: string;
   projectId: string;
   env: string;
+  baseUrl: string;
 }
 
 export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
@@ -73,8 +79,24 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
     return <ErrorPanel error={error} />;
   }
 
-  function orderExecutions(data: RecentExecutions[]): RecentExecutions[] {
-    let recentExecutions: RecentExecutions[] = cloneDeep(data);
+  const getExperimentLink = (expId: string) =>
+    `${props.baseUrl}/ng/account/${props.accountId}/chaos/orgs/${props.orgId}/projects/${props.projectId}/experiments/${expId}`;
+
+  const getInfrastructureLink = (
+    infraId?: string,
+    environmentId?: string,
+    infraType?: InfrastructureType,
+  ) => {
+    if (!infraId || !environmentId || !infraType) return '#';
+    return `${props.baseUrl}/ng/account/${props.accountId}/chaos/orgs/${
+      props.orgId
+    }/projects/${
+      props.projectId
+    }/environments/${environmentId}/${infraType?.toLowerCase()}/${infraId}`;
+  };
+
+  function orderExecutions(data: RecentWorkflowRun[]): RecentWorkflowRun[] {
+    let recentExecutions: RecentWorkflowRun[] = cloneDeep(data);
     if (recentExecutions.length < 10) {
       const fillExecutions = Array(10 - recentExecutions.length).fill({
         phase: ExperimentRunStatus.NA,
@@ -92,24 +114,92 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
     );
     return {
       name: <div>{experiment.name}</div>,
-      nextRun: (
-        <div>
-          {experiment.cronSyntax === ''
-            ? ' Non-Cron'
-            : parser.parseExpression(experiment.cronSyntax).next().toString()}
-        </div>
-      ),
       infra: (
-        <Link to="#" target="_blank" underline="none" color="inherit">
-          {experiment.infra.name}
+        <Link
+          to={
+            experiment.infra?.infraType !== InfrastructureType.KUBERNETESV2
+              ? getInfrastructureLink(
+                  experiment.infra?.infraID,
+                  experiment.infra?.environmentID,
+                  experiment.infra?.infraType,
+                )
+              : '#'
+          }
+          target="_blank"
+          underline="none"
+          color="inherit"
+        >
+          <ListItemText
+            primary={
+              <React.Fragment>
+                <Typography
+                  sx={{ display: 'inline' }}
+                  component="span"
+                  variant="body2"
+                  color="white"
+                  display="inline"
+                >
+                  {experiment.infra?.name || 'N/A'}
+                </Typography>
+              </React.Fragment>
+            }
+            secondary={
+              <React.Fragment>
+                <Typography
+                  sx={{ display: 'inline' }}
+                  component="span"
+                  variant="caption"
+                  fontSize="0.5rem"
+                  color="white"
+                >
+                  {experiment.infra?.infraType}
+                </Typography>
+              </React.Fragment>
+            }
+          />
         </Link>
       ),
       runs: (
-        // <StatusHeatMap
-        //   data={orderExecutions(experiment.recentExperimentRunDetails)}
-        //   experimentID={experiment.workflowID}
-        // />
-        <>runs here</>
+        <StatusHeatMap
+          data={orderExecutions(experiment.recentWorkflowRunDetails)}
+          experimentID={experiment.workflowID}
+        />
+      ),
+      updatedBy: (
+        <ListItemText
+          primary={
+            <React.Fragment>
+              <Typography
+                sx={{
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  textOverflow: 'ellipsis',
+                  lineClamp: 1,
+                }}
+                variant="body2"
+                color="white"
+              >
+                {experiment.updatedBy?.username}
+              </Typography>
+            </React.Fragment>
+          }
+          secondary={
+            <React.Fragment>
+              <Typography
+                sx={{ display: 'inline' }}
+                component="span"
+                variant="caption"
+                fontSize="0.5rem"
+                color="white"
+              >
+                {timeDifference(
+                  new Date().getTime(),
+                  Number(experiment.updatedAt),
+                )}
+              </Typography>
+            </React.Fragment>
+          }
+        />
       ),
       execute: (
         <Tooltip title="Run Experiment">
@@ -120,7 +210,10 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
       ),
       launch: (
         <Tooltip title="Go to details">
-          <IconButton href="#" target="_blank">
+          <IconButton
+            href={getExperimentLink(experiment.workflowID)}
+            target="_blank"
+          >
             <LaunchIcon />
           </IconButton>
         </Tooltip>
