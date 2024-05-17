@@ -16,7 +16,6 @@ export const useProjectSlugFromEntity = (
   const { entity } = useEntity();
 
   if (isNewAnnotationPresent) {
-
     const pipelineUrlMatch = match(
       '(.*)/account/:accountId/(?:/module)?/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
       {
