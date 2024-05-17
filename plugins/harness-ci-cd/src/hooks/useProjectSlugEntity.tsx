@@ -16,15 +16,16 @@ export const useProjectSlugFromEntity = (
   const { entity } = useEntity();
 
   if (isNewAnnotationPresent) {
+
     const pipelineUrlMatch = match(
-      '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
+      '(.*)/account/:accountId/(?:/module)?/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
       {
         decode: decodeURIComponent,
       },
     );
 
     const serviceUrlMatch = match(
-      '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
+      '(.*)/account/:accountId/(?:/module)?/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
       {
         decode: decodeURIComponent,
       },
