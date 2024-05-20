@@ -1,4 +1,4 @@
-import { listExperimentsQuery } from '../queries/listExperimentsQuery';
+import { listExperimentsQuery } from '../gql/listExperimentsQuery';
 import useFetcher, { AsyncStatus } from '../hooks/useFetcher';
 import { ListWorkflowResponse, Workflow } from './types';
 
@@ -8,6 +8,7 @@ interface UseGetExperimentsListProps {
   projectId: string;
   limit?: number;
   page?: number;
+  infrastructures?: string[];
   env: string;
   backendBaseUrl: Promise<string>;
 }
@@ -38,6 +39,9 @@ const useGetExperimentsList = ({
         pagination: {
           page: page,
           limit: limit,
+        },
+        filter: {
+          infraTypes: props.infrastructures,
         },
       },
     },

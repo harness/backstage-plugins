@@ -37,7 +37,8 @@
     "cron-parser": "^4.9.0",
     "lodash-es": "^4.17.21",
     "path-to-regexp": "^6.2.2",
-    "react-use": "^17.2.4"
+    "react-use": "^17.2.4",
+    "sweetalert2": "^11.11.0"
   },
   "peerDependencies": {
     "react": "^16.13.1 || ^17.0.0 || ^18.0.0",

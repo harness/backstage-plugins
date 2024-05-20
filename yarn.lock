@@ -23222,6 +23222,11 @@ swc-loader@^0.2.3:
   dependencies:
     "@swc/counter" "^0.1.3"
 
+sweetalert2@^11.11.0:
+  version "11.11.0"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-11.11.0.tgz#0bbae4330f5e423c942639bb0e9dc2d748eb88fd"
+  integrity sha512-wKCTtoE6lQVDKaJ5FFq+znk/YykJmJlD8RnLZps8C7DyivctCoRlVeeOwnKfgwKS+QJYon7s++3dmNi3/am1tw==
+
 sweetalert2@^11.6.14:
   version "11.10.6"
   resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-11.10.6.tgz#77c55271f786e62ea6710b84893a98c27319b3c9"

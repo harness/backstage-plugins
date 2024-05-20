@@ -1,30 +1,53 @@
-import { Link, Table, TableColumn } from '@backstage/core-components';
 import React, { useState } from 'react';
-import { ErrorPanel, Progress } from '@backstage/core-components';
+import {
+  EmptyState,
+  ErrorPanel,
+  Link,
+  Table,
+  TableColumn,
+} from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { cloneDeep } from 'lodash-es';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import LaunchIcon from '@mui/icons-material/Launch';
 import SyncIcon from '@mui/icons-material/Sync';
-import useGetExperimentsList from '../../api/useListExperiments';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 import Typography from '@mui/material/Typography';
-import { ListItemText, makeStyles } from '@material-ui/core';
+// eslint-disable-next-line no-restricted-imports
+import {
+  OutlinedInput,
+  InputLabel,
+  Select,
+  FormControl,
+  Stack,
+} from '@mui/material';
+import { ListItemText, makeStyles, MenuItem, Chip } from '@material-ui/core';
 import {
   ExperimentRunStatus,
   InfrastructureType,
   RecentWorkflowRun,
 } from '../../api/types';
+import useGetExperimentsList from '../../api/useListExperiments';
 import { StatusHeatMap } from '../StatusHeatMap/StatusHeatMap';
 import { timeDifference } from '../../utils/getTimeDifference';
+import RunExperimentButton from '../RunExperimentButton';
 
 export const useStyles = makeStyles({
   gridItemCard: {
     display: 'flex',
     flexDirection: 'column',
-    height: 'calc(100% - 10px)', // for pages without content header
+    height: 'calc(100% - 10px)',
+    marginTop: '10px',
     marginBottom: '10px',
+  },
+  empty: {
+    padding: '2rem',
+    height: '100%',
+    overflow: 'hidden',
+    backgroundColor: '#333333',
   },
 });
 
@@ -45,12 +68,32 @@ interface ChaosExperimentTableProps {
   baseUrl: string;
 }
 
+const allInfrastructures = [
+  {
+    label: 'Kubernetes (Legacy)',
+    value: 'Kubernetes',
+  },
+  {
+    label: 'Kubernetes (Harness Infrastructure)',
+    value: 'KubernetesV2',
+  },
+  {
+    label: 'Linux',
+    value: 'Linux',
+  },
+  {
+    label: 'Windows',
+    value: 'Windows',
+  },
+];
+
 export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
   const discoveryApi = useApi(discoveryApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
+  const [infrastructures, setInfrastructures] = useState<string[]>([]);
 
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
@@ -69,11 +112,8 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
       page,
       limit: pageSize,
       backendBaseUrl,
+      infrastructures,
     });
-
-  if (loading) {
-    return <Progress />;
-  }
 
   if (error) {
     return <ErrorPanel error={error} />;
@@ -202,11 +242,11 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
         />
       ),
       execute: (
-        <Tooltip title="Run Experiment">
-          <IconButton onClick={() => void 0} disabled={!canNextRun}>
-            <PlayArrowIcon sx={{ color: canNextRun ? '#1bb954' : '#6a6d85' }} />
-          </IconButton>
-        </Tooltip>
+        <RunExperimentButton
+          canNextRun={canNextRun}
+          experimentId={experiment.workflowID}
+          refetch={refetch}
+        />
       ),
       launch: (
         <Tooltip title="Go to details">
@@ -222,32 +262,98 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
   });
 
   return (
-    <div className={classes.gridItemCard}>
-      <Table
-        title="Experiments"
-        actions={[
-          {
-            icon: () => <SyncIcon />,
-            tooltip: 'Refresh',
-            isFreeAction: true,
-            onClick: refetch,
-          },
-        ]}
-        options={{
-          search: false,
-          paging: true,
-          padding: 'dense',
-          emptyRowsWhenPaging: false,
-          pageSize: pageSize,
-          pageSizeOptions: [5, 10, 25],
-        }}
-        data={data || []}
-        columns={columns}
-        page={page}
-        onPageChange={handleChangePage}
-        totalCount={totalExperiments}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </div>
+    <>
+      <FormControl sx={{ m: 1, minWidth: 350 }}>
+        <InputLabel>Select Infrastructures</InputLabel>
+        <Select
+          multiple
+          style={{ height: '60px' }}
+          value={infrastructures}
+          onChange={e => setInfrastructures(e.target.value as string[])}
+          input={<OutlinedInput label="Select Infrastructures" />}
+          IconComponent={
+            infrastructures.length > 0
+              ? () => (
+                  <IconButton
+                    style={{ marginRight: '12px' }}
+                    onClick={() => setInfrastructures([])}
+                  >
+                    <ClearIcon color="error" />
+                  </IconButton>
+                )
+              : undefined
+          }
+          renderValue={selected => (
+            <Stack direction="row" flexWrap="wrap">
+              {selected.map(value => (
+                <Chip
+                  key={value}
+                  label={
+                    allInfrastructures.find(infra => infra.value === value)
+                      ?.label
+                  }
+                  onDelete={() =>
+                    setInfrastructures(
+                      infrastructures.filter(item => item !== value),
+                    )
+                  }
+                  deleteIcon={
+                    <CancelIcon
+                      onMouseDown={event => event.stopPropagation()}
+                    />
+                  }
+                />
+              ))}
+            </Stack>
+          )}
+        >
+          {allInfrastructures.map(infra => (
+            <MenuItem key={infra.label} value={infra.value}>
+              {infra.label}
+              {infrastructures.includes(infra.value) ? (
+                <CheckIcon color="info" />
+              ) : null}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <div className={classes.gridItemCard}>
+        <Table
+          isLoading={loading}
+          emptyContent={
+            <div className={classes.empty}>
+              <EmptyState
+                title="No Chaos Experiments in your project"
+                missing="content"
+              />
+            </div>
+          }
+          title="Experiments"
+          actions={[
+            {
+              icon: () => <SyncIcon />,
+              tooltip: 'Refresh',
+              isFreeAction: true,
+              onClick: refetch,
+            },
+          ]}
+          options={{
+            search: false,
+            paging: true,
+            padding: 'dense',
+            emptyRowsWhenPaging: false,
+            pageSize: pageSize,
+            pageSizeOptions: [5, 10, 25],
+          }}
+          data={data || []}
+          columns={columns}
+          page={page}
+          onPageChange={handleChangePage}
+          totalCount={totalExperiments}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </div>
+    </>
   );
 };

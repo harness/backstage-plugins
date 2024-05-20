@@ -12,7 +12,7 @@ const useGetLicense = ({
   env,
   accountId,
 }: useGetLicenseWithAuthProps) => {
-  const [licenses, setLicenses] = useState('SRM');
+  const [licenses, setLicenses] = useState('');
 
   useAsyncRetry(async () => {
     const token = getSecureHarnessKey('token');
