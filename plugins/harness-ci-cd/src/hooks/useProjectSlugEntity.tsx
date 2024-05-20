@@ -16,6 +16,7 @@ export const useProjectSlugFromEntity = (
   const { entity } = useEntity();
 
   if (isNewAnnotationPresent) {
+    /** New nav urls contain an additional `module` in the URL. */
     const pipelineUrlMatch = match(
       '(.*)/account/:accountId/(?:/module)?/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
       {
