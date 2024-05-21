@@ -16,19 +16,40 @@ export const useProjectSlugFromEntity = (
   const { entity } = useEntity();
 
   if (isNewAnnotationPresent) {
-    const pipelineUrlMatch = match(
-      '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
-      {
-        decode: decodeURIComponent,
-      },
-    );
+    const containsModule = selectedPipelineUrl.includes('/module/');
 
-    const serviceUrlMatch = match(
-      '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
-      {
-        decode: decodeURIComponent,
-      },
-    );
+    let pipelineUrlMatch;
+    let serviceUrlMatch;
+
+    if (containsModule) {
+      pipelineUrlMatch = match(
+        '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
+        {
+          decode: decodeURIComponent,
+        },
+      );
+
+      serviceUrlMatch = match(
+        '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
+        {
+          decode: decodeURIComponent,
+        },
+      );
+    } else {
+      pipelineUrlMatch = match(
+        '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
+        {
+          decode: decodeURIComponent,
+        },
+      );
+
+      serviceUrlMatch = match(
+        '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
+        {
+          decode: decodeURIComponent,
+        },
+      );
+    }
 
     const hostname = new URL(selectedPipelineUrl).hostname;
     const baseUrl1 = new URL(selectedPipelineUrl).origin;
