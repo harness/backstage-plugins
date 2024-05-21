@@ -18,7 +18,8 @@ export const useProjectSlugFromEntity = (
   if (isNewAnnotationPresent) {
     const containsModule = selectedPipelineUrl.includes('/module/');
 
-    let pipelineUrlMatch; let serviceUrlMatch;
+    let pipelineUrlMatch;
+    let serviceUrlMatch;
 
     if (containsModule) {
       pipelineUrlMatch = match(
@@ -49,7 +50,6 @@ export const useProjectSlugFromEntity = (
         },
       );
     }
-
 
     const hostname = new URL(selectedPipelineUrl).hostname;
     const baseUrl1 = new URL(selectedPipelineUrl).origin;
