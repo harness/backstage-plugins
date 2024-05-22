@@ -1,5 +1,5 @@
 {
-  "name": "@harnessio/backstage-plugin-ci-cd",
+  "name": "@debanitrkl/backstage-plugin-ci-cd",
   "version": "0.8.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
