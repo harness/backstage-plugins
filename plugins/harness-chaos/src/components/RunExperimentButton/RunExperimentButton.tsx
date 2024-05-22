@@ -1,20 +1,21 @@
-import { Tooltip, IconButton } from '@material-ui/core';
-import React, { useState } from 'react';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import useRunExperiment from '../../api/useRunExperiment';
-import { useApi, discoveryApiRef } from '@backstage/core-plugin-api';
 import Swal from 'sweetalert2';
-// eslint-disable-next-line no-restricted-imports
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from '@mui/material';
-import { useProjectUrlFromEntity } from '../../hooks/useGetSlugsFromEntity';
+import React, { useState } from 'react';
+import { useApi, discoveryApiRef } from '@backstage/core-plugin-api';
+
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContentText from '@mui/material/DialogContentText';
+
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+
+import useRunExperiment from '../../api/useRunExperiment';
 import { getIdentifiersFromUrl } from '../../utils/getIdentifiersFromUrl';
+import { useProjectUrlFromEntity } from '../../hooks/useGetSlugsFromEntity';
 
 interface RunExperimentButtonProps {
   canNextRun: boolean;
@@ -28,17 +29,15 @@ const RunExperimentButton = ({
   refetch,
 }: RunExperimentButtonProps) => {
   const discoveryApi = useApi(discoveryApiRef);
-
-  const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
-
-  // get all projects from entity
   const harnessChaosUrl = useProjectUrlFromEntity();
+  const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
   const { accountId, orgId, projectId, env } = getIdentifiersFromUrl(
     harnessChaosUrl || '',
   );
 
   const [open, setOpen] = useState(false);
+
   const handleClickOpen = () => {
     setOpen(true);
   };

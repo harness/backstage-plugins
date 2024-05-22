@@ -1,5 +1,5 @@
-import { runExperimentMutation } from '../gql/runExperimentMutation';
 import { getSecureHarnessKey } from '../utils/getHarnessToken';
+import { runExperimentMutation } from '../gql/runExperimentMutation';
 
 interface useRunExperimentProps {
   accountId: string;

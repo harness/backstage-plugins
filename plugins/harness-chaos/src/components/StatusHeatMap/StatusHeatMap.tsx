@@ -1,29 +1,29 @@
 import React from 'react';
-import CancelIcon from '@mui/icons-material/Cancel';
+import { Link } from '@backstage/core-components';
+
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import Chip from '@mui/material/Chip';
+import Paper from '@mui/material/Paper';
+import { makeStyles } from '@mui/styles';
+import Popper from '@mui/material/Popper';
+import ListItem from '@mui/material/ListItem';
+import Typography from '@mui/material/Typography';
+import ListItemText from '@mui/material/ListItemText';
+
 import ErrorIcon from '@mui/icons-material/Error';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PauseIcon from '@mui/icons-material/Pause';
+import CancelIcon from '@mui/icons-material/Cancel';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import NotInterestedOutlinedIcon from '@mui/icons-material/NotInterestedOutlined';
-import { ExperimentRunStatus, RecentWorkflowRun } from '../../api/types';
-import { makeStyles } from '@material-ui/core';
-import { Link } from '@backstage/core-components';
-// eslint-disable-next-line no-restricted-imports
-import {
-  Box,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Popper,
-  Typography,
-} from '@mui/material';
+
 import { timeDifference } from '../../utils/getTimeDifference';
-import { useProjectUrlFromEntity } from '../../hooks/useGetSlugsFromEntity';
+import { ExperimentRunStatus, RecentWorkflowRun } from '../../api/types';
 import { getIdentifiersFromUrl } from '../../utils/getIdentifiersFromUrl';
+import { useProjectUrlFromEntity } from '../../hooks/useGetSlugsFromEntity';
 
 const useStyles = makeStyles(() => ({
   statusHeatMap: {
@@ -94,6 +94,11 @@ const useStyles = makeStyles(() => ({
       backgroundColor: '#d9dae5',
       '&:hover, &:focus': {
         boxShadow: '#fff 0px 0px 0px 1px, #d9dae5 0px 0px 0px 2px',
+      },
+    },
+    '&[aria-disabled="true"]': {
+      '&:hover': {
+        boxShadow: 'none !important',
       },
     },
   },
@@ -282,6 +287,7 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
         className={classes.statusHeatMapCell}
         aria-owns={open ? 'mouse-over-popover' : undefined}
         aria-haspopup="true"
+        aria-disabled={hidePopperForStatus(execution.phase)}
         onMouseEnter={handlePopoverOpen}
         onMouseLeave={handlePopoverClose}
       >
@@ -457,20 +463,25 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
 
   return (
     <div className={classes.statusHeatMap}>
-      {data.map((recentExecutions, index) => {
+      {data.map((recentExecution, index) => {
         return (
           <Link
             key={index}
             to={getExperimentRunLink(
               experimentID,
-              recentExecutions.notifyID,
-              recentExecutions.workflowRunID,
+              recentExecution.notifyID,
+              recentExecution.workflowRunID,
             )}
             target="_blank"
             underline="none"
             color="inherit"
+            style={{
+              pointerEvents: hidePopperForStatus(recentExecution.phase)
+                ? 'none'
+                : 'auto',
+            }}
           >
-            <StatusCell execution={recentExecutions} />
+            <StatusCell execution={recentExecution} />
           </Link>
         );
       })}

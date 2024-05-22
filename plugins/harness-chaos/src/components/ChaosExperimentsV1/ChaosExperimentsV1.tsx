@@ -1,13 +1,16 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
 import { EmptyState } from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
+
+import { makeStyles } from '@mui/styles';
+import Button from '@mui/material/Button';
+
 import useGetLicense from '../../hooks/useGetLicense';
 import { ChaosExperimentV1Table } from './ChaosExperimentV1Table';
 import { getIdentifiersFromUrl } from '../../utils/getIdentifiersFromUrl';
 import { useProjectUrlFromEntity } from '../../hooks/useGetSlugsFromEntity';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   container: {
     width: '100%',
   },
@@ -16,11 +19,11 @@ const useStyles = makeStyles(theme => ({
     fontSize: '14px !important',
   },
   empty: {
-    padding: theme.spacing(2),
+    padding: '32px',
     display: 'flex',
     justifyContent: 'center',
   },
-}));
+});
 
 const ChaosExperimentsV1: React.FC = () => {
   const classes = useStyles();
@@ -28,7 +31,6 @@ const ChaosExperimentsV1: React.FC = () => {
 
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
-  // get all projects from entity
   const harnessChaosUrl = useProjectUrlFromEntity();
 
   const { accountId, orgId, projectId, env, baseUrl } = getIdentifiersFromUrl(
@@ -41,12 +43,25 @@ const ChaosExperimentsV1: React.FC = () => {
     accountId,
   });
 
+  const getChaosGetStartedLink = () =>
+    `${baseUrl}/ng/account/${accountId}/chaos/home/trial`;
+
   if (licenses === 'NA') {
     return (
       <EmptyState
         title="Chaos Module License not subscribed"
         missing="info"
-        description="You need to subscribe to Chaos Module to view this page."
+        description="You need to have an active Chaos Module License to view this page."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            target="_blank"
+            href={getChaosGetStartedLink()}
+          >
+            Get Started
+          </Button>
+        }
       />
     );
   } else if (licenses === 'Unauthorized') {

@@ -34,6 +34,7 @@
     "@material-ui/lab": "4.0.0-alpha.61",
     "@mui/icons-material": "^5.15.17",
     "@mui/material": "^5.15.17",
+    "@mui/styles": "^5.15.18",
     "cron-parser": "^4.9.0",
     "lodash-es": "^4.17.21",
     "path-to-regexp": "^6.2.2",

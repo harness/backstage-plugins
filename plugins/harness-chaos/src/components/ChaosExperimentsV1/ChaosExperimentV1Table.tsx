@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { omit } from 'lodash-es';
+
 import {
   EmptyState,
   ErrorPanel,
@@ -7,33 +9,42 @@ import {
   TableColumn,
 } from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
-import { cloneDeep } from 'lodash-es';
-import IconButton from '@mui/material/IconButton';
+
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import { makeStyles } from '@mui/styles';
+import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-import LaunchIcon from '@mui/icons-material/Launch';
+import MenuItem from '@mui/material/MenuItem';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import Typography from '@mui/material/Typography';
+import FormControl from '@mui/material/FormControl';
+import ListItemText from '@mui/material/ListItemText';
+import OutlinedInput from '@mui/material/OutlinedInput';
+
 import SyncIcon from '@mui/icons-material/Sync';
-import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
-import Typography from '@mui/material/Typography';
-// eslint-disable-next-line no-restricted-imports
-import {
-  OutlinedInput,
-  InputLabel,
-  Select,
-  FormControl,
-  Stack,
-} from '@mui/material';
-import { ListItemText, makeStyles, MenuItem, Chip } from '@material-ui/core';
-import {
-  ExperimentRunStatus,
-  InfrastructureType,
-  RecentWorkflowRun,
-} from '../../api/types';
-import useGetExperimentsList from '../../api/useListExperiments';
+import LaunchIcon from '@mui/icons-material/Launch';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CircleIcon from '@mui/icons-material/Circle';
+
+import RunExperimentButton from '../RunExperimentButton';
 import { StatusHeatMap } from '../StatusHeatMap/StatusHeatMap';
 import { timeDifference } from '../../utils/getTimeDifference';
-import RunExperimentButton from '../RunExperimentButton';
+import useGetExperimentsList from '../../api/useListExperiments';
+import { ExperimentRunStatus, InfrastructureType } from '../../api/types';
+import { getInfraIconColor, orderExecutions } from '../../utils/tableUtils';
+import { getExperimentLink, getInfrastructureLink } from '../../utils/links';
+
+interface ChaosExperimentTableProps {
+  accountId: string;
+  orgId: string;
+  projectId: string;
+  env: string;
+  baseUrl: string;
+}
 
 export const useStyles = makeStyles({
   gridItemCard: {
@@ -49,6 +60,16 @@ export const useStyles = makeStyles({
     overflow: 'hidden',
     backgroundColor: '#333333',
   },
+  infraIconBox: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    fontSize: '11px',
+  },
+  chip: {
+    marginBottom: 0,
+  },
+  infraDropDownLabel: { fontSize: '14px', marginRight: '4px' },
 });
 
 const columns: TableColumn[] = [
@@ -59,14 +80,6 @@ const columns: TableColumn[] = [
   { field: 'execute', title: '', width: '6%' },
   { field: 'launch', title: '', width: '6%' },
 ];
-
-interface ChaosExperimentTableProps {
-  accountId: string;
-  orgId: string;
-  projectId: string;
-  env: string;
-  baseUrl: string;
-}
 
 const allInfrastructures = [
   {
@@ -88,12 +101,15 @@ const allInfrastructures = [
 ];
 
 export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
+  const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [infrastructures, setInfrastructures] = useState<string[]>([]);
+
+  const commonPropsForLinks = omit(props, 'env');
 
   const handleChangePage = (currentPage: number, currentPageSize: number) => {
     setPage(currentPage);
@@ -105,7 +121,6 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
     setPageSize(currentPageSize);
   };
 
-  const classes = useStyles();
   const { experiments, totalExperiments, loading, error, refetch } =
     useGetExperimentsList({
       ...props,
@@ -119,32 +134,64 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
     return <ErrorPanel error={error} />;
   }
 
-  const getExperimentLink = (expId: string) =>
-    `${props.baseUrl}/ng/account/${props.accountId}/chaos/orgs/${props.orgId}/projects/${props.projectId}/experiments/${expId}`;
-
-  const getInfrastructureLink = (
-    infraId?: string,
-    environmentId?: string,
-    infraType?: InfrastructureType,
-  ) => {
-    if (!infraId || !environmentId || !infraType) return '#';
-    return `${props.baseUrl}/ng/account/${props.accountId}/chaos/orgs/${
-      props.orgId
-    }/projects/${
-      props.projectId
-    }/environments/${environmentId}/${infraType?.toLowerCase()}/${infraId}`;
-  };
-
-  function orderExecutions(data: RecentWorkflowRun[]): RecentWorkflowRun[] {
-    let recentExecutions: RecentWorkflowRun[] = cloneDeep(data);
-    if (recentExecutions.length < 10) {
-      const fillExecutions = Array(10 - recentExecutions.length).fill({
-        phase: ExperimentRunStatus.NA,
-      });
-      recentExecutions = [...recentExecutions, ...fillExecutions];
-    }
-    return recentExecutions.reverse();
-  }
+  const infrastructureSelector = (
+    <FormControl sx={{ m: 1, minWidth: 350 }}>
+      <InputLabel size="small">Filter Infrastructures</InputLabel>
+      <Select
+        size="small"
+        multiple
+        value={infrastructures}
+        onChange={e => setInfrastructures(e.target.value as string[])}
+        input={<OutlinedInput label="Filter Infrastructures" />}
+        IconComponent={
+          infrastructures.length > 0
+            ? () => (
+                <IconButton size="small" onClick={() => setInfrastructures([])}>
+                  <ClearIcon
+                    color="error"
+                    fontSize="small"
+                    sx={{ marginRight: '8px' }}
+                  />
+                </IconButton>
+              )
+            : undefined
+        }
+        renderValue={selected => (
+          <Stack direction="row" flexWrap="wrap">
+            {selected.map(value => (
+              <Chip
+                key={value}
+                size="small"
+                className={classes.chip}
+                label={
+                  allInfrastructures.find(infra => infra.value === value)?.label
+                }
+                onDelete={() =>
+                  setInfrastructures(
+                    infrastructures.filter(item => item !== value),
+                  )
+                }
+                deleteIcon={
+                  <CancelIcon onMouseDown={event => event.stopPropagation()} />
+                }
+              />
+            ))}
+          </Stack>
+        )}
+      >
+        {allInfrastructures.map(infra => (
+          <MenuItem key={infra.label} value={infra.value}>
+            <Typography className={classes.infraDropDownLabel}>
+              {infra.label}
+            </Typography>
+            {infrastructures.includes(infra.value) ? (
+              <CheckIcon color="info" fontSize="small" />
+            ) : null}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
 
   const data = experiments?.map(experiment => {
     const recentExecutions = experiment.recentWorkflowRunDetails?.[0];
@@ -152,52 +199,59 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
       recentExecutions?.phase === ExperimentRunStatus.RUNNING ||
       recentExecutions?.phase === ExperimentRunStatus.QUEUED
     );
+    const infrastructure = experiment.infra;
     return {
       name: <div>{experiment.name}</div>,
       infra: (
-        <Link
-          to={
-            experiment.infra?.infraType !== InfrastructureType.KUBERNETESV2
-              ? getInfrastructureLink(
-                  experiment.infra?.infraID,
-                  experiment.infra?.environmentID,
-                  experiment.infra?.infraType,
-                )
-              : '#'
+        <ListItemText
+          primary={
+            <Link
+              to={
+                infrastructure?.infraType !== InfrastructureType.KUBERNETESV2
+                  ? getInfrastructureLink(
+                      commonPropsForLinks,
+                      infrastructure?.infraID,
+                      infrastructure?.environmentID,
+                      infrastructure?.infraType,
+                    )
+                  : '#'
+              }
+              target="_blank"
+              style={{
+                pointerEvents: infrastructure?.infraID ? 'auto' : 'none',
+              }}
+              underline="none"
+              color="inherit"
+            >
+              <Typography
+                sx={{ display: 'inline' }}
+                component="span"
+                variant="body2"
+                color="white"
+                display="inline"
+              >
+                {infrastructure?.name || 'N/A'}
+              </Typography>
+            </Link>
           }
-          target="_blank"
-          underline="none"
-          color="inherit"
-        >
-          <ListItemText
-            primary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: 'inline' }}
-                  component="span"
-                  variant="body2"
-                  color="white"
-                  display="inline"
-                >
-                  {experiment.infra?.name || 'N/A'}
-                </Typography>
-              </React.Fragment>
-            }
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: 'inline' }}
-                  component="span"
-                  variant="caption"
-                  fontSize="0.5rem"
-                  color="white"
-                >
-                  {experiment.infra?.infraType}
-                </Typography>
-              </React.Fragment>
-            }
-          />
-        </Link>
+          secondary={
+            <div className={classes.infraIconBox}>
+              <CircleIcon
+                fontSize="inherit"
+                color={getInfraIconColor(infrastructure?.isActive)}
+              />
+              <Typography
+                sx={{ display: 'inline', paddingLeft: '4px' }}
+                component="span"
+                variant="caption"
+                fontSize="0.3rem"
+                color="white"
+              >
+                {infrastructure?.infraType}
+              </Typography>
+            </div>
+          }
+        />
       ),
       runs: (
         <StatusHeatMap
@@ -229,7 +283,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 sx={{ display: 'inline' }}
                 component="span"
                 variant="caption"
-                fontSize="0.5rem"
+                fontSize="0.3rem"
                 color="white"
               >
                 {timeDifference(
@@ -251,7 +305,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
       launch: (
         <Tooltip title="Go to details">
           <IconButton
-            href={getExperimentLink(experiment.workflowID)}
+            href={getExperimentLink(commonPropsForLinks, experiment.workflowID)}
             target="_blank"
           >
             <LaunchIcon />
@@ -263,61 +317,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
 
   return (
     <>
-      <FormControl sx={{ m: 1, minWidth: 350 }}>
-        <InputLabel>Select Infrastructures</InputLabel>
-        <Select
-          multiple
-          style={{ height: '60px' }}
-          value={infrastructures}
-          onChange={e => setInfrastructures(e.target.value as string[])}
-          input={<OutlinedInput label="Select Infrastructures" />}
-          IconComponent={
-            infrastructures.length > 0
-              ? () => (
-                  <IconButton
-                    style={{ marginRight: '12px' }}
-                    onClick={() => setInfrastructures([])}
-                  >
-                    <ClearIcon color="error" />
-                  </IconButton>
-                )
-              : undefined
-          }
-          renderValue={selected => (
-            <Stack direction="row" flexWrap="wrap">
-              {selected.map(value => (
-                <Chip
-                  key={value}
-                  label={
-                    allInfrastructures.find(infra => infra.value === value)
-                      ?.label
-                  }
-                  onDelete={() =>
-                    setInfrastructures(
-                      infrastructures.filter(item => item !== value),
-                    )
-                  }
-                  deleteIcon={
-                    <CancelIcon
-                      onMouseDown={event => event.stopPropagation()}
-                    />
-                  }
-                />
-              ))}
-            </Stack>
-          )}
-        >
-          {allInfrastructures.map(infra => (
-            <MenuItem key={infra.label} value={infra.value}>
-              {infra.label}
-              {infrastructures.includes(infra.value) ? (
-                <CheckIcon color="info" />
-              ) : null}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
+      {infrastructureSelector}
       <div className={classes.gridItemCard}>
         <Table
           isLoading={loading}

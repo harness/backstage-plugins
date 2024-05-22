@@ -1,19 +1,20 @@
 import React from 'react';
-import {
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  makeStyles,
-  Grid,
-  Select,
-} from '@material-ui/core';
+
+import Grid from '@mui/material/Grid';
+import { makeStyles } from '@mui/styles';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+
 import {
   useGetNetworkMapEntity,
   useGetServiceEntity,
 } from '../../hooks/useGetSlugsFromEntity';
+import { EmptyState } from '@backstage/core-components';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   container: {
     width: '100%',
   },
@@ -22,11 +23,11 @@ const useStyles = makeStyles(theme => ({
     fontSize: '14px !important',
   },
   empty: {
-    padding: theme.spacing(2),
+    padding: '32px',
     display: 'flex',
     justifyContent: 'center',
   },
-}));
+});
 
 const ChaosExperimentsV2: React.FC = () => {
   const classes = useStyles();
@@ -92,7 +93,16 @@ const ChaosExperimentsV2: React.FC = () => {
     </Grid>
   );
 
-  return <div className={classes.container}>{DropDownComponent}</div>;
+  return (
+    <div className={classes.container}>
+      {DropDownComponent}
+      <EmptyState
+        missing="content"
+        title="Service Discovery Unavailable"
+        description="Service based Chaos Engineering support will be added to the plugin soon"
+      />
+    </div>
+  );
 };
 
 export default ChaosExperimentsV2;
