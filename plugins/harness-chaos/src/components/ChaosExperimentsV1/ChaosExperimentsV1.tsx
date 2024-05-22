@@ -28,10 +28,8 @@ const useStyles = makeStyles({
 const ChaosExperimentsV1: React.FC = () => {
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
-
-  const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
-
   const harnessChaosUrl = useProjectUrlFromEntity();
+  const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
 
   const { accountId, orgId, projectId, env, baseUrl } = getIdentifiersFromUrl(
     harnessChaosUrl || '',

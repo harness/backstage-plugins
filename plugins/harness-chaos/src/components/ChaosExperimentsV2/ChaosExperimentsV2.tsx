@@ -32,12 +32,9 @@ const useStyles = makeStyles({
 const ChaosExperimentsV2: React.FC = () => {
   const classes = useStyles();
 
-  // get all services from entity
   const harnessChaosServices = useGetServiceEntity();
-
-  // get all network maps from entity
   const harnessChaosNM = useGetNetworkMapEntity();
-  // get name of all the projects
+
   const allServices = Object.keys(harnessChaosServices);
   const allNMs = Object.keys(harnessChaosNM);
 

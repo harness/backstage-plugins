@@ -68,8 +68,16 @@ export const useStyles = makeStyles({
   },
   chip: {
     marginBottom: 0,
+    marginRight: '8px',
+    background: 'grey',
+    borderRadius: '12px',
   },
-  infraDropDownLabel: { fontSize: '14px', marginRight: '4px' },
+  infraDropDownLabel: { fontSize: '14px !important', marginRight: '4px' },
+  menuItem: {
+    display: 'inline-flex',
+    padding: '6px 8px',
+    justifyContent: 'flex-start',
+  },
 });
 
 const columns: TableColumn[] = [
@@ -143,15 +151,25 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
         value={infrastructures}
         onChange={e => setInfrastructures(e.target.value as string[])}
         input={<OutlinedInput label="Filter Infrastructures" />}
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              '& .MuiList-root': {
+                display: 'flex',
+                flexDirection: 'column',
+              },
+            },
+          },
+        }}
         IconComponent={
           infrastructures.length > 0
             ? () => (
-                <IconButton size="small" onClick={() => setInfrastructures([])}>
-                  <ClearIcon
-                    color="error"
-                    fontSize="small"
-                    sx={{ marginRight: '8px' }}
-                  />
+                <IconButton
+                  sx={{ marginRight: '8px !important' }}
+                  size="small"
+                  onClick={() => setInfrastructures([])}
+                >
+                  <ClearIcon color="error" fontSize="small" />
                 </IconButton>
               )
             : undefined
@@ -180,7 +198,11 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
         )}
       >
         {allInfrastructures.map(infra => (
-          <MenuItem key={infra.label} value={infra.value}>
+          <MenuItem
+            className={classes.menuItem}
+            key={infra.label}
+            value={infra.value}
+          >
             <Typography className={classes.infraDropDownLabel}>
               {infra.label}
             </Typography>
