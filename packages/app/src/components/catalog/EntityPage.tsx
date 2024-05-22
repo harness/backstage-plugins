@@ -60,7 +60,7 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import {
   EntityHarnessCiCdContent,
   isHarnessCiCdAvailable,
-} from '@harnessio/backstage-plugin-ci-cd';
+} from '@debanitrkl/backstage-plugin-ci-cd';
 
 import {
   isHarnessFeatureFlagAvailable,
