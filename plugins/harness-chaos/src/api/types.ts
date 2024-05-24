@@ -101,3 +101,26 @@ export interface ListWorkflowResponse {
     };
   };
 }
+
+export interface DateRange {
+  startDate: string;
+  endDate?: string;
+}
+
+export enum ExperimentListType {
+  CRON = 'CRON',
+  NON_CRON = 'NON_CRON',
+  GAMEDAY = 'GAMEDAY',
+  ALL = 'ALL',
+}
+
+export interface ExperimentFilterRequest {
+  workflowName?: string;
+  infraID?: string;
+  infraActive?: boolean;
+  scenarioType?: ExperimentListType;
+  dateRange?: DateRange;
+  infraTypes?: Array<InfrastructureType>;
+  tags?: Array<string>;
+  isCronEnabled?: boolean;
+}

@@ -5,9 +5,8 @@ import {
   MissingAnnotationEmptyState,
   useEntity,
 } from '@backstage/plugin-catalog-react';
+import ChaosExperiments from './ChaosExperiments';
 import { isV1Compatible, isV2Compatible } from '../utils/getCompatibleVersion';
-import ChaosExperimentsV1 from './ChaosExperimentsV1';
-import ChaosExperimentsV2 from './ChaosExperimentsV2';
 
 /** @public */
 export const isHarnessChaosAvailable = (entity: Entity | undefined) => {
@@ -32,16 +31,9 @@ export const Router = () => {
     );
   }
 
-  if (isV2Compatible(entity))
-    return (
-      <Routes>
-        <Route path="/" element={<ChaosExperimentsV2 />} />
-      </Routes>
-    );
-
   return (
     <Routes>
-      <Route path="/" element={<ChaosExperimentsV1 />} />
+      <Route path="/" element={<ChaosExperiments />} />
     </Routes>
   );
 };

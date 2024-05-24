@@ -1,4 +1,8 @@
-import { ListWorkflowResponse, Workflow } from './types';
+import {
+  ExperimentFilterRequest,
+  ListWorkflowResponse,
+  Workflow,
+} from './types';
 import useFetcher, { AsyncStatus } from '../hooks/useFetcher';
 import { listExperimentsQuery } from '../gql/listExperimentsQuery';
 
@@ -8,7 +12,7 @@ interface UseGetExperimentsListProps {
   projectId: string;
   limit?: number;
   page?: number;
-  infrastructures?: string[];
+  filter?: ExperimentFilterRequest;
   env: string;
   backendBaseUrl: Promise<string>;
 }
@@ -40,9 +44,7 @@ const useGetExperimentsList = ({
           page: page,
           limit: limit,
         },
-        filter: {
-          infraTypes: props.infrastructures,
-        },
+        filter: props.filter,
       },
     },
   });

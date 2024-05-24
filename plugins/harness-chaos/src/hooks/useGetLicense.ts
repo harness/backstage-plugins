@@ -31,7 +31,7 @@ const useGetLicense = ({
 
     if (response.status === 200) {
       const data = await response.json();
-      if (data?.data?.allModuleLicenses?.SRM?.length === 0) {
+      if (data?.data?.allModuleLicenses?.CHAOS?.length === 0) {
         setLicenses('NA');
       }
     } else if (response.status === 401) {

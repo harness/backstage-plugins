@@ -10,24 +10,20 @@ import {
 } from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 
-import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
 import { makeStyles } from '@mui/styles';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import FormHelperText from '@mui/material/FormHelperText';
 
 import SyncIcon from '@mui/icons-material/Sync';
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
 import LaunchIcon from '@mui/icons-material/Launch';
-import CancelIcon from '@mui/icons-material/Cancel';
 import CircleIcon from '@mui/icons-material/Circle';
 
 import RunExperimentButton from '../RunExperimentButton';
@@ -37,6 +33,10 @@ import useGetExperimentsList from '../../api/useListExperiments';
 import { ExperimentRunStatus, InfrastructureType } from '../../api/types';
 import { getInfraIconColor, orderExecutions } from '../../utils/tableUtils';
 import { getExperimentLink, getInfrastructureLink } from '../../utils/links';
+import {
+  useGetNetworkMapEntity,
+  useGetServiceEntity,
+} from '../../hooks/useGetSlugsFromEntity';
 
 interface ChaosExperimentTableProps {
   accountId: string;
@@ -78,6 +78,10 @@ export const useStyles = makeStyles({
     padding: '6px 8px',
     justifyContent: 'flex-start',
   },
+  label: {
+    marginBottom: '2px',
+    fontSize: '14px !important',
+  },
 });
 
 const columns: TableColumn[] = [
@@ -89,33 +93,24 @@ const columns: TableColumn[] = [
   { field: 'launch', title: '', width: '6%' },
 ];
 
-const allInfrastructures = [
-  {
-    label: 'Kubernetes (Legacy)',
-    value: 'Kubernetes',
-  },
-  {
-    label: 'Kubernetes (Harness Infrastructure)',
-    value: 'KubernetesV2',
-  },
-  {
-    label: 'Linux',
-    value: 'Linux',
-  },
-  {
-    label: 'Windows',
-    value: 'Windows',
-  },
-];
-
-export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
+export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
+  const harnessChaosServices = useGetServiceEntity();
+  const harnessChaosNM = useGetNetworkMapEntity();
 
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [infrastructures, setInfrastructures] = useState<string[]>([]);
+  const allServices = Object.keys(harnessChaosServices);
+  const allNMs = Object.keys(harnessChaosNM).map(key => {
+    return {
+      label: key,
+      value: harnessChaosNM[key],
+    };
+  });
+
+  const [selectedNM, setSelectedNM] = useState<string>(allNMs[0].value);
 
   const commonPropsForLinks = omit(props, 'env');
 
@@ -135,84 +130,69 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
       page,
       limit: pageSize,
       backendBaseUrl,
-      infrastructures,
+      filter: {
+        tags: [selectedNM],
+      },
     });
 
   if (error) {
     return <ErrorPanel error={error} />;
   }
 
-  const infrastructureSelector = (
-    <FormControl sx={{ m: 1, minWidth: 350 }}>
-      <InputLabel size="small">Filter Infrastructures</InputLabel>
-      <Select
-        size="small"
-        multiple
-        value={infrastructures}
-        onChange={e => setInfrastructures(e.target.value as string[])}
-        input={<OutlinedInput label="Filter Infrastructures" />}
-        MenuProps={{
-          PaperProps: {
-            sx: {
-              '& .MuiList-root': {
-                display: 'flex',
-                flexDirection: 'column',
-              },
-            },
-          },
-        }}
-        IconComponent={
-          infrastructures.length > 0
-            ? () => (
-                <IconButton
-                  sx={{ marginRight: '8px !important' }}
-                  size="small"
-                  onClick={() => setInfrastructures([])}
-                >
-                  <ClearIcon color="error" fontSize="small" />
-                </IconButton>
-              )
-            : undefined
-        }
-        renderValue={selected => (
-          <Stack direction="row" flexWrap="wrap">
-            {selected.map(value => (
-              <Chip
-                key={value}
-                size="small"
-                className={classes.chip}
-                label={
-                  allInfrastructures.find(infra => infra.value === value)?.label
-                }
-                onDelete={() =>
-                  setInfrastructures(
-                    infrastructures.filter(item => item !== value),
-                  )
-                }
-                deleteIcon={
-                  <CancelIcon onMouseDown={event => event.stopPropagation()} />
-                }
-              />
-            ))}
-          </Stack>
-        )}
-      >
-        {allInfrastructures.map(infra => (
-          <MenuItem
-            className={classes.menuItem}
-            key={infra.label}
-            value={infra.value}
-          >
-            <Typography className={classes.infraDropDownLabel}>
-              {infra.label}
-            </Typography>
-            {infrastructures.includes(infra.value) ? (
-              <CheckIcon color="info" fontSize="small" />
-            ) : null}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const ServiceDropDown =
+    allServices && allServices?.length > 1 ? (
+      <FormControl fullWidth>
+        <InputLabel
+          htmlFor="Service"
+          classes={{
+            root: classes.label,
+          }}
+        >
+          Service
+        </InputLabel>
+        <Select labelId="Service" id="Service" value={allServices[0]}>
+          {allServices.map(serv => (
+            <MenuItem value={serv}>{serv}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
+    ) : null;
+
+  const NMDropDown =
+    allNMs && allNMs?.length > 1 ? (
+      <FormControl fullWidth>
+        <InputLabel
+          htmlFor="Network Map"
+          classes={{
+            root: classes.label,
+          }}
+        >
+          Network Map
+        </InputLabel>
+        <Select
+          labelId="Network Map"
+          id="Network Map"
+          value={selectedNM}
+          onChange={e => setSelectedNM(e.target.value)}
+        >
+          {allNMs.map(nm => (
+            <MenuItem value={nm.value}>{nm.label}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText />
+      </FormControl>
+    ) : null;
+
+  const DropDownComponent = (
+    <Grid container spacing={3}>
+      <Grid item md={3}>
+        {NMDropDown}
+      </Grid>
+      <Grid item md={3}>
+        {ServiceDropDown}
+      </Grid>
+    </Grid>
   );
 
   const data = experiments?.map(experiment => {
@@ -295,7 +275,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 variant="body2"
                 color="white"
               >
-                {experiment.updatedBy?.username}
+                {experiment.updatedBy?.username || 'Chaos Controller'}
               </Typography>
             </React.Fragment>
           }
@@ -339,7 +319,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
 
   return (
     <>
-      {infrastructureSelector}
+      {DropDownComponent}
       <div className={classes.gridItemCard}>
         <Table
           isLoading={loading}

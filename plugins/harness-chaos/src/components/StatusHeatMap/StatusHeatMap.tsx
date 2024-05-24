@@ -431,7 +431,8 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
                             variant="body2"
                             color="white"
                           >
-                            {execution.createdBy?.username}
+                            {execution.createdBy?.username ||
+                              'Chaos Controller'}
                           </Typography>
                         </React.Fragment>
                       }

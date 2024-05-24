@@ -5,7 +5,8 @@ export function orderExecutions(
   data: RecentWorkflowRun[],
 ): RecentWorkflowRun[] {
   let recentExecutions: RecentWorkflowRun[] = cloneDeep(data);
-  if (recentExecutions.length < 10) {
+  if (!recentExecutions?.length) recentExecutions = [];
+  if (recentExecutions?.length < 10) {
     const fillExecutions = Array(10 - recentExecutions.length).fill({
       phase: ExperimentRunStatus.NA,
     });
