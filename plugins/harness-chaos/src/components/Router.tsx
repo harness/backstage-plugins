@@ -10,7 +10,7 @@ import { isV1Compatible, isV2Compatible } from '../utils/getCompatibleVersion';
 
 /** @public */
 export const isHarnessChaosAvailable = (entity: Entity | undefined) => {
-  if (!entity) return true;
+  if (!entity) return false;
   return isV1Compatible(entity) || isV2Compatible(entity);
 };
 /** @public */
