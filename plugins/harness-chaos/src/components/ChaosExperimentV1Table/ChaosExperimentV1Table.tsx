@@ -297,7 +297,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 variant="body2"
                 color="white"
               >
-                {experiment.updatedBy?.username}
+                {experiment.updatedBy?.username || 'Chaos Controller'}
               </Typography>
             </React.Fragment>
           }

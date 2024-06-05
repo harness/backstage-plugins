@@ -201,7 +201,7 @@ const chaosContent = (
 
     <EntitySwitch.Case>
       <EmptyState
-        title="No Chaos available for this entity"
+        title="No Chaos data available for this entity"
         missing="info"
         description="You need to add an annotation to your component if you want to enable Chaos for it. You can read more about annotations in Backstage by clicking the button below."
         action={
@@ -350,6 +350,7 @@ const componentPage = (
     <EntitySwitch.Case if={isComponentType('website')}>
       {websiteEntityPage}
     </EntitySwitch.Case>
+
     <EntitySwitch.Case>{defaultEntityPage}</EntitySwitch.Case>
   </EntitySwitch>
 );
