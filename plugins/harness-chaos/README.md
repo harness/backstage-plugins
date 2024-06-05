@@ -110,7 +110,9 @@ metadata:
 
     # optional annotations
     harness.io/network-map-tags: |
-      <nm-name>: <nm-label>
+      <nm-name_1>: <nm-label_1>
+      <nm-name_2>: <nm-label_2>
+
 spec:
   type: service
   # ...
