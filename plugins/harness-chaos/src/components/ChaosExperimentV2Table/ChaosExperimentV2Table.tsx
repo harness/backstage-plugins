@@ -86,7 +86,7 @@ export const useStyles = makeStyles({
 
 const columns: TableColumn[] = [
   { field: 'name', title: 'name', width: '20%' },
-  { field: 'infra', title: 'infra', width: '20%' },
+  { field: 'infra', title: 'network map', width: '20%' },
   { field: 'runs', title: 'recent experiment runs', width: '26%' },
   { field: 'updatedBy', title: 'last updated by', width: '22%' },
   { field: 'execute', title: '', width: '6%' },
@@ -205,55 +205,41 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
     return {
       name: <div>{experiment.name}</div>,
       infra: (
-        <ListItemText
-          primary={
-            <Link
-              to={
-                infrastructure?.infraType !== InfrastructureType.KUBERNETESV2
-                  ? getInfrastructureLink(
-                      commonPropsForLinks,
-                      infrastructure?.infraID,
-                      infrastructure?.environmentID,
-                      infrastructure?.infraType,
-                    )
-                  : '#'
-              }
-              target="_blank"
-              style={{
-                pointerEvents: infrastructure?.infraID ? 'auto' : 'none',
-              }}
-              underline="none"
-              color="inherit"
+        <Link
+          to={
+            infrastructure?.infraType !== InfrastructureType.KUBERNETESV2
+              ? getInfrastructureLink(
+                  commonPropsForLinks,
+                  infrastructure?.infraID,
+                  infrastructure?.environmentID,
+                  infrastructure?.infraType,
+                )
+              : '#'
+          }
+          target="_blank"
+          style={{
+            pointerEvents: infrastructure?.infraID ? 'auto' : 'none',
+          }}
+          underline="none"
+          color="inherit"
+        >
+          <div className={classes.infraIconBox}>
+            <CircleIcon
+              fontSize="inherit"
+              color={getInfraIconColor(infrastructure?.isActive)}
+            />
+            <Typography
+              sx={{ display: 'inline' }}
+              component="span"
+              paddingLeft="4px"
+              variant="body2"
+              color="white"
+              display="inline"
             >
-              <Typography
-                sx={{ display: 'inline' }}
-                component="span"
-                variant="body2"
-                color="white"
-                display="inline"
-              >
-                {infrastructure?.name || 'N/A'}
-              </Typography>
-            </Link>
-          }
-          secondary={
-            <div className={classes.infraIconBox}>
-              <CircleIcon
-                fontSize="inherit"
-                color={getInfraIconColor(infrastructure?.isActive)}
-              />
-              <Typography
-                sx={{ display: 'inline', paddingLeft: '4px' }}
-                component="span"
-                variant="caption"
-                fontSize="0.3rem"
-                color="white"
-              >
-                {infrastructure?.infraType}
-              </Typography>
-            </div>
-          }
-        />
+              {infrastructure?.name || 'N/A'}
+            </Typography>
+          </div>
+        </Link>
       ),
       runs: (
         <StatusHeatMap
