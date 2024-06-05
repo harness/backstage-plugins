@@ -66,3 +66,9 @@ Please report sensitive security issues via [harness.io/security](https://harnes
 ### License
 
 Apache License 2.0. See [COPYING](LICENSE.md) for more information.
+
+### Issues
+ If you encounter an issue with [node gyp](https://www.npmjs.com/package/node-gyp), the following command on mac resolved it for me
+ ```
+    brew install python-setuptools
+```
