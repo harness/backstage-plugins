@@ -4,7 +4,8 @@
     "packages/*/src",
     "plugins/*/src",
     "plugins/*/dev",
-    "plugins/*/migrations"
+    "plugins/*/migrations",
+    "plugins/harness-iacm/types.ts"
   ],
   "exclude": ["node_modules"],
   "compilerOptions": {
