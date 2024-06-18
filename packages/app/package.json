@@ -42,6 +42,7 @@
     "@harnessio/backstage-plugin-ci-cd": "^0.8.0",
     "@harnessio/backstage-plugin-feature-flags": "^0.2.0",
     "@harnessio/backstage-plugin-harness-srm": "^0.2.0",
+    "@harnessio/backstage-plugin-harness-chaos": "^0.1.0",
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "history": "^5.0.0",
@@ -54,10 +55,10 @@
   "devDependencies": {
     "@backstage/test-utils": "^1.4.6",
     "@playwright/test": "^1.32.3",
+    "@testing-library/dom": "^8.0.0",
     "@testing-library/jest-dom": "^5.10.1",
     "@testing-library/react": "^12.1.3",
     "@testing-library/user-event": "^14.0.0",
-    "@testing-library/dom": "^8.0.0",
     "@types/react-dom": "*",
     "cross-env": "^7.0.0"
   },
