@@ -24,7 +24,7 @@ import { MissingAnnotationEmptyState } from '@backstage/core-components';
 
 /** @public */
 export const isHarnessIacmAvailable = (entity: Entity) =>
-  Boolean(entity.metadata.annotations?.['harness.io/project-url']);
+  Boolean(entity.metadata.annotations?.['harness.io/workspace-url']);
 
 /** @public */
 
@@ -33,7 +33,7 @@ export const Router = () => {
   if (!isHarnessIacmAvailable(entity)) {
     return (
       <>
-        <MissingAnnotationEmptyState annotation="harness.io/project-url" />
+        <MissingAnnotationEmptyState annotation="harness.io/workspace-url" />
       </>
     );
   }

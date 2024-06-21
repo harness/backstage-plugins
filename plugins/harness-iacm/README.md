@@ -53,11 +53,11 @@ Notes:
 // In packages/app/src/components/catalog/EntityPage.tsx
 
 import {
-  isHarnessCiCdAvailable,
-  EntityHarnessCiCdContent,
+  isHarnessIacmAvailable,
+  EntityIacmContent,
 } from '@harnessio/backstage-plugin-iacm';
 
-const cicdContent = (
+const iacmContent = (
   // ...
   <EntitySwitch.Case if={isHarnessIacmAvailable}>
     <EntityHarnessIacmContent />
@@ -75,18 +75,19 @@ Note: If you have separate providers for CI and CD apart from Harness, you need 
 // In packages/app/src/components/catalog/EntityPage.tsx
 
 import {
-  isHarnessCiCdAvailable,
-  EntityHarnessCiCdContent,
-} from '@harnessio/backstage-plugin-ci-cd';
+  isHarnessIacmAvailable,
+  EntityIacmContent,
+} from '@harnessio/backstage-plugin-iacm';
+
 
 const serviceEntityPage = (
   // ...
   <EntityLayout.Route
-    path="/harness-ci-cd"
-    title="Harness CI/CD"
-    if={isHarnessCiCdAvailable}
+    path="/harness-iacm"
+    title="Harness IACM"
+    if={isHarnessIacmAvailable}
   >
-    <EntityHarnessCiCdContent />
+    <EntityIacmContent />
   </EntityLayout.Route>
   // ...
 );

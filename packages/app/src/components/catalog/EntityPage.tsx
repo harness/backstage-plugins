@@ -78,6 +78,7 @@ import {
 } from '@harnessio/backstage-plugin-harness-chaos';
 
 import { EntityIacmContent } from '@internal/backstage-plugin-harness-iacm';
+import { isHarnessIacmAvailable } from '@internal/backstage-plugin-harness-iacm/src/components/Router';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -221,7 +222,7 @@ const chaosContent = (
 );
 const iacmContent = (
   <EntitySwitch>
-    <EntitySwitch.Case if={isHarnessFeatureFlagAvailable}>
+    <EntitySwitch.Case if={isHarnessIacmAvailable}>
       <EntityIacmContent />
     </EntitySwitch.Case>
   </EntitySwitch>
@@ -306,7 +307,7 @@ const websiteEntityPage = (
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
     </EntityLayout.Route>
-    <EntityLayout.Route path="/ harness-iacm" title="IACM">
+    <EntityLayout.Route path="/harness-iacm" title="IACM">
       <EntityHarnessFeatureFlagContent />
     </EntityLayout.Route>
 

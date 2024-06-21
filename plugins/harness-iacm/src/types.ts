@@ -7,6 +7,7 @@ export enum AsyncStatus {
 }
 
 export interface TableData {
+  id: string;
   name: string;
   provider: string;
   module: string;

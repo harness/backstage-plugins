@@ -55,6 +55,7 @@ const ResourceTable: React.FC<any> = ({
               justifyContent: 'center',
               alignItems: 'center',
             }}
+            key={row.id}
           >
             <b>{row.provider}</b>
           </Link>
@@ -141,6 +142,7 @@ const ResourceTable: React.FC<any> = ({
         pageSize: pageSize,
         pageSizeOptions: [5, 10, 25],
       }}
+      key={'id'}
       data={currTableData ?? []}
       columns={columns}
       actions={[

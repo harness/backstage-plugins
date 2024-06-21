@@ -4,12 +4,6 @@ metadata:
   name: demo-service-with-module
   description: pipeline build and deploy
   annotations:
-    harness.io/pipelines: |
-      labelA: pipeline url |
-      labelB: workspace url
-    harness.io/project-url: |
-      labelA: pipeline url |
-      labelB: workspace url
     harness.io/workspace-url: |
       workspaceA: https://url-details/workspaces/beta1/resources |
       workspaceB: https://url-details/workspaces/beta1/resources
