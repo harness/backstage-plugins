@@ -66,19 +66,6 @@ function WorkspaceList() {
   const { isWorkspaceAnnotationPresent, harnessWorkspaceUrlObject } =
     useProjectUrlSlugEntity();
 
-  const allEnvsAnnotations = [
-    ['prod', 'harness.io/project-url'],
-    ['qa', 'harness.io/project-url-qa'],
-  ];
-
-  const { entity } = useEntity();
-
-  const envIds: string[] = [];
-  allEnvsAnnotations.forEach(envAnnotation => {
-    if (Boolean(entity.metadata.annotations?.[envAnnotation[1]])) {
-      envIds.push(envAnnotation[0]);
-    }
-  });
   const [selectedProjectUrl, setSelectedProjectUrl] = useState(() => {
     return Object.keys(harnessWorkspaceUrlObject)[0];
   });
@@ -86,7 +73,6 @@ function WorkspaceList() {
   const [selectedResourceUrl, setSelectedResourceUrl] = useState(() => {
     return harnessWorkspaceUrlObject[Object.keys(harnessWorkspaceUrlObject)[0]];
   });
-
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
 
@@ -150,7 +136,7 @@ function WorkspaceList() {
           <ListSubheader>Workspaces</ListSubheader>
         ) : null}
         {Object.keys(harnessWorkspaceUrlObject).map(workspace => (
-          <MenuItem value={workspace}>
+          <MenuItem value={workspace} key={workspace}>
             <span className={classes.menuItem}>{workspace}</span>
           </MenuItem>
         ))}

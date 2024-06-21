@@ -16,16 +16,9 @@ function convertStringToObject(inputString: string | undefined) {
 
 const useProjectUrlSlugEntity = () => {
   const { entity } = useEntity();
-  const isNewAnnotationPresent = Boolean(
-    entity.metadata.annotations?.['harness.io/project-url'],
-  );
 
   const isWorkspaceAnnotationPresent = Boolean(
     entity.metadata.annotations?.['harness.io/workspace-url'],
-  );
-
-  const harnessProjectUrlObject = convertStringToObject(
-    entity.metadata.annotations?.['harness.io/project-url'],
   );
 
   const harnessWorkspaceUrlObject = convertStringToObject(
@@ -33,9 +26,8 @@ const useProjectUrlSlugEntity = () => {
   );
 
   return {
-    isNewAnnotationPresent,
     isWorkspaceAnnotationPresent,
-    harnessProjectUrlObject,
+
     harnessWorkspaceUrlObject,
   };
 };

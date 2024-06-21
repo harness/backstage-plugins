@@ -14,6 +14,7 @@ interface useGetFeatureEnvArgs {
 }
 
 export interface Resource {
+  id: string;
   provider: string;
   type: string;
   name: string;
@@ -59,11 +60,20 @@ const useGetResources = ({
         headers,
       },
     );
-
     if (resp.status === 200) {
       const data = await resp.json();
 
-      setResources(data);
+      const dataWithId = {
+        ...data,
+        resources: (data.resources as Resource[]).map(
+          (resource: Resource, index) => ({
+            ...resource,
+            id: new Date().getTime().toString() + index.toString(),
+          }),
+        ),
+      };
+
+      setResources(dataWithId);
       setStatus(AsyncStatus.Success);
     } else if (resp.status === 401) {
       setStatus(AsyncStatus.Unauthorized);
