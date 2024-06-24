@@ -300,7 +300,7 @@ function ExecutionList() {
   );
 
   const DropDownComponent = (
-    <Grid container spacing={3} marginBottom={4}>
+    <Grid container spacing={3} marginBottom={4} marginTop={0} marginLeft={0}>
       {envIds.length > 1 && !isNewAnnotationPresent ? (
         <Grid item md={3}>
           {EnvDropDown}
