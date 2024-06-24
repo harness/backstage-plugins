@@ -142,7 +142,7 @@ const ResourceTable: React.FC<any> = ({
         pageSize: pageSize,
         pageSizeOptions: [5, 10, 25],
       }}
-      key={'id'}
+      key="id'"
       data={currTableData ?? []}
       columns={columns}
       actions={[
