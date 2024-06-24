@@ -45,7 +45,6 @@
     "@types/react-dom": "^17",
     "swagger-ui-react": "5.10.5",
     "@azure/storage-blob": "12.17.0"
-    
   },
   "prettier": "@spotify/prettier-config",
   "lint-staged": {

@@ -16,7 +16,6 @@ import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { AsyncStatus } from '../../types';
 import useGetResources from '../../hooks/useGetResources';
 import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
-import { useEntity } from '@backstage/plugin-catalog-react';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
 import ResourceTable from '../ResourceTable';
 
