@@ -77,8 +77,10 @@ import {
   isHarnessChaosAvailable,
 } from '@harnessio/backstage-plugin-harness-chaos';
 
-import { EntityIacmContent } from '@internal/backstage-plugin-harness-iacm';
-import { isHarnessIacmAvailable } from '@internal/backstage-plugin-harness-iacm/src/components/Router';
+import {
+  EntityIacmContent,
+  isHarnessIacmAvailable,
+} from '@harnessio/backstage-plugin-harness-iacm';
 
 const techdocsContent = (
   <EntityTechdocsContent>
