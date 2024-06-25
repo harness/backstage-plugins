@@ -77,6 +77,11 @@ import {
   isHarnessChaosAvailable,
 } from '@harnessio/backstage-plugin-harness-chaos';
 
+import {
+  EntityIacmContent,
+  isHarnessIacmAvailable,
+} from '@harnessio/backstage-plugin-harness-iacm';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -217,7 +222,13 @@ const chaosContent = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
-
+const iacmContent = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={isHarnessIacmAvailable}>
+      <EntityIacmContent />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
 const overviewContent = (
   <Grid container spacing={3} alignItems="stretch">
     {entityWarningContent}
@@ -246,7 +257,9 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
     </EntityLayout.Route>
-
+    <EntityLayout.Route path="/harness-iacm" title="Resources">
+      {iacmContent}
+    </EntityLayout.Route>
     <EntityLayout.Route path="/srm" title="Service Reliability">
       {srmContent}
     </EntityLayout.Route>
@@ -295,6 +308,9 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/harness-iacm" title="IACM">
+      <EntityHarnessFeatureFlagContent />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">

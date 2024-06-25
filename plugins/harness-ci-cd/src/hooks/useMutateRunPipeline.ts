@@ -12,6 +12,7 @@ const useMutateRunPipeline = ({
 }: useMutateRunPipelineProps) => {
   const runPipeline = async (row: TableData, query1: string) => {
     const token = getSecureHarnessKey('token');
+
     const value = token ? `${token}` : '';
 
     const headers = new Headers({

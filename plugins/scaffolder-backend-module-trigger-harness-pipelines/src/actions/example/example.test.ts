@@ -41,6 +41,8 @@ describe('acme:example', () => {
         // Usage of mock-fs is recommended for testing of filesystem operations
         throw new Error('Not implemented');
       },
+      checkpoint: jest.fn(),
+      getInitiatorCredentials: jest.fn(),
     });
 
     expect(logger.info).toHaveBeenCalledWith(
