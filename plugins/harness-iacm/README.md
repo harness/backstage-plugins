@@ -47,7 +47,7 @@ Notes:
 
 - Set the value of target to your on-prem URL if you are using the Harness on-prem offering
 
-3. Inside your Backstage's `EntityPage.tsx`, update the `cicdContent` component to render `<EntityHarnessCiCdContent />` whenever the service is using Harness CI/CD. Something like this -
+3. Inside your Backstage's `EntityPage.tsx`, import the `EntityIacmContent` and `isHarnessIacmAvailable`  from `@harnessio/backstage-plugin-iacm` and add `<EntityHarnessIacmContent />`. Something like this -
 
 ```tsx
 // In packages/app/src/components/catalog/EntityPage.tsx
@@ -66,10 +66,9 @@ const iacmContent = (
 );
 ```
 
-Note: If you have separate providers for CI and CD apart from Harness, you need to add a new tab for Harness CI/CD plugin like below instead of replacing your existing CI/CD tab mentioned above.
 
 <details>
-  <summary>Instructions in case of separate CI and CD provider (Click to expand)</summary>
+  <summary>Instructions in case of multiple IACM based plugins (Click to expand)</summary>
 
 ```tsx
 // In packages/app/src/components/catalog/EntityPage.tsx
@@ -106,8 +105,8 @@ metadata:
   annotations:
     # annotation
     harness.io/workspace-url: |
-      labelA: <harness_pipeline_url>
-      labelB: <harness_pipeline_url>
+      labelA: <harness_iacm_workspace_url>
+      labelB: <harness_iacm_workspace_url>
   # here labelA / labelB denotes the value you will see in dropdown in workspace list. 
 
 ```
