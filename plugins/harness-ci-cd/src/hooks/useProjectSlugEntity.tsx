@@ -17,6 +17,7 @@ export const useProjectSlugFromEntity = (
 
   if (isNewAnnotationPresent) {
     const containsModule = selectedPipelineUrl.includes('/module/');
+    const containsAll = selectedPipelineUrl.includes('/all/');
 
     let pipelineUrlMatch;
     let serviceUrlMatch;
@@ -31,6 +32,20 @@ export const useProjectSlugFromEntity = (
 
       serviceUrlMatch = match(
         '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
+        {
+          decode: decodeURIComponent,
+        },
+      );
+    } else if (containsAll) {
+      pipelineUrlMatch = match(
+        '(.*)/account/:accountId/all/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
+        {
+          decode: decodeURIComponent,
+        },
+      );
+
+      serviceUrlMatch = match(
+        '(.*)/account/:accountId/all/orgs/:orgId/projects/:projectId/services/:serviceId',
         {
           decode: decodeURIComponent,
         },
