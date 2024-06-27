@@ -69,8 +69,8 @@ export const useProjectSlugFromEntity = (
     const hostname = new URL(selectedPipelineUrl).hostname;
     const baseUrl1 = new URL(selectedPipelineUrl).origin;
 
-    const envAB = hostname.split('.')[0];
-    const envFromUrl = envAB === 'app' ? 'prod' : envAB;
+    const envAB = hostname.split('.harness.io')[0];
+    const envFromUrl = envAB.includes('qa') ? 'qa' : 'prod';
 
     const urlParams: any = pipelineUrlMatch(selectedPipelineUrl);
     if (urlParams) {
