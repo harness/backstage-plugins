@@ -17,8 +17,8 @@ export const useProjectSlugFromEntity = (
 
   if (isNewAnnotationPresent && selectedProjectUrl) {
     const hostname = new URL(selectedProjectUrl).hostname;
-    const envAB = hostname.split('.')[0];
-    const envFromUrl = envAB === 'app' ? 'prod' : envAB;
+    const envAB = hostname.split('.harness.io')[0];
+    const envFromUrl = envAB.includes('qa') ? 'qa' : 'prod';
 
     const urlParams: any = urlMatch(selectedProjectUrl ?? '');
 
