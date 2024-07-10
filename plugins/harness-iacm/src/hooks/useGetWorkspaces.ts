@@ -38,9 +38,10 @@ const useGetWorkspaces = ({
     const headers = new Headers({
       'content-type': 'application/json',
       Authorization: token ? `${token}` : '',
+      'Harness-Account': accountId, 
     });
     const resp = await fetch(
-      `${await backendBaseUrl}/harness/${envFromUrl}/gateway/iacm/api/orgs/${orgId}/projects/${projectId}/workspaces?sort=name%2CASC&searchTerm=&page=1&limit=10`,
+      `${await backendBaseUrl}/harness/${envFromUrl}/gateway/iacm/api/orgs/${orgId}/projects/${projectId}/workspaces?sort=name%2CASC&searchTerm=&page=1&limit=10&accountId=${accountId}`,
       {
         headers,
       },
