@@ -50,6 +50,7 @@ const useGetResources = ({
     const headers = new Headers({
       'content-type': 'application/json',
       Authorization: token ? `${token}` : '',
+      'Harness-Account': accountId,
     });
     if (!workspace) {
       return;
