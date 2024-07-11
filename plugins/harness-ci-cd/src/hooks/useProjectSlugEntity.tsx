@@ -86,15 +86,21 @@ export const useProjectSlugFromEntity = (
     }
 
     const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl);
+    if (serviceUrlParams) {
+      return {
+        orgId: serviceUrlParams.params.orgId,
+        accountId: serviceUrlParams.params.accountId,
+        serviceId: serviceUrlParams.params.serviceId,
+        urlParams: serviceUrlParams,
+        baseUrl1: baseUrl1,
+        projectIds: serviceUrlParams.params.projectId as string,
+        envFromUrl: envFromUrl,
+      };
+    }
 
+    // Handle the case where neither URL pattern matches
     return {
-      orgId: serviceUrlParams.params.orgId,
-      accountId: serviceUrlParams.params.accountId,
-      serviceId: serviceUrlParams.params.serviceId,
-      urlParams: serviceUrlParams,
-      baseUrl1: baseUrl1,
-      projectIds: serviceUrlParams.params.projectId as string,
-      envFromUrl: envFromUrl,
+      error: 'Invalid URL format',
     };
   }
 
