@@ -42,15 +42,6 @@ const useGetExecutionsList = ({
       page: `${page}`,
     });
 
-    if (pipelineId && pipelineId.trim()) {
-      pipelineId.split(',').forEach((item: string) => {
-        const trimmedString = item.trim();
-        if (trimmedString) {
-          query.append('pipelineIdentifier', trimmedString);
-        }
-      });
-    }
-
     const token = getSecureHarnessKey('token');
     const value = token ? `${token}` : '';
 
@@ -72,10 +63,24 @@ const useGetExecutionsList = ({
       });
     }
 
+    const identifiers: string[] = [];
+    if (pipelineId && pipelineId.trim()) {
+      pipelineId.split(',').forEach(item => {
+        const trimmedString = item.trim();
+        if (trimmedString) {
+          identifiers.push(trimmedString);
+        }
+      });
+      body = JSON.stringify({
+        filterType: 'PipelineExecution',
+        pipelineIdentifiers: identifiers,
+      });
+    }
+
     setStatus(AsyncStatus.Loading);
 
     const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/v2/summary?${query}`,
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/summary?${query}`,
       {
         headers,
         method: 'POST',
