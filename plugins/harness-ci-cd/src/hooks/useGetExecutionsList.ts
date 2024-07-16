@@ -49,7 +49,9 @@ const useGetExecutionsList = ({
       'content-type': 'application/json',
       Authorization: value,
     });
+
     let body;
+    const identifiers: string[] = [];
     if (serviceId) {
       body = JSON.stringify({
         filterType: 'PipelineExecution',
@@ -61,10 +63,7 @@ const useGetExecutionsList = ({
           },
         },
       });
-    }
-
-    const identifiers: string[] = [];
-    if (pipelineId && pipelineId.trim()) {
+    } else if (pipelineId && pipelineId.trim()) {
       pipelineId.split(',').forEach(item => {
         const trimmedString = item.trim();
         if (trimmedString) {
