@@ -108,10 +108,6 @@ function ExecutionList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [env]);
 
-  const [cicd, setCicd] = useState<string>('CI');
-  const [pipelineIdValue, setPipelineIdValue] = useState<string>(pipelineId);
-  const [serviceIdValue, setServiceIdValue] = useState<string>('');
-
   const {
     status: state,
     currTableData,
@@ -123,8 +119,8 @@ function ExecutionList() {
     currProject: projectToUse,
     pageSize,
     page,
-    pipelineId: pipelineIdValue,
-    serviceId: serviceIdValue,
+    pipelineId,
+    serviceId,
     env: envToUse,
     backendBaseUrl,
     refresh,
@@ -303,42 +299,6 @@ function ExecutionList() {
     </FormControl>
   );
 
-  const changeFunction = (event: SelectChangeEvent<string>) => {
-    const newValue = event.target.value as string;
-    setCicd(newValue);
-    if (newValue === 'CI') {
-      setServiceIdValue('');
-      setPipelineIdValue(pipelineId);
-    } else if (newValue === 'CD') {
-      setPipelineIdValue('');
-      setServiceIdValue(serviceId);
-    }
-  };
-
-  const OldUrlDropDown = (
-    <FormControl fullWidth>
-      <InputLabel
-        htmlFor="CI/CD"
-        classes={{
-          root: classes.label,
-        }}
-      >
-        CI / CD
-      </InputLabel>
-      <Select
-        displayEmpty
-        labelId="CI/CD"
-        id="CI/CD"
-        value={cicd}
-        onChange={changeFunction}
-      >
-        <MenuItem value="CI">CI</MenuItem>
-        <MenuItem value="CD">CD</MenuItem>
-      </Select>
-      <FormHelperText />
-    </FormControl>
-  );
-
   const DropDownComponent = (
     <Grid container spacing={3} marginBottom={4} marginTop={0} marginLeft={0}>
       {envIds.length > 1 && !isNewAnnotationPresent ? (
@@ -354,11 +314,6 @@ function ExecutionList() {
       {isNewAnnotationPresent ? (
         <Grid item md={3}>
           {NewUrlDropDown}
-        </Grid>
-      ) : null}
-      {!isNewAnnotationPresent ? (
-        <Grid item md={3}>
-          {OldUrlDropDown}
         </Grid>
       ) : null}
     </Grid>
