@@ -1,5 +1,6 @@
 import { getSecureHarnessKey } from '../util/getHarnessToken';
 import { TableData } from '../components/types';
+import {  identityApiRef, useApi } from '@backstage/core-plugin-api';
 
 interface useMutateRunPipelineProps {
   backendBaseUrl: Promise<string>;
@@ -10,11 +11,11 @@ const useMutateRunPipeline = ({
   backendBaseUrl,
   env,
 }: useMutateRunPipelineProps) => {
+  const identityApi = useApi(identityApiRef);
   const runPipeline = async (row: TableData, query1: string) => {
-    const token = getSecureHarnessKey('token');
-
+    const { token: apiToken } = await identityApi.getCredentials();
+    const token = apiToken || getSecureHarnessKey('token');
     const value = token ? `${token}` : '';
-
     const headers = new Headers({
       Authorization: value,
     });
