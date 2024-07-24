@@ -17,7 +17,7 @@ const useGetLicenseWithAuth = ({
   const identityApi = useApi(identityApiRef);
   useAsyncRetry(async () => {
     const { token: apiToken } = await identityApi.getCredentials();
-    const token = apiToken || getSecureHarnessKey('token');
+    const token = getSecureHarnessKey('token') || apiToken;
     const value = token ? `${token}` : '';
 
     const headers = new Headers({

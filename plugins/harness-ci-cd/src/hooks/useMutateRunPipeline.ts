@@ -14,7 +14,7 @@ const useMutateRunPipeline = ({
   const identityApi = useApi(identityApiRef);
   const runPipeline = async (row: TableData, query1: string) => {
     const { token: apiToken } = await identityApi.getCredentials();
-    const token = apiToken || getSecureHarnessKey('token');
+    const token = getSecureHarnessKey('token') || apiToken;
     const value = token ? `${token}` : '';
     const headers = new Headers({
       Authorization: value,
