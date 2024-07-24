@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getSecureHarnessKey } from '../util/getHarnessToken';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
-import {  identityApiRef, useApi } from '@backstage/core-plugin-api';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 
 interface useGetLicenseWithAuthProps {
   env: string;

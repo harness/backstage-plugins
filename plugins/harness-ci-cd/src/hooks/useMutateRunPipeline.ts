@@ -1,6 +1,6 @@
 import { getSecureHarnessKey } from '../util/getHarnessToken';
 import { TableData } from '../components/types';
-import {  identityApiRef, useApi } from '@backstage/core-plugin-api';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 
 interface useMutateRunPipelineProps {
   backendBaseUrl: Promise<string>;
