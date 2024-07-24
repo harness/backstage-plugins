@@ -44,7 +44,6 @@ const useGetExecutionsList = ({
       page: `${page}`,
     });
 
-
     if (pipelineId && pipelineId.trim()) {
       pipelineId.split(',').forEach((item: string) => {
         const trimmedString = item.trim();
