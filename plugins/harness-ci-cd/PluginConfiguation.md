@@ -13,4 +13,3 @@
 ![Harness Service](./src/assets/harness-service.png)
 
 ![Harness Service URL](./src/assets/harness-service-url.png)
-

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
 import { AsyncStatus } from '../components/types';
 import { getSecureHarnessKey } from '../util/getHarnessToken';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 
 interface useGetExecutionsListProps {
   accountId: string;
@@ -31,6 +32,7 @@ const useGetExecutionsList = ({
   const [currTableData, setCurrTableData] = useState<any[]>([]);
   const [totalElements, setTotalElements] = useState(50);
   const [flag, setFlag] = useState(false);
+  const identityApi = useApi(identityApiRef);
 
   useAsyncRetry(async () => {
     const query = new URLSearchParams({
@@ -42,7 +44,8 @@ const useGetExecutionsList = ({
       page: `${page}`,
     });
 
-    const token = getSecureHarnessKey('token');
+    const { token: apiToken } = await identityApi.getCredentials();
+    const token = getSecureHarnessKey('token') || apiToken;
     const value = token ? `${token}` : '';
 
     const headers = new Headers({
