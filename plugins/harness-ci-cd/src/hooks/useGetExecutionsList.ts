@@ -44,14 +44,6 @@ const useGetExecutionsList = ({
       page: `${page}`,
     });
 
-    if (pipelineId && pipelineId.trim()) {
-      pipelineId.split(',').forEach((item: string) => {
-        const trimmedString = item.trim();
-        if (trimmedString) {
-          query.append('pipelineIdentifier', trimmedString);
-        }
-      });
-    }
     const { token: apiToken } = await identityApi.getCredentials();
     const token = getSecureHarnessKey('token') || apiToken;
     const value = token ? `${token}` : '';
