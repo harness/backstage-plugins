@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getSecureHarnessKey } from '../util/getHarnessToken';
 import useAsyncRetry from 'react-use/lib/useAsyncRetry';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 
 interface useGetLicenseWithAuthProps {
   env: string;
@@ -13,9 +14,10 @@ const useGetLicenseWithAuth = ({
   accountId,
 }: useGetLicenseWithAuthProps) => {
   const [licenses, setLicenses] = useState('cd');
-
+  const identityApi = useApi(identityApiRef);
   useAsyncRetry(async () => {
-    const token = getSecureHarnessKey('token');
+    const { token: apiToken } = await identityApi.getCredentials();
+    const token = getSecureHarnessKey('token') || apiToken;
     const value = token ? `${token}` : '';
 
     const headers = new Headers({
