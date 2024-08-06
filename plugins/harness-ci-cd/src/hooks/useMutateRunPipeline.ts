@@ -16,7 +16,7 @@ const useMutateRunPipeline = ({
     const { token: apiToken } = await identityApi.getCredentials();
     const token = getSecureHarnessKey('token') || apiToken;
     const value = token && token === apiToken ? `Bearer ${token}` : token;
-    
+
     const headers = new Headers();
     if (value) {
       headers.append('Authorization', value);
@@ -32,11 +32,11 @@ const useMutateRunPipeline = ({
     );
 
     const data = await response.text();
-    
+
     const postHeaders: Record<string, string> = {
       'content-type': 'application/yaml',
     };
-  
+
     if (value) {
       postHeaders.Authorization = value;
     }

@@ -19,7 +19,7 @@ const useGetLicenseWithAuth = ({
     const { token: apiToken } = await identityApi.getCredentials();
     const token = getSecureHarnessKey('token') || apiToken;
     const value = token && token === apiToken ? `Bearer ${token}` : token;
-    
+
     const headers = new Headers();
     if (value) {
       headers.append('Authorization', value);
