@@ -18,11 +18,12 @@ const useGetLicenseWithAuth = ({
   useAsyncRetry(async () => {
     const { token: apiToken } = await identityApi.getCredentials();
     const token = getSecureHarnessKey('token') || apiToken;
-    const value = token ? `${token}` : '';
-
-    const headers = new Headers({
-      Authorization: value,
-    });
+    const value = token && token === apiToken ? `Bearer ${token}` : token;
+    
+    const headers = new Headers();
+    if (value) {
+      headers.append('Authorization', value);
+    }
 
     const response = await fetch(
       `${await backendBaseUrl}/harness/${env}/gateway/ng/api/licenses/account?routingId=${accountId}&accountIdentifier=${accountId}`,
