@@ -15,10 +15,12 @@ const useMutateRunPipeline = ({
   const runPipeline = async (row: TableData, query1: string) => {
     const { token: apiToken } = await identityApi.getCredentials();
     const token = getSecureHarnessKey('token') || apiToken;
-    const value = token ? `${token}` : '';
-    const headers = new Headers({
-      Authorization: value,
-    });
+    const value = token && token === apiToken ? `Bearer ${token}` : token;
+
+    const headers = new Headers();
+    if (value) {
+      headers.append('Authorization', value);
+    }
 
     const response = await fetch(
       `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/${
@@ -31,15 +33,20 @@ const useMutateRunPipeline = ({
 
     const data = await response.text();
 
+    const postHeaders: Record<string, string> = {
+      'content-type': 'application/yaml',
+    };
+
+    if (value) {
+      postHeaders.Authorization = value;
+    }
+
     return await fetch(
       `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipeline/execute/rerun/${
         row.planExecutionId
       }/${row.pipelineId}?${query1}&moduleType=ci`,
       {
-        headers: {
-          'content-type': 'application/yaml',
-          Authorization: value,
-        },
+        headers: postHeaders,
         body: `${data}`,
         method: 'POST',
       },
