@@ -46,12 +46,12 @@ const useGetExecutionsList = ({
 
     const { token: apiToken } = await identityApi.getCredentials();
     const token = getSecureHarnessKey('token') || apiToken;
-    const value = token ? `${token}` : '';
+    const value = token && token === apiToken ? `Bearer ${token}` : token;
 
-    const headers = new Headers({
-      'content-type': 'application/json',
-      Authorization: value,
-    });
+    const headers = new Headers();
+    if (value) {
+      headers.append('Authorization', value);
+    }
 
     let body;
     const identifiers: string[] = [];
