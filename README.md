@@ -23,6 +23,9 @@ Check out the plugin specific installation instructions.
 | [<img align="center" src="./docs/assets/CI%20logo.png" alt="Harness CI logo" width="20" /> CI](https://harness.io/products/continuous-integration) and [<img align="center" src="./docs/assets/CD%20logo.png" alt="Harness CD logo" width="20" /> CD](https://harness.io/products/continuous-delivery) | View builds and pipeline executions for your services. | 📘 [Installation instructions](./plugins/harness-ci-cd/) |
 | [<img align="center" src="./docs/assets/Feature%20Flags%20logo.png" alt="Feature flags logo" width="20" /> Feature Flags](https://harness.io/products/feature-flags) | View list of Feature Flags | 📘 [Installation instructions](./plugins/harness-feature-flags/) |
 [<img align="center" src="./docs/assets/Chaos%20logo.png" alt="Chaos engineering logo" width="20" /> Chaos Engineering](https://harness.io/products/chaos-engineering) | View list of Chaos Experiments | 📘 [Installation instructions](./plugins/harness-chaos/) |
+[<img align="center" src="./docs/assets/SRM%20logo.png" alt="SRM logo" width="20" /> Service Reliability Management](https://www.harness.io/products/service-reliability-management) | Tracks the defined SLOs and Error Budgets | 📘 [Installation instructions](./plugins/harness-srm/) |
+[<img align="center" src="./docs/assets/iac-logo.png" alt="IACM logo" width="20" /> Infrastructure as Code Management](https://www.harness.io/products/infrastructure-as-code-management) | Overview of all the resources provisioned | 📘 [Installation instructions](./plugins/harness-iacm/) |
+
 
 ## Contributor License Agreement
 
