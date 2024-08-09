@@ -122,7 +122,7 @@ spec:
   # ...
 ```
 
-#### Old Annotation
+#### Old Annotation (NOT SUPPORTED)
 
 Here is an example: https://github.com/harness/backstage-plugins/blob/main/examples/catalog-harness-cicd.yaml
 
@@ -134,10 +134,6 @@ metadata:
   annotations:
     # mandatory annotation
     harness.io/project-url: <harness_project_url>
-
-    # optional annotations
-    # harness.io/ci-pipelineIds: <pipelineId1,pipelineId2,pipelineId3 etc>
-    # harness.io/cd-serviceId: <serviceId>
 spec:
   type: service
   # ...
