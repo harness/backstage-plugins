@@ -85,7 +85,9 @@ export const useProjectSlugFromEntity = (
       };
     }
 
-    const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl.split('?')[0]);
+    const serviceUrlParams: any = serviceUrlMatch(
+      selectedPipelineUrl.split('?')[0],
+    );
     if (serviceUrlParams) {
       return {
         orgId: serviceUrlParams.params.orgId,
