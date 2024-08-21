@@ -5134,6 +5134,27 @@
     protobufjs "^7.2.5"
     yargs "^17.7.2"
 
+"@harnessio/backstage-plugin-ci-cd@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-ci-cd/-/backstage-plugin-ci-cd-0.9.0.tgz#495367f274f43437b7af59385ca6bf52b1ced6df"
+  integrity sha512-xSiTEtTLsR7Ek25515MJZWmN8/T+Rzgfix70zQ9dL9B3KPaSU39qedQJHHPivibPH4K4l29tHHZBQluZqnsKqQ==
+  dependencies:
+    "@backstage/catalog-model" "^1.4.3"
+    "@backstage/core-components" "^0.13.9"
+    "@backstage/core-plugin-api" "^1.8.1"
+    "@backstage/plugin-catalog-react" "^1.9.2"
+    "@backstage/theme" "^0.5.0"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+    "@material-ui/core" "^4.9.13"
+    "@material-ui/icons" "^4.9.1"
+    "@material-ui/lab" "4.0.0-alpha.57"
+    "@mui/material" "^5.10.13"
+    dayjs "^1.11.6"
+    path-to-regexp "^6.2.1"
+    react-use "^17.2.4"
+    sweetalert2 "^11.6.14"
+
 "@harnessio/backstage-plugin-feature-flags@^0.2.0":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-feature-flags/-/backstage-plugin-feature-flags-0.2.1.tgz#bba0387673ff3876a9325d1e912dc6db9479dc0b"
@@ -5149,6 +5170,23 @@
     "@mui/material" "^5.11.10"
     dayjs "^1.11.7"
     path-to-regexp "^6.2.1"
+    react-use "^17.2.4"
+
+"@harnessio/backstage-plugin-harness-iacm@0.1.0-beta":
+  version "0.1.0-beta"
+  resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-harness-iacm/-/backstage-plugin-harness-iacm-0.1.0-beta.tgz#7e988f27745b8f37f81c66df1019cdfcb9c23586"
+  integrity sha512-HemxPWnbkKtUyaleYum2doO3P87Ki/lz0EySB3nNfYQDeGgAIqCcY26vbvzs2RWlyTDDzld6+o2vEVxfLh1eig==
+  dependencies:
+    "@backstage/catalog-model" "^1.5.0"
+    "@backstage/core-components" "^0.14.0"
+    "@backstage/core-plugin-api" "^1.9.0"
+    "@backstage/plugin-catalog-react" "^1.12.0"
+    "@backstage/theme" "^0.5.1"
+    "@material-ui/core" "^4.9.13"
+    "@material-ui/icons" "^4.9.1"
+    "@material-ui/lab" "4.0.0-alpha.61"
+    dayjs "^1.11.11"
+    path-to-regexp "^6.2.2"
     react-use "^17.2.4"
 
 "@harnessio/backstage-plugin-harness-srm@^0.2.0":
@@ -10113,10 +10151,10 @@ apg-lite@^1.0.3:
     "@backstage/plugin-techdocs-react" "^1.1.14"
     "@backstage/plugin-user-settings" "^0.7.14"
     "@backstage/theme" "^0.5.0"
-    "@harnessio/backstage-plugin-ci-cd" "^0.8.0"
+    "@harnessio/backstage-plugin-ci-cd" "^0.9.0"
     "@harnessio/backstage-plugin-feature-flags" "^0.2.0"
     "@harnessio/backstage-plugin-harness-chaos" "^0.1.0"
-    "@harnessio/backstage-plugin-harness-iacm" "^0.1.0"
+    "@harnessio/backstage-plugin-harness-iacm" "0.1.0-beta"
     "@harnessio/backstage-plugin-harness-srm" "^0.2.0"
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
