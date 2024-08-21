@@ -1,152 +1,178 @@
-import { useEntity } from '@backstage/plugin-catalog-react';
-import { match } from 'path-to-regexp';
+import { useState } from 'react';
+import useAsyncRetry from 'react-use/lib/useAsyncRetry';
+import { AsyncStatus } from '../components/types';
+import { getSecureHarnessKey } from '../util/getHarnessToken';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 
-export const useProjectSlugFromEntity = (
-  env: string,
-  isNewAnnotationPresent: boolean,
-  selectedPipelineUrl: string,
-) => {
-  let accountId;
-  let orgId;
-  let projectId;
-  let pipelineid;
-  let serviceid;
-  let url;
-  let projectids: string | undefined;
-  const { entity } = useEntity();
+interface useGetExecutionsListProps {
+  accountId: string;
+  orgId: string;
+  currProject: string | undefined;
+  pageSize: number;
+  page: number;
+  pipelineId: string | undefined;
+  serviceId: string | undefined;
+  env: string;
+  refresh: boolean;
+  backendBaseUrl: Promise<string>;
+}
+const useGetExecutionsList = ({
+  accountId,
+  orgId,
+  currProject,
+  pageSize,
+  page,
+  pipelineId,
+  serviceId,
+  env,
+  backendBaseUrl,
+  refresh,
+}: useGetExecutionsListProps) => {
+  const [status, setStatus] = useState(AsyncStatus.Init);
+  const [currTableData, setCurrTableData] = useState<any[]>([]);
+  const [totalElements, setTotalElements] = useState(50);
+  const [flag, setFlag] = useState(false);
+  const identityApi = useApi(identityApiRef);
 
-  if (isNewAnnotationPresent) {
-    const containsModule = selectedPipelineUrl.includes('/module/');
-    const containsAll = selectedPipelineUrl.includes('/all/');
+  useAsyncRetry(async () => {
+    const query = new URLSearchParams({
+      accountIdentifier: `${accountId}`,
+      routingId: `${accountId}`,
+      orgIdentifier: `${orgId}`,
+      projectIdentifier: `${currProject}`,
+      size: `${pageSize}`,
+      page: `${page}`,
+    });
 
-    let pipelineUrlMatch;
-    let serviceUrlMatch;
+    const { token: apiToken } = await identityApi.getCredentials();
+    const token = getSecureHarnessKey('token') || apiToken;
+    const value = token && token === apiToken ? `Bearer ${token}` : token;
 
-    if (containsModule) {
-      pipelineUrlMatch = match(
-        '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
-        {
-          decode: decodeURIComponent,
-        },
-      );
-
-      serviceUrlMatch = match(
-        '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/services/:serviceId/(.*)',
-        {
-          decode: decodeURIComponent,
-        },
-      );
-    } else if (containsAll) {
-      pipelineUrlMatch = match(
-        '(.*)/account/:accountId/all/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
-        {
-          decode: decodeURIComponent,
-        },
-      );
-
-      serviceUrlMatch = match(
-        '(.*)/account/:accountId/all/orgs/:orgId/projects/:projectId/services/:serviceId?(.*)',
-        {
-          decode: decodeURIComponent,
-        },
-      );
-    } else {
-      pipelineUrlMatch = match(
-        '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/pipelines/:pipelineId/(.*)',
-        {
-          decode: decodeURIComponent,
-        },
-      );
-
-      serviceUrlMatch = match(
-        '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId?(.*)',
-        {
-          decode: decodeURIComponent,
-        },
-      );
+    const headers = new Headers();
+    if (value) {
+      headers.append('Authorization', value);
     }
 
-    const hostname = new URL(selectedPipelineUrl).hostname;
-    const baseUrl1 = new URL(selectedPipelineUrl).origin;
-
-    const envAB = hostname.split('.harness.io')[0];
-    const envFromUrl = envAB.includes('qa') ? 'qa' : 'prod';
-
-    const urlParams: any = pipelineUrlMatch(selectedPipelineUrl);
-    if (urlParams) {
-      return {
-        orgId: urlParams.params.orgId,
-        accountId: urlParams.params.accountId,
-        pipelineId: urlParams.params.pipelineId,
-        urlParams,
-        baseUrl1: baseUrl1,
-        projectIds: urlParams.params.projectId as string,
-        envFromUrl: envFromUrl,
-      };
+    let body;
+    const identifiers: string[] = [];
+    if (serviceId) {
+      body = JSON.stringify({
+        filterType: 'PipelineExecution',
+        moduleProperties: {
+          cd: {
+            serviceIdentifiers: [
+              serviceId?.split(',').map((item: string) => item.trim())[0],
+            ],
+          },
+        },
+      });
+    } else if (pipelineId && pipelineId.trim()) {
+      pipelineId.split(',').forEach(item => {
+        const trimmedString = item.trim();
+        if (trimmedString) {
+          identifiers.push(trimmedString);
+        }
+      });
+      body = JSON.stringify({
+        filterType: 'PipelineExecution',
+        pipelineIdentifiers: identifiers,
+      });
     }
 
-    const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl.split('?')[0]);
-    if (serviceUrlParams) {
-      return {
-        orgId: serviceUrlParams.params.orgId,
-        accountId: serviceUrlParams.params.accountId,
-        serviceId: serviceUrlParams.params.serviceId,
-        urlParams: serviceUrlParams,
-        baseUrl1: baseUrl1,
-        projectIds: serviceUrlParams.params.projectId as string,
-        envFromUrl: envFromUrl,
-      };
-    }
+    setStatus(AsyncStatus.Loading);
 
-    // Handle the case where neither URL pattern matches
-    return {
-      error: 'Invalid URL format',
+    const response = await fetch(
+      `${await backendBaseUrl}/harness/${env}/gateway/pipeline/api/pipelines/execution/summary?${query}`,
+      {
+        headers,
+        method: 'POST',
+        body: body,
+      },
+    );
+
+    const getBuilds = (tableData: any, currentPageSize: number): Array<{}> => {
+      return tableData.map((dataItem: any, index: number) => {
+        let serviceString = '';
+        let envString = '';
+
+        const request =
+          typeof dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.pullRequest ===
+          'undefined'
+            ? 'branch'
+            : 'pullRequest';
+
+        if (dataItem?.modules?.includes('cd')) {
+          const serviceNames = new Set();
+          const envNames = new Set();
+          const mapdata = dataItem?.layoutNodeMap;
+
+          Object.keys(mapdata).forEach(key => {
+            if (mapdata[key].nodeType === 'Deployment') {
+              if (mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name)
+                envNames.add(
+                  mapdata[key]?.moduleInfo?.cd?.infraExecutionSummary?.name,
+                );
+              if (mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName)
+                serviceNames.add(
+                  mapdata[key]?.moduleInfo?.cd?.serviceInfo?.displayName,
+                );
+            }
+          });
+          envString = Array.from(envNames).join(',');
+          serviceString = Array.from(serviceNames).join(',');
+        }
+
+        return {
+          id: `${page * currentPageSize + index + 1}`,
+          name: `${dataItem?.name}`,
+          status: `${dataItem?.status}`,
+          startTime: `${dataItem?.startTs}`,
+          endTime: `${dataItem?.endTs}`,
+          pipelineId: `${dataItem?.pipelineIdentifier}`,
+          planExecutionId: `${dataItem?.planExecutionId}`,
+          runSequence: `${dataItem?.runSequence}`,
+          commitId: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.[request]?.commits?.['0']?.id}`,
+          commitlink: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.[request]?.commits?.['0']?.link}`,
+          branch: `${dataItem?.moduleInfo?.ci?.branch}`,
+          message: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.[request]?.commits?.['0']?.message}`,
+          prmessage: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.pullRequest?.title}`,
+          prlink: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.pullRequest?.link}`,
+          sourcebranch: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.pullRequest?.sourceBranch}`,
+          targetbranch: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.pullRequest?.targetBranch}`,
+          prId: `${dataItem?.moduleInfo?.ci?.ciExecutionInfoDTO?.pullRequest?.id}`,
+          cdenv: `${envString}`,
+          cdser: `${serviceString}`,
+          reponame: `${dataItem?.moduleInfo?.ci?.repoName}`,
+          tag: `${dataItem?.moduleInfo?.ci?.tag}`,
+        };
+      });
     };
-  }
 
-  if (env && env !== 'prod') {
-    pipelineid = `harness.io/ci-pipelineIds-${env}`;
-    serviceid = `harness.io/cd-serviceId-${env}`;
-    url = `harness.io/project-url-${env}`;
-    projectids = `harness.io/projects-${env}`;
-  } else {
-    pipelineid = 'harness.io/ci-pipelineIds';
-    serviceid = 'harness.io/cd-serviceId';
-    url = 'harness.io/project-url';
-    projectids = 'harness.io/projects';
-  }
+    if (response.status === 200) {
+      const data = await response.json();
+      setStatus(AsyncStatus.Success);
+      const responseData = data.data.content;
+      if (data.data.totalElements < 50) {
+        setTotalElements(data.data.totalElements);
+      }
+      setCurrTableData(getBuilds(responseData, pageSize));
+    } else if (response.status === 401) setStatus(AsyncStatus.Unauthorized);
+    else setStatus(AsyncStatus.Error);
 
-  let projectIds = entity.metadata.annotations?.[projectids];
-  const pipelineId = entity.metadata.annotations?.[pipelineid];
-  const serviceId = entity.metadata.annotations?.[serviceid];
-  const uRL = entity.metadata.annotations?.[url];
-  const hostname = new URL(uRL ?? '').hostname;
-  const baseUrl1 = new URL(uRL ?? '').origin;
-  const urlMatch = match(
-    '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/(.*)',
-    {
-      decode: decodeURIComponent,
-    },
-  );
-  const urlParams: any = urlMatch(uRL ?? '');
-
-  if (urlParams) {
-    accountId = urlParams.params.accountId;
-    orgId = urlParams.params.orgId;
-    projectId = urlParams.params.projectId;
-    if (!projectIds) {
-      projectIds = projectId;
-    }
-  }
-
-  return {
-    orgId,
+    setFlag(true);
+  }, [
+    refresh,
+    page,
+    pageSize,
     accountId,
+    orgId,
+    currProject,
     pipelineId,
     serviceId,
-    urlParams,
-    hostname,
-    baseUrl1,
-    projectIds,
-  };
+    env,
+  ]);
+
+  return { status, currTableData, totalElements, flag };
 };
+
+export default useGetExecutionsList;

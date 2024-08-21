@@ -79,33 +79,22 @@ export const useProjectSlugFromEntity = (
         accountId: urlParams.params.accountId,
         pipelineId: urlParams.params.pipelineId,
         urlParams,
-        baseUrl1,
+        baseUrl1: baseUrl1,
         projectIds: urlParams.params.projectId as string,
-        envFromUrl,
+        envFromUrl: envFromUrl,
       };
     }
 
-    const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl);
+    const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl.split('?')[0]);
     if (serviceUrlParams) {
-      const urlObj = new URL(selectedPipelineUrl);
-      const queryParams = new URLSearchParams(urlObj.search);
-      const storeType = queryParams.get('storeType');
-      const connectorRef = queryParams.get('connectorRef');
-      const repoName = queryParams.get('repoName');
-      const branchName = queryParams.get('branch');
-
       return {
         orgId: serviceUrlParams.params.orgId,
         accountId: serviceUrlParams.params.accountId,
         serviceId: serviceUrlParams.params.serviceId,
         urlParams: serviceUrlParams,
-        baseUrl1,
+        baseUrl1: baseUrl1,
         projectIds: serviceUrlParams.params.projectId as string,
-        envFromUrl,
-        storeType: storeType ?? 'N/A',
-        connectorRef: connectorRef ?? 'N/A',
-        repoName: repoName ?? 'N/A',
-        branchName: branchName ?? 'N/A',
+        envFromUrl: envFromUrl,
       };
     }
 
