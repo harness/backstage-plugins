@@ -51,6 +51,7 @@ const useGetExecutionsList = ({
     const headers = new Headers();
     if (value) {
       headers.append('Authorization', value);
+      headers.append('Content-Type', 'application/json');
     }
 
     let body;
