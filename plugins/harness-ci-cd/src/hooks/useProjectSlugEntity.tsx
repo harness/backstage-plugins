@@ -31,7 +31,7 @@ export const useProjectSlugFromEntity = (
       );
 
       serviceUrlMatch = match(
-        '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/services/:serviceId?(.*)',
+        '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
         {
           decode: decodeURIComponent,
         },
@@ -45,7 +45,7 @@ export const useProjectSlugFromEntity = (
       );
 
       serviceUrlMatch = match(
-        '(.*)/account/:accountId/all/orgs/:orgId/projects/:projectId/services/:serviceId?(.*)',
+        '(.*)/account/:accountId/all/orgs/:orgId/projects/:projectId/services/:serviceId',
         {
           decode: decodeURIComponent,
         },
@@ -59,7 +59,7 @@ export const useProjectSlugFromEntity = (
       );
 
       serviceUrlMatch = match(
-        '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId?(.*)',
+        '(.*)/account/:accountId/:module/orgs/:orgId/projects/:projectId/services/:serviceId',
         {
           decode: decodeURIComponent,
         },
@@ -85,7 +85,9 @@ export const useProjectSlugFromEntity = (
       };
     }
 
-    const serviceUrlParams: any = serviceUrlMatch(selectedPipelineUrl);
+    const serviceUrlParams: any = serviceUrlMatch(
+      selectedPipelineUrl.split('?')[0],
+    );
     if (serviceUrlParams) {
       return {
         orgId: serviceUrlParams.params.orgId,
