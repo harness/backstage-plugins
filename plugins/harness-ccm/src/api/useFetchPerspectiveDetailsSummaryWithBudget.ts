@@ -7,7 +7,7 @@ import { fetchPerspectiveDetailsWithBudgetSummaryQuery } from '../gql/fetchPersp
 
 interface UseFetchPerspectiveDetailsSummaryWithBudgetProps {
   accountId: string;
-  variables: FetchPerspectiveDetailsSummaryWithBudgetQueryVariables;
+  variables: Partial<FetchPerspectiveDetailsSummaryWithBudgetQueryVariables>;
   env: string;
   backendBaseUrl: Promise<string>;
 }
@@ -28,14 +28,15 @@ const useFetchPerspectiveDetailsSummaryWithBudget = ({
     variables: props.variables,
   });
 
-  const { data, ...fetcherProps } =
-    useFetcher<FetchPerspectiveDetailsSummaryWithBudgetQuery>({
-      ...props,
-      method: 'POST',
-      body,
-    });
+  const { data, ...fetcherProps } = useFetcher<{
+    data: FetchPerspectiveDetailsSummaryWithBudgetQuery;
+  }>({
+    ...props,
+    method: 'POST',
+    body,
+  });
 
-  return { perspectiveSummary: data, ...fetcherProps };
+  return { perspectiveSummary: data?.data, ...fetcherProps };
 };
 
 export default useFetchPerspectiveDetailsSummaryWithBudget;

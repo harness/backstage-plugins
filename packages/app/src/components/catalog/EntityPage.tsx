@@ -82,6 +82,8 @@ import {
   isHarnessIacmAvailable,
 } from '@harnessio/backstage-plugin-harness-iacm';
 
+import { EntityCcmContent, } from '@harnessio/backstage-plugin-harness-ccm';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -222,6 +224,33 @@ const chaosContent = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
+
+const ccmContent = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={() => true}>
+      <EntityCcmContent />
+    </EntitySwitch.Case>
+
+    <EntitySwitch.Case>
+      <EmptyState
+        title="No Chaos data available for this entity"
+        missing="info"
+        description="You need to add an annotation to your component if you want to enable Chaos for it. You can read more about annotations in Backstage by clicking the button below."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
+          >
+            Read more
+          </Button>
+        }
+      />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
+
+
 const iacmContent = (
   <EntitySwitch>
     <EntitySwitch.Case if={isHarnessIacmAvailable}>
@@ -267,6 +296,11 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/chaos" title="Chaos Engineering">
       {chaosContent}
     </EntityLayout.Route>
+
+    <EntityLayout.Route path="/ccm" title="Cloud Cost Management">
+      {ccmContent}
+    </EntityLayout.Route>
+
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">
       {featureFlagList}
@@ -319,6 +353,10 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/chaos" title="Chaos Engineering">
       {chaosContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/ccm" title="Cloud Cost Management">
+      {ccmContent}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/dependencies" title="Dependencies">

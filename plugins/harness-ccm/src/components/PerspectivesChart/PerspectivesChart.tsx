@@ -1,5 +1,4 @@
-import { makeStyles } from '@material-ui/core';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   BarChart,
   Bar,
@@ -10,20 +9,21 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import useFetchPerspectiveDetailsSummaryWithBudget from '../../api/useFetchPerspectiveDetailsSummaryWithBudget';
-import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
-import { getIdentifiersFromUrl } from '@harnessio/backstage-plugin-harness-chaos/src/utils/getIdentifiersFromUrl';
-import { useResourceSlugFromEntity } from '../../hooks/useResourceSlugFromEntity';
-
-import { PerspectiveChartMock } from '../../Mocks';
+import { CircularProgress, makeStyles } from '@material-ui/core';
+import { TimeSeriesDataPoints } from '../../api/types';
 
 const useStyles = makeStyles({
   chartCtn: {
     padding: 24,
   },
+  emptyState: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
-export const CE_COLOR_CONST_NEW = [
+const CE_COLOR_CONST_NEW = [
   '#0092E4', // Primary 6
   '#4947DD', // Blue 700
   '#42AB45', // Green 600
@@ -38,21 +38,44 @@ export const CE_COLOR_CONST_NEW = [
   '#7FB800', // Lime 500
 ];
 
-const PerspectivesChart = () => {
+const OTHERS_COLOR_HEX = '#dae0ff';
+
+interface PerspectivesChartProps {
+  isLoading?: boolean;
+  data: TimeSeriesDataPoints[];
+}
+
+const PerspectivesChart: React.FC<PerspectivesChartProps> = ({
+  isLoading,
+  data,
+}) => {
   const classes = useStyles();
 
-  const formattedData =
-    PerspectiveChartMock.data.perspectiveTimeSeriesStats.stats.map(stat => {
-      const time = new Date(stat.time).toISOString().split('T')[0];
-      const values = stat.values.reduce((acc, curr) => {
-        acc[curr.key.name] = curr.value;
-        return acc;
-      }, {});
+  const formattedData = data?.map(stat => {
+    const time = new Date(stat.time).toISOString().split('T')[0];
+    const values = stat.values.reduce((acc, curr) => {
+      (acc as any)[curr?.key.name || ''] = curr?.value;
+      return acc;
+    }, {});
 
-      return { date: time, ...values };
-    });
+    return { date: time, ...values };
+  });
 
-  const keys = Object.keys(formattedData[0]).filter(key => key !== 'date');
+  const keys = Object.keys(formattedData[0] || {}).filter(
+    key => key !== 'date',
+  );
+
+  if (isLoading) {
+    return (
+      <ResponsiveContainer
+        width="100%"
+        height={500}
+        className={classes.emptyState}
+      >
+        <CircularProgress />
+      </ResponsiveContainer>
+    );
+  }
 
   return (
     <div className={classes.chartCtn}>
@@ -69,7 +92,7 @@ const PerspectivesChart = () => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="date" />
           <YAxis tickFormatter={value => `$${value.toLocaleString()}`} />
           <Tooltip formatter={value => `$${value.toLocaleString()}`} />
           <Legend />
@@ -80,7 +103,7 @@ const PerspectivesChart = () => {
               dataKey={key}
               fill={
                 key === 'Others'
-                  ? '#dae0ff'
+                  ? OTHERS_COLOR_HEX
                   : CE_COLOR_CONST_NEW[idx % CE_COLOR_CONST_NEW.length]
               }
             />

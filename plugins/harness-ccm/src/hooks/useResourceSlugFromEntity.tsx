@@ -1,23 +1,20 @@
 import { match } from 'path-to-regexp';
 
-export const useResourceSlugFromEntity = (
-  isNewAnnotationPresent?: boolean,
-  selectedWorkspace?: string,
-) => {
-  const cleanedString = selectedWorkspace?.split(' ')[0];
+export const useResourceSlugFromEntity = (perspectiveUrl?: string) => {
+  const cleanedString = perspectiveUrl?.split(' ')[0];
   let accountId;
   let orgId;
   let projectId;
   let perspectiveId;
 
   const urlMatch = match(
-    '(.*)/account/:accountId/module/:module/orgs/:orgId/projects/:projectId/perspectives/:perspectiveId?',
+    '(.*)/account/:accountId/module/:module/perspectives/:perspectiveId/(.*)',
     {
       decode: decodeURIComponent,
     },
   );
 
-  if (isNewAnnotationPresent && cleanedString) {
+  if (cleanedString) {
     const hostname = new URL(cleanedString).hostname;
 
     const envAB = hostname.split('.harness.io')[0];

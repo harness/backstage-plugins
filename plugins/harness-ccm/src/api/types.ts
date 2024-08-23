@@ -334,3 +334,322 @@ export interface CEView {
   viewVersion?: string;
   viewVisualization?: ViewVisualization;
 }
+
+export type FetchperspectiveGridQueryVariables = Exact<{
+  filters: InputMaybe<
+    | Array<InputMaybe<QlceViewFilterWrapperInput>>
+    | InputMaybe<QlceViewFilterWrapperInput>
+  >;
+  groupBy: InputMaybe<
+    Array<InputMaybe<QlceViewGroupByInput>> | InputMaybe<QlceViewGroupByInput>
+  >;
+  limit: InputMaybe<Scalars['Int']>;
+  offset: InputMaybe<Scalars['Int']>;
+  aggregateFunction: InputMaybe<
+    | Array<InputMaybe<QlceViewAggregationInput>>
+    | InputMaybe<QlceViewAggregationInput>
+  >;
+  isClusterOnly: Scalars['Boolean'];
+  isClusterHourlyData?: InputMaybe<Scalars['Boolean']>;
+  preferences: InputMaybe<ViewPreferencesInput>;
+}>;
+
+export type FetchperspectiveGridQuery = {
+  __typename?: 'Query';
+  perspectiveTotalCount: number | null;
+  perspectiveGrid: {
+    __typename?: 'PerspectiveEntityStatsData';
+    data: Array<{
+      __typename?: 'QLCEViewEntityStatsDataPoint';
+      name: string | null;
+      id: string | null;
+      cost: any | null;
+      costTrend: any | null;
+      clusterPerspective?: boolean;
+      clusterData?: {
+        __typename?: 'ClusterData';
+        appId: string | null;
+        appName: string | null;
+        avgCpuUtilization: number | null;
+        avgMemoryUtilization: number | null;
+        cloudProvider: string | null;
+        cloudProviderId: string | null;
+        cloudServiceName: string | null;
+        clusterId: string | null;
+        clusterName: string | null;
+        clusterType: string | null;
+        costTrend: number | null;
+        cpuBillingAmount: number | null;
+        cpuActualIdleCost: number | null;
+        cpuUnallocatedCost: number | null;
+        efficiencyScore: number;
+        efficiencyScoreTrendPercentage: number;
+        envId: string | null;
+        envName: string | null;
+        environment: string | null;
+        id: string | null;
+        idleCost: number | null;
+        launchType: string | null;
+        maxCpuUtilization: number | null;
+        maxMemoryUtilization: number | null;
+        memoryBillingAmount: number | null;
+        memoryActualIdleCost: number | null;
+        memoryUnallocatedCost: number | null;
+        name: string | null;
+        namespace: string | null;
+        networkCost: number | null;
+        prevBillingAmount: number | null;
+        region: string | null;
+        serviceId: string | null;
+        serviceName: string | null;
+        storageCost: number | null;
+        storageActualIdleCost: number | null;
+        storageRequest: number | null;
+        storageUnallocatedCost: number | null;
+        storageUtilizationValue: number | null;
+        totalCost: number | null;
+        trendType: string | null;
+        type: string | null;
+        unallocatedCost: number | null;
+        workloadName: string | null;
+        workloadType: string | null;
+      } | null;
+      instanceDetails?: {
+        __typename?: 'InstanceDetails';
+        name: string | null;
+        id: string | null;
+        nodeId: string | null;
+        clusterName: string | null;
+        clusterId: string | null;
+        nodePoolName: string | null;
+        cloudProviderInstanceId: string | null;
+        podCapacity: string | null;
+        totalCost: number;
+        idleCost: number;
+        systemCost: number;
+        unallocatedCost: number;
+        cpuAllocatable: number;
+        memoryAllocatable: number;
+        instanceCategory: string | null;
+        machineType: string | null;
+        createTime: any;
+        deleteTime: any;
+        memoryBillingAmount: number;
+        cpuBillingAmount: number;
+        memoryUnallocatedCost: number;
+        cpuUnallocatedCost: number;
+        memoryIdleCost: number;
+        cpuIdleCost: number;
+      } | null;
+      storageDetails?: {
+        __typename?: 'StorageDetails';
+        id: string | null;
+        instanceId: string | null;
+        instanceName: string | null;
+        claimName: string | null;
+        claimNamespace: string | null;
+        clusterName: string | null;
+        clusterId: string | null;
+        storageClass: string | null;
+        volumeType: string | null;
+        cloudProvider: string | null;
+        region: string | null;
+        storageCost: number;
+        storageActualIdleCost: number;
+        storageUnallocatedCost: number;
+        capacity: number;
+        storageRequest: number;
+        storageUtilizationValue: number;
+        createTime: any;
+        deleteTime: any;
+      } | null;
+    } | null> | null;
+  } | null;
+};
+
+export type QlceViewEntityStatsDataPoint = {
+  __typename?: 'QLCEViewEntityStatsDataPoint';
+  clusterData: Maybe<ClusterData>;
+  clusterPerspective: Scalars['Boolean'];
+  cost: Maybe<Scalars['BigDecimal']>;
+  costTrend: Maybe<Scalars['BigDecimal']>;
+  id: Maybe<Scalars['String']>;
+  instanceDetails: Maybe<InstanceDetails>;
+  name: Maybe<Scalars['String']>;
+  pricingSource: Maybe<Scalars['String']>;
+  storageDetails: Maybe<StorageDetails>;
+};
+
+export type ClusterData = {
+  __typename?: 'ClusterData';
+  appId: Maybe<Scalars['String']>;
+  appName: Maybe<Scalars['String']>;
+  avgCpuUtilization: Maybe<Scalars['Float']>;
+  avgMemoryUtilization: Maybe<Scalars['Float']>;
+  cloudProvider: Maybe<Scalars['String']>;
+  cloudProviderId: Maybe<Scalars['String']>;
+  cloudServiceName: Maybe<Scalars['String']>;
+  clusterId: Maybe<Scalars['String']>;
+  clusterName: Maybe<Scalars['String']>;
+  clusterType: Maybe<Scalars['String']>;
+  costTrend: Maybe<Scalars['Float']>;
+  cpuActualIdleCost: Maybe<Scalars['Float']>;
+  cpuBillingAmount: Maybe<Scalars['Float']>;
+  cpuIdleCost: Maybe<Scalars['Float']>;
+  cpuUnallocatedCost: Maybe<Scalars['Float']>;
+  efficiencyScore: Scalars['Int'];
+  efficiencyScoreTrendPercentage: Scalars['Int'];
+  envId: Maybe<Scalars['String']>;
+  envName: Maybe<Scalars['String']>;
+  environment: Maybe<Scalars['String']>;
+  id: Maybe<Scalars['String']>;
+  idleCost: Maybe<Scalars['Float']>;
+  instanceId: Maybe<Scalars['String']>;
+  instanceName: Maybe<Scalars['String']>;
+  instanceType: Maybe<Scalars['String']>;
+  launchType: Maybe<Scalars['String']>;
+  maxCpuUtilization: Maybe<Scalars['Float']>;
+  maxMemoryUtilization: Maybe<Scalars['Float']>;
+  memoryActualIdleCost: Maybe<Scalars['Float']>;
+  memoryBillingAmount: Maybe<Scalars['Float']>;
+  memoryIdleCost: Maybe<Scalars['Float']>;
+  memoryUnallocatedCost: Maybe<Scalars['Float']>;
+  name: Maybe<Scalars['String']>;
+  namespace: Maybe<Scalars['String']>;
+  networkCost: Maybe<Scalars['Float']>;
+  prevBillingAmount: Maybe<Scalars['Float']>;
+  region: Maybe<Scalars['String']>;
+  serviceId: Maybe<Scalars['String']>;
+  serviceName: Maybe<Scalars['String']>;
+  storageActualIdleCost: Maybe<Scalars['Float']>;
+  storageCost: Maybe<Scalars['Float']>;
+  storageRequest: Maybe<Scalars['Float']>;
+  storageUnallocatedCost: Maybe<Scalars['Float']>;
+  storageUtilizationValue: Maybe<Scalars['Float']>;
+  systemCost: Maybe<Scalars['Float']>;
+  taskId: Maybe<Scalars['String']>;
+  totalCost: Maybe<Scalars['Float']>;
+  trendType: Maybe<Scalars['String']>;
+  type: Maybe<Scalars['String']>;
+  unallocatedCost: Maybe<Scalars['Float']>;
+  workloadName: Maybe<Scalars['String']>;
+  workloadType: Maybe<Scalars['String']>;
+};
+
+export type InstanceDetails = {
+  __typename?: 'InstanceDetails';
+  cloudProviderInstanceId: Maybe<Scalars['String']>;
+  clusterId: Maybe<Scalars['String']>;
+  clusterName: Maybe<Scalars['String']>;
+  cpuAllocatable: Scalars['Float'];
+  cpuBillingAmount: Scalars['Float'];
+  cpuIdleCost: Scalars['Float'];
+  cpuRequested: Scalars['Float'];
+  cpuUnallocatedCost: Scalars['Float'];
+  cpuUnitPrice: Scalars['Float'];
+  createTime: Scalars['Long'];
+  deleteTime: Scalars['Long'];
+  id: Maybe<Scalars['String']>;
+  idleCost: Scalars['Float'];
+  instanceCategory: Maybe<Scalars['String']>;
+  machineType: Maybe<Scalars['String']>;
+  memoryAllocatable: Scalars['Float'];
+  memoryBillingAmount: Scalars['Float'];
+  memoryIdleCost: Scalars['Float'];
+  memoryRequested: Scalars['Float'];
+  memoryUnallocatedCost: Scalars['Float'];
+  memoryUnitPrice: Scalars['Float'];
+  name: Maybe<Scalars['String']>;
+  namespace: Maybe<Scalars['String']>;
+  networkCost: Scalars['Float'];
+  node: Maybe<Scalars['String']>;
+  nodeId: Maybe<Scalars['String']>;
+  nodePoolName: Maybe<Scalars['String']>;
+  podCapacity: Maybe<Scalars['String']>;
+  qosClass: Maybe<Scalars['String']>;
+  storageActualIdleCost: Scalars['Float'];
+  storageCost: Scalars['Float'];
+  storageRequest: Scalars['Float'];
+  storageUnallocatedCost: Scalars['Float'];
+  storageUtilizationValue: Scalars['Float'];
+  systemCost: Scalars['Float'];
+  totalCost: Scalars['Float'];
+  unallocatedCost: Scalars['Float'];
+  workload: Maybe<Scalars['String']>;
+};
+
+export type StorageDetails = {
+  __typename?: 'StorageDetails';
+  capacity: Scalars['Float'];
+  claimName: Maybe<Scalars['String']>;
+  claimNamespace: Maybe<Scalars['String']>;
+  cloudProvider: Maybe<Scalars['String']>;
+  clusterId: Maybe<Scalars['String']>;
+  clusterName: Maybe<Scalars['String']>;
+  createTime: Scalars['Long'];
+  deleteTime: Scalars['Long'];
+  id: Maybe<Scalars['String']>;
+  instanceId: Maybe<Scalars['String']>;
+  instanceName: Maybe<Scalars['String']>;
+  region: Maybe<Scalars['String']>;
+  storageActualIdleCost: Scalars['Float'];
+  storageClass: Maybe<Scalars['String']>;
+  storageCost: Scalars['Float'];
+  storageRequest: Scalars['Float'];
+  storageUnallocatedCost: Scalars['Float'];
+  storageUtilizationValue: Scalars['Float'];
+  volumeType: Maybe<Scalars['String']>;
+};
+
+export type FetchPerspectiveTimeSeriesQueryVariables = Exact<{
+  filters: InputMaybe<
+    | Array<InputMaybe<QlceViewFilterWrapperInput>>
+    | InputMaybe<QlceViewFilterWrapperInput>
+  >;
+  groupBy: InputMaybe<
+    Array<InputMaybe<QlceViewGroupByInput>> | InputMaybe<QlceViewGroupByInput>
+  >;
+  limit: InputMaybe<Scalars['Int']>;
+  preferences: InputMaybe<ViewPreferencesInput>;
+  isClusterHourlyData?: InputMaybe<Scalars['Boolean']>;
+}>;
+
+export type FetchPerspectiveTimeSeriesQuery = {
+  __typename?: 'Query';
+  perspectiveTimeSeriesStats: {
+    __typename?: 'PerspectiveTimeSeriesData';
+    stats: Array<{
+      __typename?: 'TimeSeriesDataPoints';
+      time: any;
+      values: Array<{
+        __typename?: 'DataPoint';
+        value: any;
+        key: {
+          __typename?: 'Reference';
+          id: string;
+          name: string;
+          type: string;
+        };
+      } | null>;
+    } | null> | null;
+  } | null;
+};
+
+export type Reference = {
+  __typename?: 'Reference';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  type: Scalars['String'];
+};
+
+export type DataPoint = {
+  __typename?: 'DataPoint';
+  key: Reference;
+  value: Scalars['BigDecimal'];
+};
+
+export type TimeSeriesDataPoints = {
+  __typename?: 'TimeSeriesDataPoints';
+  time: Scalars['Long'];
+  values: Array<Maybe<DataPoint>>;
+};

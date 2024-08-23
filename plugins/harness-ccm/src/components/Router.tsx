@@ -6,7 +6,7 @@ import { Entity } from '@backstage/catalog-model';
 
 /** @public */
 export const isHarnessCcmAvailable = (entity: Entity) =>
-  Boolean(entity.metadata.annotations?.['harness.io/project-url']);
+  Boolean(entity.metadata.annotations?.['harness.io/perspective-url']);
 
 /** @public */
 export const Router = () => {

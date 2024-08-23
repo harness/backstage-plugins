@@ -36,7 +36,7 @@ const useGetPerspective = ({
       'Harness-Account': accountId,
     });
     const resp = await fetch(
-      `${await backendBaseUrl}/harness/${envFromUrl}/gateway/ccm/api/perspective?perspectiveId="${perspectiveId}"`,
+      `${await backendBaseUrl}/harness/${envFromUrl}/gateway/ccm/api/perspective?perspectiveId=${perspectiveId}`,
       {
         headers,
       },

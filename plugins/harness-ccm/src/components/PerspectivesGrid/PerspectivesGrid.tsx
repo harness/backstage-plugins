@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
-import {
-  EmptyState,
-  ErrorPanel,
-  Link,
-  Table,
-  TableColumn,
-} from '@backstage/core-components';
+import React from 'react';
+import { Table, TableColumn } from '@backstage/core-components';
 
-import { PerspectiveGridMock } from '../../Mocks';
+import { QlceViewEntityStatsDataPoint } from '../../api/types';
 
 const columns: TableColumn[] = [
   {
@@ -25,23 +19,47 @@ const columns: TableColumn[] = [
   },
 ];
 
-const PerspectivesGrid = () => {
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
+interface PerspectivesGrid {
+  isLoading: boolean;
+  data: QlceViewEntityStatsDataPoint[];
+  totalCount: number;
+  page: number;
+  handlePageChange: (page: number, pageSize: number) => void;
+}
 
+const PerspectivesGrid: React.FC<PerspectivesGrid> = ({
+  isLoading,
+  data,
+  page,
+  totalCount,
+  handlePageChange,
+}) => {
   return (
     <div>
       <Table
-        onPageChange={() => {}}
+        isLoading={isLoading}
         columns={columns}
-        data={PerspectiveGridMock.data.perspectiveGrid.data}
-        totalCount={PerspectiveGridMock.data.perspectiveTotalCount}
+        data={data}
+        totalCount={
+          page * 15 < totalCount ? Number.MAX_VALUE : Number.MAX_SAFE_INTEGER
+        }
         options={{
           search: false,
           paging: true,
           emptyRowsWhenPaging: false,
-          pageSize: pageSize,
-          pageSizeOptions: [5, 10, 25],
+          paginationPosition: 'both',
+          showFirstLastPageButtons: false,
+          pageSize: Number.MAX_SAFE_INTEGER,
+          pageSizeOptions: [],
+        }}
+        page={page > 0 ? 1 : 0}
+        onPageChange={handlePageChange}
+        localization={{
+          pagination: {
+            labelDisplayedRows: `(${page * 15 + 1} - ${
+              (page + 1) * 15
+            }) of ${totalCount}`,
+          },
         }}
       />
     </div>
