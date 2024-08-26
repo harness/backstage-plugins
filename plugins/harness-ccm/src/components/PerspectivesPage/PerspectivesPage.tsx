@@ -20,16 +20,18 @@ import usePerspectiveUrlFromEntity from '../../hooks/usePerspectiveUrlEntity';
 import {
   clusterInfoUtil,
   DEFAULT_GROUP_BY,
+  DEFAULT_TIME_RANGE,
   getGMTEndDateTime,
   getGMTStartDateTime,
   getGroupByFilter,
   getTimeFilters,
   getTimeRangeFilter,
   getViewFilterForId,
-  LAST_30_DAYS_RANGE,
   PERSPECTIVE_DETAILS_AGGREGATE,
+  TimeRangeFilterType,
 } from '../../utils/PerpsectiveUtils';
 import {
+  K8sRecommendationFilterDtoInput,
   QlceViewEntityStatsDataPoint,
   QlceViewTimeGroupType,
   TimeSeriesDataPoints,
@@ -41,10 +43,15 @@ import useGetLicense from '../../hooks/useGetLicense';
 import CostCard from '../CostCard';
 import PerspectivesChart from '../PerspectivesChart/PerspectivesChart';
 import PerspectivesGrid from '../PerspectivesGrid/PerspectivesGrid';
+import TimeFilter from '../TimeFilter/TimeFilter';
+import RecommendationsCard from '../RecommendationsCard';
+import useFetchPerspectiveRecommendations from '../../api/useFetchPerspectiveRecommendations';
 
 const useStyles = makeStyles({
-  mainCtn: {
-    padding: 20,
+  subHeader: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    marginBottom: 20,
   },
   chartAndGridCtn: {
     marginTop: 24,
@@ -81,7 +88,12 @@ const PerspectivesPage: React.FC = () => {
     envFromUrl,
   });
 
-  const { isClusterOnly } = clusterInfoUtil(perspectiveData?.dataSources);
+  const { isClusterOnly, recommendationsEnabled } = clusterInfoUtil(
+    perspectiveData?.dataSources,
+  );
+
+  const [timeRange, setTimeRange] =
+    useState<TimeRangeFilterType>(DEFAULT_TIME_RANGE);
 
   const { perspectiveSummary, loading: isSummaryLoading } =
     useFetchPerspectiveDetailsSummaryWithBudget({
@@ -93,8 +105,8 @@ const PerspectivesPage: React.FC = () => {
         filters: [
           getViewFilterForId(perspectiveId),
           ...getTimeFilters(
-            getGMTStartDateTime(LAST_30_DAYS_RANGE[0]),
-            getGMTEndDateTime(LAST_30_DAYS_RANGE[1]),
+            getGMTStartDateTime(timeRange.from),
+            getGMTEndDateTime(timeRange.to),
           ),
         ],
         groupBy: [getGroupByFilter(DEFAULT_GROUP_BY)],
@@ -109,6 +121,27 @@ const PerspectivesPage: React.FC = () => {
     setPage(currentPage);
   };
 
+  const { perspectiveRecommendations, loading: areRecommendationsLoading } =
+    useFetchPerspectiveRecommendations({
+      accountId,
+      backendBaseUrl,
+      env: envFromUrl,
+      variables: {
+        filter: {
+          perspectiveFilters: [
+            getViewFilterForId(perspectiveId),
+            ...getTimeFilters(
+              getGMTStartDateTime(timeRange.from),
+              getGMTEndDateTime(timeRange.to),
+            ),
+          ],
+          minSaving: 1,
+          offset: 0,
+          limit: 10,
+        } as unknown as K8sRecommendationFilterDtoInput,
+      },
+    });
+
   const { perspectiveChart, loading: isChartLoading } =
     useFetchPerspectiveChart({
       accountId,
@@ -118,8 +151,8 @@ const PerspectivesPage: React.FC = () => {
         filters: [
           getViewFilterForId(perspectiveId),
           ...getTimeFilters(
-            getGMTStartDateTime(LAST_30_DAYS_RANGE[0]),
-            getGMTEndDateTime(LAST_30_DAYS_RANGE[1]),
+            getGMTStartDateTime(timeRange.from),
+            getGMTEndDateTime(timeRange.to),
           ),
         ],
         groupBy: [
@@ -140,8 +173,8 @@ const PerspectivesPage: React.FC = () => {
       filters: [
         getViewFilterForId(perspectiveId),
         ...getTimeFilters(
-          getGMTStartDateTime(LAST_30_DAYS_RANGE[0]),
-          getGMTEndDateTime(LAST_30_DAYS_RANGE[1]),
+          getGMTStartDateTime(timeRange.from),
+          getGMTEndDateTime(timeRange.to),
         ),
       ],
       groupBy: [getGroupByFilter(DEFAULT_GROUP_BY)],
@@ -198,7 +231,10 @@ const PerspectivesPage: React.FC = () => {
   }
 
   return (
-    <div className={classes.mainCtn}>
+    <div>
+      <div className={classes.subHeader}>
+        <TimeFilter timeRange={timeRange} setTimeRange={setTimeRange} />
+      </div>
       <Grid container spacing={3} direction="row">
         <Grid item>
           <CostCard
@@ -216,6 +252,20 @@ const PerspectivesPage: React.FC = () => {
             statsDescription={forecastedCostStats?.statsDescription || ''}
           />
         </Grid>
+        {recommendationsEnabled ? (
+          <Grid item>
+            <RecommendationsCard
+              isLoading={isSummaryLoading}
+              totalSavings={
+                perspectiveRecommendations?.recommendationStatsV2
+                  ?.totalMonthlySaving || 0
+              }
+              recommendationsCount={
+                perspectiveRecommendations?.recommendationStatsV2?.count || 0
+              }
+            />
+          </Grid>
+        ) : null}
         <div style={{ flexGrow: 1 }} />
         <Grid item>
           <Card className={classes.linkCard}>

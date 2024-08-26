@@ -12,33 +12,27 @@ const useStyles = makeStyles({
     padding: 20,
   },
   costCard: {
-    minWidth: 250,
+    minWidth: 275,
     minHeight: 130,
   },
-  costDescription: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
   emptyState: {
-    minWidth: 250,
+    minWidth: 275,
     minHeight: 130,
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
 
-interface CostCardProps {
+interface RecommendationsCardProps {
   isLoading: boolean;
-  statsLabel: string;
-  statsValue: string;
-  statsDescription: string;
+  totalSavings: number;
+  recommendationsCount: number;
 }
 
-const CostCard: React.FC<CostCardProps> = ({
+const RecommendationsCard: React.FC<RecommendationsCardProps> = ({
   isLoading,
-  statsDescription,
-  statsLabel,
-  statsValue,
+  totalSavings,
+  recommendationsCount,
 }) => {
   const classes = useStyles();
 
@@ -50,21 +44,22 @@ const CostCard: React.FC<CostCardProps> = ({
     );
   }
 
-  if (!statsValue) {
+  if (!totalSavings) {
     return <></>;
   }
 
   return (
     <Card className={classes.costCard}>
       <CardContent>
-        <Typography variant="body2">{statsLabel}</Typography>
-        <Typography variant="h3" className={classes.costDescription}>
-          {statsValue}
+        <Typography variant="body2">Recommendations</Typography>
+        <Typography variant="caption">
+          {recommendationsCount} recommendation(s) saving upto
         </Typography>
-        <Typography variant="body2">{statsDescription}</Typography>
+        <Typography variant="h5">{`$${totalSavings.toLocaleString()}`}</Typography>
+        <Typography variant="body2">per month</Typography>
       </CardContent>
     </Card>
   );
 };
 
-export default CostCard;
+export default RecommendationsCard;

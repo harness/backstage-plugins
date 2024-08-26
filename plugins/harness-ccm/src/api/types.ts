@@ -653,3 +653,57 @@ export type TimeSeriesDataPoints = {
   time: Scalars['Long'];
   values: Array<Maybe<DataPoint>>;
 };
+
+export enum CloudProvider {
+  Aws = 'AWS',
+  Azure = 'AZURE',
+  Gcp = 'GCP',
+  Ibm = 'IBM',
+  OnPrem = 'ON_PREM',
+  Unknown = 'UNKNOWN',
+}
+
+export enum RecommendationState {
+  Applied = 'APPLIED',
+  Ignored = 'IGNORED',
+  Open = 'OPEN',
+}
+
+export enum ResourceType {
+  AzureInstance = 'AZURE_INSTANCE',
+  Ec2Instance = 'EC2_INSTANCE',
+  EcsService = 'ECS_SERVICE',
+  Governance = 'GOVERNANCE',
+  NodePool = 'NODE_POOL',
+  Workload = 'WORKLOAD',
+}
+
+export type K8sRecommendationFilterDtoInput = {
+  cloudProvider: InputMaybe<Array<InputMaybe<CloudProvider>>>;
+  clusterNames: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  daysBack: InputMaybe<Scalars['Long']>;
+  ids: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  limit: InputMaybe<Scalars['Long']>;
+  minCost: InputMaybe<Scalars['Float']>;
+  minSaving: InputMaybe<Scalars['Float']>;
+  names: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  namespaces: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  offset: InputMaybe<Scalars['Long']>;
+  perspectiveFilters: InputMaybe<Array<InputMaybe<QlceViewFilterWrapperInput>>>;
+  recommendationStates: InputMaybe<Array<InputMaybe<RecommendationState>>>;
+  resourceTypes: InputMaybe<Array<InputMaybe<ResourceType>>>;
+};
+
+export type PerspectiveRecommendationsQueryVariables = Exact<{
+  filter: InputMaybe<K8sRecommendationFilterDtoInput>;
+}>;
+
+export type PerspectiveRecommendationsQuery = {
+  __typename?: 'Query';
+  recommendationStatsV2: {
+    __typename?: 'RecommendationOverviewStats';
+    totalMonthlyCost: number;
+    totalMonthlySaving: number;
+    count: number;
+  } | null;
+};
