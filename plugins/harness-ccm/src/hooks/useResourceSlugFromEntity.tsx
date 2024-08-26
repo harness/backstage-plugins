@@ -16,6 +16,7 @@ export const useResourceSlugFromEntity = (perspectiveUrl?: string) => {
 
   if (cleanedString) {
     const hostname = new URL(cleanedString).hostname;
+    const baseUrl = new URL(cleanedString).origin;
 
     const envAB = hostname.split('.harness.io')[0];
     const envFromUrl = envAB.includes('qa') ? 'qa' : 'prod';
@@ -37,6 +38,7 @@ export const useResourceSlugFromEntity = (perspectiveUrl?: string) => {
       urlParams,
       envFromUrl,
       cleanedString,
+      baseUrl,
     };
   }
 

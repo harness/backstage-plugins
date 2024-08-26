@@ -8,9 +8,11 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  AreaChart,
+  Area,
 } from 'recharts';
 import { CircularProgress, makeStyles } from '@material-ui/core';
-import { TimeSeriesDataPoints } from '../../api/types';
+import { TimeSeriesDataPoints, ViewVisualization } from '../../api/types';
 
 const useStyles = makeStyles({
   chartCtn: {
@@ -40,14 +42,18 @@ const CE_COLOR_CONST_NEW = [
 
 const OTHERS_COLOR_HEX = '#dae0ff';
 
+const tickFormatter = (value: any) => `$${value.toLocaleString()}`;
+
 interface PerspectivesChartProps {
   isLoading?: boolean;
   data: TimeSeriesDataPoints[];
+  viewVisualization: ViewVisualization['chartType'];
 }
 
 const PerspectivesChart: React.FC<PerspectivesChartProps> = ({
   isLoading,
   data,
+  viewVisualization,
 }) => {
   const classes = useStyles();
 
@@ -80,35 +86,62 @@ const PerspectivesChart: React.FC<PerspectivesChartProps> = ({
   return (
     <div className={classes.chartCtn}>
       <ResponsiveContainer width="100%" height={500}>
-        <BarChart
-          width={500}
-          height={300}
-          data={formattedData}
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis tickFormatter={value => `$${value.toLocaleString()}`} />
-          <Tooltip formatter={value => `$${value.toLocaleString()}`} />
-          <Legend />
-          {keys.map((key, idx) => (
-            <Bar
-              stackId="a"
-              key={key}
-              dataKey={key}
-              fill={
-                key === 'Others'
-                  ? OTHERS_COLOR_HEX
-                  : CE_COLOR_CONST_NEW[idx % CE_COLOR_CONST_NEW.length]
-              }
-            />
-          ))}
-        </BarChart>
+        {viewVisualization === 'STACKED_TIME_SERIES' ? (
+          <BarChart
+            width={500}
+            height={300}
+            data={formattedData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis tickFormatter={tickFormatter} />
+            <Tooltip formatter={tickFormatter} />
+            <Legend />
+            {keys.map((key, idx) => (
+              <Bar
+                stackId="a"
+                key={key}
+                dataKey={key}
+                fill={
+                  key === 'Others'
+                    ? OTHERS_COLOR_HEX
+                    : CE_COLOR_CONST_NEW[idx % CE_COLOR_CONST_NEW.length]
+                }
+              />
+            ))}
+          </BarChart>
+        ) : (
+          <AreaChart
+            width={730}
+            height={250}
+            data={formattedData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis tickFormatter={tickFormatter} />
+            <Tooltip formatter={tickFormatter} />
+            <Legend />
+            {keys.map((key, idx) => (
+              <Area
+                type="monotone"
+                key={key}
+                dataKey={key}
+                fill={
+                  key === 'Others'
+                    ? OTHERS_COLOR_HEX
+                    : CE_COLOR_CONST_NEW[idx % CE_COLOR_CONST_NEW.length]
+                }
+              />
+            ))}
+          </AreaChart>
+        )}
       </ResponsiveContainer>
     </div>
   );

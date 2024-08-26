@@ -1,10 +1,18 @@
-import { Card, Grid, makeStyles } from '@material-ui/core';
 import React, { useState } from 'react';
-import CostCard from '../CostCard';
-import PerspectivesChart from '../PerspectivesChart/PerspectivesChart';
-import PerspectivesGrid from '../PerspectivesGrid/PerspectivesGrid';
-import { useResourceSlugFromEntity } from '../../hooks/useResourceSlugFromEntity';
+import { EmptyState } from '@backstage/core-components';
+import {
+  Card,
+  Grid,
+  Link,
+  makeStyles,
+  Typography,
+  Button,
+} from '@material-ui/core';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
+
+import LaunchIcon from '@mui/icons-material/Launch';
+
+import { useResourceSlugFromEntity } from '../../hooks/useResourceSlugFromEntity';
 import useFetchPerspectiveDetailsSummaryWithBudget from '../../api/useFetchPerspectiveDetailsSummaryWithBudget';
 import useGetPerspective from '../../hooks/useGetPerspective';
 
@@ -28,6 +36,11 @@ import {
 } from '../../api/types';
 import useFetchPerspectiveGrid from '../../api/useFetchPerspectiveGrid';
 import useFetchPerspectiveChart from '../../api/useFetchPerspectiveChart';
+import useGetLicense from '../../hooks/useGetLicense';
+
+import CostCard from '../CostCard';
+import PerspectivesChart from '../PerspectivesChart/PerspectivesChart';
+import PerspectivesGrid from '../PerspectivesGrid/PerspectivesGrid';
 
 const useStyles = makeStyles({
   mainCtn: {
@@ -35,6 +48,16 @@ const useStyles = makeStyles({
   },
   chartAndGridCtn: {
     marginTop: 24,
+  },
+  linkCard: {
+    padding: 20,
+    height: 125,
+    gap: 16,
+  },
+  linkCtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
   },
 });
 
@@ -48,6 +71,7 @@ const PerspectivesPage: React.FC = () => {
     accountId,
     envFromUrl = '',
     perspectiveId,
+    baseUrl,
   } = useResourceSlugFromEntity(perspectiveUrl);
 
   const { perspective: perspectiveData } = useGetPerspective({
@@ -128,56 +152,96 @@ const PerspectivesPage: React.FC = () => {
     },
   });
 
+  const totalCostStats = perspectiveSummary?.perspectiveTrendStats?.cost;
+  const forecastedCostStats = perspectiveSummary?.perspectiveForecastCost?.cost;
+
+  const chartData = perspectiveChart?.perspectiveTimeSeriesStats
+    ?.stats as TimeSeriesDataPoints[];
+  const gridData = perspectiveGrid?.perspectiveGrid
+    ?.data as QlceViewEntityStatsDataPoint[];
+
+  const { licenses } = useGetLicense({
+    backendBaseUrl,
+    env: envFromUrl,
+    accountId,
+  });
+
+  const getCcmGetStartedLink = () =>
+    `${baseUrl}/ng/account/${accountId}/ce/home/trial`;
+
+  if (licenses === 'NA') {
+    return (
+      <EmptyState
+        title="Cloud Cost Management Module License not subscribed"
+        missing="info"
+        description="You need to have an active Cloud Cost Management Module License to view this page."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            target="_blank"
+            href={getCcmGetStartedLink()}
+          >
+            Get Started
+          </Button>
+        }
+      />
+    );
+  } else if (licenses === 'Unauthorized') {
+    return (
+      <EmptyState
+        title="Harness Cloud Cost Management Engineering"
+        missing="info"
+        description="The x-api-key is either missing or incorrect in app-config.yaml under proxy settings."
+      />
+    );
+  }
+
   return (
     <div className={classes.mainCtn}>
       <Grid container spacing={3} direction="row">
         <Grid item>
           <CostCard
             isLoading={isSummaryLoading}
-            statsLabel={
-              perspectiveSummary?.perspectiveTrendStats?.cost?.statsLabel || ''
-            }
-            statsValue={
-              perspectiveSummary?.perspectiveTrendStats?.cost?.statsValue || ''
-            }
-            statsDescription={
-              perspectiveSummary?.perspectiveTrendStats?.cost
-                ?.statsDescription || ''
-            }
+            statsLabel={totalCostStats?.statsLabel || ''}
+            statsValue={totalCostStats?.statsValue || ''}
+            statsDescription={totalCostStats?.statsDescription || ''}
           />
         </Grid>
         <Grid item>
           <CostCard
             isLoading={isSummaryLoading}
-            statsLabel={
-              perspectiveSummary?.perspectiveForecastCost?.cost?.statsLabel ||
-              ''
-            }
-            statsValue={
-              perspectiveSummary?.perspectiveForecastCost?.cost?.statsValue ||
-              ''
-            }
-            statsDescription={
-              perspectiveSummary?.perspectiveForecastCost?.cost
-                ?.statsDescription || ''
-            }
+            statsLabel={forecastedCostStats?.statsLabel || ''}
+            statsValue={forecastedCostStats?.statsValue || ''}
+            statsDescription={forecastedCostStats?.statsDescription || ''}
           />
+        </Grid>
+        <div style={{ flexGrow: 1 }} />
+        <Grid item>
+          <Card className={classes.linkCard}>
+            <Typography variant="h6">
+              {'Want to see a detailed view?'}
+            </Typography>
+            <Link
+              href={perspectiveUrl}
+              target="_blank"
+              className={classes.linkCtn}
+            >
+              Go to {perspectiveData?.name} Perspective{' '}
+              <LaunchIcon fontSize="small" />
+            </Link>
+          </Card>
         </Grid>
       </Grid>
       <Card className={classes.chartAndGridCtn}>
         <PerspectivesChart
           isLoading={isChartLoading}
-          data={
-            (perspectiveChart?.perspectiveTimeSeriesStats
-              ?.stats as TimeSeriesDataPoints[]) || []
-          }
+          viewVisualization={perspectiveData?.viewVisualization?.chartType}
+          data={chartData || []}
         />
         <PerspectivesGrid
           isLoading={isGridLoading}
-          data={
-            (perspectiveGrid?.perspectiveGrid
-              ?.data as QlceViewEntityStatsDataPoint[]) || []
-          }
+          data={gridData || []}
           totalCount={perspectiveGrid?.perspectiveTotalCount || 0}
           page={page}
           handlePageChange={handleChangePage}

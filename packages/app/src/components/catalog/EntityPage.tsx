@@ -227,7 +227,7 @@ const chaosContent = (
 
 const ccmContent = (
   <EntitySwitch>
-    <EntitySwitch.Case if={() => true}>
+    <EntitySwitch.Case if={()=> true}>
       <EntityCcmContent />
     </EntitySwitch.Case>
 
