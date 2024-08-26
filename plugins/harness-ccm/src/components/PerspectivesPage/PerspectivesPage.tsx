@@ -255,7 +255,7 @@ const PerspectivesPage: React.FC = () => {
         {recommendationsEnabled ? (
           <Grid item>
             <RecommendationsCard
-              isLoading={isSummaryLoading}
+              isLoading={areRecommendationsLoading}
               totalSavings={
                 perspectiveRecommendations?.recommendationStatsV2
                   ?.totalMonthlySaving || 0
@@ -269,9 +269,7 @@ const PerspectivesPage: React.FC = () => {
         <div style={{ flexGrow: 1 }} />
         <Grid item>
           <Card className={classes.linkCard}>
-            <Typography variant="h6">
-              {'Want to see a detailed view?'}
-            </Typography>
+            <Typography variant="h6">Want to see a detailed view?</Typography>
             <Link
               href={perspectiveUrl}
               target="_blank"

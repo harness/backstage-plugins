@@ -82,7 +82,11 @@ import {
   isHarnessIacmAvailable,
 } from '@harnessio/backstage-plugin-harness-iacm';
 
-import { EntityCcmContent, } from '@harnessio/backstage-plugin-harness-ccm';
+import {
+  isHarnessCcmAvailable,
+  EntityCcmContent,
+  EntityCcmOverviewCard,
+} from '@harnessio/backstage-plugin-harness-ccm';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -227,7 +231,7 @@ const chaosContent = (
 
 const ccmContent = (
   <EntitySwitch>
-    <EntitySwitch.Case if={()=> true}>
+    <EntitySwitch.Case if={isHarnessCcmAvailable}>
       <EntityCcmContent />
     </EntitySwitch.Case>
 
@@ -249,7 +253,6 @@ const ccmContent = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
-
 
 const iacmContent = (
   <EntitySwitch>
@@ -273,6 +276,9 @@ const overviewContent = (
     </Grid>
     <Grid item md={8} xs={12}>
       <EntityHasSubcomponentsCard variant="gridItem" />
+    </Grid>
+    <Grid item md={4} xs={12}>
+      <EntityCcmOverviewCard variant="gridItem" />
     </Grid>
   </Grid>
 );
@@ -300,7 +306,6 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/ccm" title="Cloud Cost Management">
       {ccmContent}
     </EntityLayout.Route>
-
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">
       {featureFlagList}

@@ -34,6 +34,49 @@ const useStyles = makeStyles({
   },
 });
 
+const DateRenderer = ({
+  date,
+  setTimeRange,
+  setTimeLabel,
+  handleClose,
+}: {
+  date: {
+    label: DATE_RANGE_SHORTCUTS_NAME;
+    dateRange: Dayjs[];
+    dateFormat: string[];
+  };
+  setTimeRange: (newValue: TimeRangeFilterType) => void;
+  setTimeLabel: (newValue: DATE_RANGE_SHORTCUTS_NAME) => void;
+  handleClose: () => void;
+}) => {
+  const classes = useStyles();
+
+  return (
+    <MenuItem
+      className={classes.dateCtn}
+      onClick={() => {
+        setTimeRange({
+          from: date.dateRange[0].format(CE_DATE_FORMAT_INTERNAL),
+          to: date.dateRange[1].format(CE_DATE_FORMAT_INTERNAL),
+        });
+        setTimeLabel(date.label);
+        handleClose();
+      }}
+    >
+      <span>{DateLabelToDisplayTextMap[date.label]}</span>
+      <span>
+        <Typography variant="body2" className={classes.dateRange}>
+          {`${date.dateRange[0].format(date.dateFormat[0])} ${
+            date.dateFormat[1]
+              ? `- ${date.dateRange[1].format(date.dateFormat[1])}`
+              : ''
+          }`}
+        </Typography>
+      </span>
+    </MenuItem>
+  );
+};
+
 interface TimeFilterProps {
   timeRange: TimeRangeFilterType;
   setTimeRange: (newValue: TimeRangeFilterType) => void;
@@ -116,46 +159,3 @@ const TimeFilter: React.FC<TimeFilterProps> = ({ setTimeRange }) => {
 };
 
 export default TimeFilter;
-
-const DateRenderer = ({
-  date,
-  setTimeRange,
-  setTimeLabel,
-  handleClose,
-}: {
-  date: {
-    label: DATE_RANGE_SHORTCUTS_NAME;
-    dateRange: Dayjs[];
-    dateFormat: string[];
-  };
-  setTimeRange: (newValue: TimeRangeFilterType) => void;
-  setTimeLabel: (newValue: DATE_RANGE_SHORTCUTS_NAME) => void;
-  handleClose: () => void;
-}) => {
-  const classes = useStyles();
-
-  return (
-    <MenuItem
-      className={classes.dateCtn}
-      onClick={() => {
-        setTimeRange({
-          from: date.dateRange[0].format(CE_DATE_FORMAT_INTERNAL),
-          to: date.dateRange[1].format(CE_DATE_FORMAT_INTERNAL),
-        });
-        setTimeLabel(date.label);
-        handleClose();
-      }}
-    >
-      <span>{DateLabelToDisplayTextMap[date.label]}</span>
-      <span>
-        <Typography variant="body2" className={classes.dateRange}>
-          {`${date.dateRange[0].format(date.dateFormat[0])} ${
-            date.dateFormat[1]
-              ? '- ' + date.dateRange[1].format(date.dateFormat[1])
-              : ''
-          }`}
-        </Typography>
-      </span>
-    </MenuItem>
-  );
-};

@@ -19,7 +19,7 @@ const columns: TableColumn[] = [
   },
 ];
 
-interface PerspectivesGrid {
+interface PerspectivesGridProps {
   isLoading: boolean;
   data: QlceViewEntityStatsDataPoint[];
   totalCount: number;
@@ -27,7 +27,7 @@ interface PerspectivesGrid {
   handlePageChange: (page: number, pageSize: number) => void;
 }
 
-const PerspectivesGrid: React.FC<PerspectivesGrid> = ({
+const PerspectivesGrid: React.FC<PerspectivesGridProps> = ({
   isLoading,
   data,
   page,
