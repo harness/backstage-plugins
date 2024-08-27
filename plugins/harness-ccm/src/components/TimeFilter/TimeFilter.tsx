@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
+  CircularProgress,
   Divider,
   makeStyles,
   Menu,
@@ -13,6 +14,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import {
   CALENDAR_MONTH_DATES,
   CE_DATE_FORMAT_INTERNAL,
+  DATE_RANGE_SHORTCUTS,
   DATE_RANGE_SHORTCUTS_NAME,
   DateLabelToDisplayTextMap,
   RECOMMENDED_DATES,
@@ -81,16 +83,40 @@ const DateRenderer = ({
 };
 
 interface TimeFilterProps {
+  isLoading?: boolean;
   timeRange: TimeRangeFilterType;
   setTimeRange: (newValue: TimeRangeFilterType) => void;
 }
 
-const TimeFilter: React.FC<TimeFilterProps> = ({ setTimeRange }) => {
+const TimeFilter: React.FC<TimeFilterProps> = ({
+  isLoading,
+  timeRange,
+  setTimeRange,
+}) => {
   const classes = useStyles();
 
-  const [timeLabel, setTimeLabel] = useState<DATE_RANGE_SHORTCUTS_NAME>(
+  const [timeLabel, setTimeLabel] = useState<string>(
     DATE_RANGE_SHORTCUTS_NAME.LAST_30_DAYS,
   );
+
+  useEffect(() => {
+    if (!isLoading) {
+      const filteredArray = Object.keys(DATE_RANGE_SHORTCUTS).filter(short => {
+        const date = DATE_RANGE_SHORTCUTS[short];
+
+        return (
+          timeRange.from === date[0].format(CE_DATE_FORMAT_INTERNAL) &&
+          timeRange.to === date[1].format(CE_DATE_FORMAT_INTERNAL)
+        );
+      });
+
+      if (filteredArray.length) {
+        setTimeLabel(filteredArray[0]);
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -111,7 +137,11 @@ const TimeFilter: React.FC<TimeFilterProps> = ({ setTimeRange }) => {
         onClick={handleClick}
         endIcon={<KeyboardArrowDown />}
       >
-        {DateLabelToDisplayTextMap[timeLabel]}
+        {isLoading ? (
+          <CircularProgress size={14} />
+        ) : (
+          DateLabelToDisplayTextMap[timeLabel]
+        )}
       </Button>
       <Menu
         id="basic-menu"

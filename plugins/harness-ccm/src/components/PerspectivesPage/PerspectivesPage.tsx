@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { EmptyState } from '@backstage/core-components';
 import {
   Card,
@@ -18,7 +18,9 @@ import useGetPerspective from '../../hooks/useGetPerspective';
 
 import usePerspectiveUrlFromEntity from '../../hooks/usePerspectiveUrlEntity';
 import {
+  CE_DATE_FORMAT_INTERNAL,
   clusterInfoUtil,
+  DATE_RANGE_SHORTCUTS,
   DEFAULT_GROUP_BY,
   DEFAULT_TIME_RANGE,
   getGMTEndDateTime,
@@ -28,9 +30,11 @@ import {
   getTimeRangeFilter,
   getViewFilterForId,
   PERSPECTIVE_DETAILS_AGGREGATE,
+  perspectiveDefaultTimeRangeMapper,
   TimeRangeFilterType,
 } from '../../utils/PerpsectiveUtils';
 import {
+  AsyncStatus,
   K8sRecommendationFilterDtoInput,
   QlceViewEntityStatsDataPoint,
   QlceViewTimeGroupType,
@@ -81,12 +85,14 @@ const PerspectivesPage: React.FC = () => {
     baseUrl,
   } = useResourceSlugFromEntity(perspectiveUrl);
 
-  const { perspective: perspectiveData } = useGetPerspective({
+  const { perspective: perspectiveData, status } = useGetPerspective({
     accountId,
     backendBaseUrl,
     perspectiveId,
     envFromUrl,
   });
+
+  const isPerspectiveLoading = status === AsyncStatus.Loading;
 
   const { isClusterOnly, recommendationsEnabled } = clusterInfoUtil(
     perspectiveData?.dataSources,
@@ -94,6 +100,31 @@ const PerspectivesPage: React.FC = () => {
 
   const [timeRange, setTimeRange] =
     useState<TimeRangeFilterType>(DEFAULT_TIME_RANGE);
+
+  useEffect(() => {
+    if (perspectiveData?.viewTimeRange) {
+      const viewTimeRangeType =
+        perspectiveData.viewTimeRange?.viewTimeRangeType;
+
+      const dateRange =
+        (viewTimeRangeType &&
+          perspectiveDefaultTimeRangeMapper[viewTimeRangeType]) ||
+        DATE_RANGE_SHORTCUTS.LAST_30_DAYS;
+
+      setTimeRange({
+        to: dateRange[1].format(CE_DATE_FORMAT_INTERNAL),
+        from: dateRange[0].format(CE_DATE_FORMAT_INTERNAL),
+      });
+    }
+  }, [perspectiveData]);
+
+  const groupBy =
+    perspectiveData?.viewVisualization?.groupBy || DEFAULT_GROUP_BY;
+  const aggregation =
+    perspectiveData?.viewVisualization?.granularity ||
+    QlceViewTimeGroupType.Day;
+
+  const isPerspectiveReady = !isPerspectiveLoading && perspectiveData;
 
   const { perspectiveSummary, loading: isSummaryLoading } =
     useFetchPerspectiveDetailsSummaryWithBudget({
@@ -109,10 +140,11 @@ const PerspectivesPage: React.FC = () => {
             getGMTEndDateTime(timeRange.to),
           ),
         ],
-        groupBy: [getGroupByFilter(DEFAULT_GROUP_BY)],
+        groupBy: [getGroupByFilter(groupBy)],
         isClusterHourlyData: false,
         isClusterQuery: false,
       },
+      lazy: !isPerspectiveReady,
     });
 
   const [page, setPage] = useState(0);
@@ -140,6 +172,7 @@ const PerspectivesPage: React.FC = () => {
           limit: 10,
         } as unknown as K8sRecommendationFilterDtoInput,
       },
+      lazy: !isPerspectiveReady,
     });
 
   const { perspectiveChart, loading: isChartLoading } =
@@ -155,13 +188,11 @@ const PerspectivesPage: React.FC = () => {
             getGMTEndDateTime(timeRange.to),
           ),
         ],
-        groupBy: [
-          getTimeRangeFilter(QlceViewTimeGroupType.Day),
-          getGroupByFilter(DEFAULT_GROUP_BY),
-        ],
+        groupBy: [getTimeRangeFilter(aggregation), getGroupByFilter(groupBy)],
         isClusterHourlyData: false,
         limit: 12,
       },
+      lazy: !isPerspectiveReady,
     });
 
   const { perspectiveGrid, loading: isGridLoading } = useFetchPerspectiveGrid({
@@ -177,12 +208,13 @@ const PerspectivesPage: React.FC = () => {
           getGMTEndDateTime(timeRange.to),
         ),
       ],
-      groupBy: [getGroupByFilter(DEFAULT_GROUP_BY)],
+      groupBy: [getGroupByFilter(groupBy)],
       isClusterHourlyData: false,
       isClusterOnly,
       limit: 15,
       offset: page * 15,
     },
+    lazy: !isPerspectiveReady,
   });
 
   const totalCostStats = perspectiveSummary?.perspectiveTrendStats?.cost;
@@ -233,12 +265,16 @@ const PerspectivesPage: React.FC = () => {
   return (
     <div>
       <div className={classes.subHeader}>
-        <TimeFilter timeRange={timeRange} setTimeRange={setTimeRange} />
+        <TimeFilter
+          isLoading={isPerspectiveLoading}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+        />
       </div>
       <Grid container spacing={3} direction="row">
         <Grid item>
           <CostCard
-            isLoading={isSummaryLoading}
+            isLoading={isSummaryLoading || isPerspectiveLoading}
             statsLabel={totalCostStats?.statsLabel || ''}
             statsValue={totalCostStats?.statsValue || ''}
             statsDescription={totalCostStats?.statsDescription || ''}
@@ -246,7 +282,7 @@ const PerspectivesPage: React.FC = () => {
         </Grid>
         <Grid item>
           <CostCard
-            isLoading={isSummaryLoading}
+            isLoading={isSummaryLoading || isPerspectiveLoading}
             statsLabel={forecastedCostStats?.statsLabel || ''}
             statsValue={forecastedCostStats?.statsValue || ''}
             statsDescription={forecastedCostStats?.statsDescription || ''}
@@ -283,12 +319,12 @@ const PerspectivesPage: React.FC = () => {
       </Grid>
       <Card className={classes.chartAndGridCtn}>
         <PerspectivesChart
-          isLoading={isChartLoading}
+          isLoading={isChartLoading || isPerspectiveLoading}
           viewVisualization={perspectiveData?.viewVisualization?.chartType}
           data={chartData || []}
         />
         <PerspectivesGrid
-          isLoading={isGridLoading}
+          isLoading={isGridLoading || isPerspectiveLoading}
           data={gridData || []}
           totalCount={perspectiveGrid?.perspectiveTotalCount || 0}
           page={page}

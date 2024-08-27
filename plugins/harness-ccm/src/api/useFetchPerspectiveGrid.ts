@@ -10,6 +10,7 @@ interface UseFetchPerspectiveGridProps {
   variables: Partial<FetchperspectiveGridQueryVariables>;
   env: string;
   backendBaseUrl: Promise<string>;
+  lazy?: boolean;
 }
 
 interface UseFetchPerspectiveGridReturn {

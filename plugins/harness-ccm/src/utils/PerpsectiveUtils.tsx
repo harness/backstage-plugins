@@ -9,7 +9,10 @@ import {
   QlceViewGroupByInput,
   QlceViewTimeFilterOperator,
   QlceViewTimeGroupType,
+  ViewField,
   ViewFieldIdentifier,
+  ViewTimeRangeType,
+  ViewVisualization,
 } from '../api/types';
 
 export const getViewFilterForId: (
@@ -93,7 +96,7 @@ export const DEFAULT_GROUP_BY = {
 };
 
 export const getGroupByFilter: (
-  groupBy: QlceViewFieldInputInput,
+  groupBy: QlceViewFieldInputInput | ViewField,
 ) => QlceViewGroupByInput = groupBy => {
   return {
     entityGroupBy: groupBy,
@@ -126,7 +129,7 @@ export const clusterInfoUtil: (dataSources?: string[]) => {
 };
 
 export const getTimeRangeFilter: (
-  aggregation: QlceViewTimeGroupType,
+  aggregation: QlceViewTimeGroupType | ViewVisualization['granularity'],
 ) => QlceViewGroupByInput = aggregation => {
   return {
     timeTruncGroupBy: {
@@ -290,3 +293,11 @@ export interface TimeRangeFilterType {
   to: string;
   from: string;
 }
+
+export const perspectiveDefaultTimeRangeMapper: Record<string, dayjs.Dayjs[]> =
+  {
+    [ViewTimeRangeType.Last_7]: DATE_RANGE_SHORTCUTS.LAST_7_DAYS,
+    [ViewTimeRangeType.Last_30]: DATE_RANGE_SHORTCUTS.LAST_30_DAYS,
+    [ViewTimeRangeType.LastMonth]: DATE_RANGE_SHORTCUTS.LAST_MONTH,
+    [ViewTimeRangeType.CurrentMonth]: DATE_RANGE_SHORTCUTS.CURRENT_MONTH,
+  };

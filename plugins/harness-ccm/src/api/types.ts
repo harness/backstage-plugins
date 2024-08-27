@@ -707,3 +707,11 @@ export type PerspectiveRecommendationsQuery = {
     count: number;
   } | null;
 };
+
+export enum ViewTimeRangeType {
+  CurrentMonth = 'CURRENT_MONTH',
+  Custom = 'CUSTOM',
+  Last_7 = 'LAST_7',
+  Last_30 = 'LAST_30',
+  LastMonth = 'LAST_MONTH',
+}

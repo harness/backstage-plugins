@@ -16,6 +16,7 @@ interface UseFetcherProps {
   method: 'GET' | 'POST';
   env: string;
   backendBaseUrl: Promise<string>;
+  lazy?: boolean;
 }
 
 interface UseFetcherReturn<T> {
@@ -32,6 +33,7 @@ function useFetcher<T>({
   method = 'POST',
   env,
   backendBaseUrl,
+  lazy,
 }: UseFetcherProps): UseFetcherReturn<T> {
   const [status, setStatus] = useState(AsyncStatus.Init);
 
@@ -41,40 +43,44 @@ function useFetcher<T>({
     error,
     retry: refetch,
   } = useAsyncRetry(async (): Promise<T | undefined> => {
-    const query = new URLSearchParams({
-      routingId: `${accountId}`,
-    });
+    if (lazy === false) {
+      const query = new URLSearchParams({
+        routingId: `${accountId}`,
+      });
 
-    const token = getSecureHarnessKey('token');
-    const auth = token ? `${token}` : '';
+      const token = getSecureHarnessKey('token');
+      const auth = token ? `${token}` : '';
 
-    const headers = new Headers({
-      'content-type': 'application/json',
-      Authorization: auth,
-    });
+      const headers = new Headers({
+        'content-type': 'application/json',
+        Authorization: auth,
+      });
 
-    setStatus(AsyncStatus.Loading);
+      setStatus(AsyncStatus.Loading);
 
-    const response = await fetch(
-      `${await backendBaseUrl}/harness/${env}/gateway/ccm/api/graphql?${query}`,
-      {
-        headers,
-        method,
-        body,
-      },
-    );
+      const response = await fetch(
+        `${await backendBaseUrl}/harness/${env}/gateway/ccm/api/graphql?${query}`,
+        {
+          headers,
+          method,
+          body,
+        },
+      );
 
-    if (response.status === 200) {
-      const responseData = await response.json();
-      setStatus(AsyncStatus.Success);
-      return responseData;
-    } else if (response.status === 401) {
-      setStatus(AsyncStatus.Unauthorized);
+      if (response.status === 200) {
+        const responseData = await response.json();
+        setStatus(AsyncStatus.Success);
+        return responseData;
+      } else if (response.status === 401) {
+        setStatus(AsyncStatus.Unauthorized);
+        return undefined;
+      }
+      setStatus(AsyncStatus.Error);
       return undefined;
     }
-    setStatus(AsyncStatus.Error);
+
     return undefined;
-  }, [accountId, body, method, env]);
+  }, [accountId, body, method, env, lazy]);
 
   return { status, data, loading, error, refetch };
 }

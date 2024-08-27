@@ -41,7 +41,9 @@ const PerspectivesGrid: React.FC<PerspectivesGridProps> = ({
         columns={columns}
         data={data}
         totalCount={
-          page * 15 < totalCount ? Number.MAX_VALUE : Number.MAX_SAFE_INTEGER
+          (page + 1) * 15 < totalCount
+            ? Number.MAX_VALUE
+            : Number.MAX_SAFE_INTEGER
         }
         options={{
           search: false,

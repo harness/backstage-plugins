@@ -10,6 +10,7 @@ interface UseFetchPerspectiveChartProps {
   variables: Partial<FetchPerspectiveTimeSeriesQueryVariables>;
   env: string;
   backendBaseUrl: Promise<string>;
+  lazy?: boolean;
 }
 
 interface UseFetchPerspectiveChartReturn {

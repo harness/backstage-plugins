@@ -10,6 +10,7 @@ interface UseFetchPerspectiveDetailsSummaryWithBudgetProps {
   variables: Partial<FetchPerspectiveDetailsSummaryWithBudgetQueryVariables>;
   env: string;
   backendBaseUrl: Promise<string>;
+  lazy?: boolean;
 }
 
 interface UseFetchPerspectiveDetailsSummaryWithBudgetReturn {

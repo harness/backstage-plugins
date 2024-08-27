@@ -10,6 +10,7 @@ interface UseFetchPerspectiveRecommendationsProps {
   variables: Partial<PerspectiveRecommendationsQueryVariables>;
   env: string;
   backendBaseUrl: Promise<string>;
+  lazy?: boolean;
 }
 
 interface UseFetchPerspectiveRecommendationsReturn {
