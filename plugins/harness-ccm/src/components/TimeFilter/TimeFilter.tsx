@@ -37,6 +37,9 @@ const useStyles = makeStyles({
   divider: {
     margin: '8px 0px',
   },
+  buttonCtn: {
+    height: 36,
+  },
 });
 
 const DateRenderer = ({
@@ -136,9 +139,10 @@ const TimeFilter: React.FC<TimeFilterProps> = ({
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
         endIcon={<KeyboardArrowDown />}
+        className={classes.buttonCtn}
       >
         {isLoading ? (
-          <CircularProgress size={14} />
+          <CircularProgress size={12} />
         ) : (
           DateLabelToDisplayTextMap[timeLabel]
         )}

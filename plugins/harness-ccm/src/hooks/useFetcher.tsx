@@ -43,7 +43,7 @@ function useFetcher<T>({
     error,
     retry: refetch,
   } = useAsyncRetry(async (): Promise<T | undefined> => {
-    if (lazy === false) {
+    if (!lazy) {
       const query = new URLSearchParams({
         routingId: `${accountId}`,
       });
