@@ -7,6 +7,9 @@ import {
   MenuItem,
   Typography,
 } from '@material-ui/core';
+
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+
 import {
   CALENDAR_MONTH_DATES,
   CE_DATE_FORMAT_INTERNAL,
@@ -106,6 +109,7 @@ const TimeFilter: React.FC<TimeFilterProps> = ({ setTimeRange }) => {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        endIcon={<KeyboardArrowDown />}
       >
         {DateLabelToDisplayTextMap[timeLabel]}
       </Button>

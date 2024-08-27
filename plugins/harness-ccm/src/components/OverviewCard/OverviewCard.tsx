@@ -30,6 +30,7 @@ import {
 const useStyles = makeStyles({
   mainCtn: {
     display: 'flex',
+    alignItems: 'center',
     gap: 20,
     minHeight: 120,
   },
