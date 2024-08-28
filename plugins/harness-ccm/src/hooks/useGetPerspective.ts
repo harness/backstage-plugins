@@ -48,6 +48,8 @@ const useGetPerspective = ({
       setStatus(AsyncStatus.Success);
     } else if (resp.status === 401) {
       setStatus(AsyncStatus.Unauthorized);
+    } else if (resp.status === 403) {
+      setStatus(AsyncStatus.Forbidden);
     } else {
       setStatus(AsyncStatus.Error);
     }

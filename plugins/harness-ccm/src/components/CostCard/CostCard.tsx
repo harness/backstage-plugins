@@ -6,6 +6,8 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
+import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
+import ArrowDropUpOutlinedIcon from '@mui/icons-material/ArrowDropUpOutlined';
 
 const useStyles = makeStyles({
   costCtn: {
@@ -25,6 +27,16 @@ const useStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  trendCtn: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingRight: 4,
+  },
 });
 
 interface CostCardProps {
@@ -32,6 +44,7 @@ interface CostCardProps {
   statsLabel: string;
   statsValue: string;
   statsDescription: string;
+  statsTrend?: number;
 }
 
 const CostCard: React.FC<CostCardProps> = ({
@@ -39,6 +52,7 @@ const CostCard: React.FC<CostCardProps> = ({
   statsDescription,
   statsLabel,
   statsValue,
+  statsTrend,
 }) => {
   const classes = useStyles();
 
@@ -56,12 +70,27 @@ const CostCard: React.FC<CostCardProps> = ({
 
   return (
     <Card className={classes.costCard}>
-      <CardContent>
-        <Typography variant="body2">{statsLabel}</Typography>
-        <Typography variant="h3" className={classes.costDescription}>
-          {statsValue}
-        </Typography>
-        <Typography variant="body2">{statsDescription}</Typography>
+      <CardContent className={classes.cardContent}>
+        <div>
+          <Typography variant="body2">{statsLabel}</Typography>
+          <Typography variant="h3" className={classes.costDescription}>
+            {statsValue}
+          </Typography>
+          <Typography variant="body2">{statsDescription}</Typography>
+        </div>
+        {statsTrend ? (
+          <div
+            style={{ color: statsTrend >= 0 ? '#4dc952' : '#e43326' }}
+            className={classes.trendCtn}
+          >
+            {statsTrend >= 0 ? (
+              <ArrowDropDownOutlinedIcon style={{ color: '#4dc952' }} />
+            ) : (
+              <ArrowDropUpOutlinedIcon style={{ color: '#e43326' }} />
+            )}
+            {statsTrend < 0 ? statsTrend * -1 : statsTrend}%
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

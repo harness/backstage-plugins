@@ -10,6 +10,7 @@ export enum AsyncStatus {
   Success,
   Error,
   Unauthorized,
+  Forbidden,
 }
 
 export type Scalars = {

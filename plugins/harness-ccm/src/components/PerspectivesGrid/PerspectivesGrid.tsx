@@ -1,5 +1,9 @@
 import React from 'react';
+import { Typography } from '@material-ui/core';
 import { Table, TableColumn } from '@backstage/core-components';
+
+import ArrowDownwardOutlinedIcon from '@mui/icons-material/ArrowDownwardOutlined';
+import ArrowUpwardOutlinedIcon from '@mui/icons-material/ArrowUpwardOutlined';
 
 import { QlceViewEntityStatsDataPoint } from '../../api/types';
 
@@ -12,10 +16,30 @@ const columns: TableColumn[] = [
   {
     title: 'Cost',
     field: 'cost',
+    render: (rowData: any) => (
+      <Typography>
+        {new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }).format(rowData.cost)}
+      </Typography>
+    ),
   },
   {
     title: 'Cost Trend',
     field: 'costTrend',
+    render: (rowData: any) => (
+      <Typography>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {rowData.costTrend >= 0 ? (
+            <ArrowDownwardOutlinedIcon style={{ color: '#4dc952' }} />
+          ) : (
+            <ArrowUpwardOutlinedIcon style={{ color: '#e43326' }} />
+          )}
+          {rowData.costTrend < 0 ? rowData.costTrend * -1 : rowData.costTrend}%
+        </div>
+      </Typography>
+    ),
   },
 ];
 

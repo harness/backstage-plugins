@@ -143,6 +143,7 @@ const PerspectivesPage: React.FC = () => {
         groupBy: [getGroupByFilter(groupBy)],
         isClusterHourlyData: false,
         isClusterQuery: false,
+        preferences: perspectiveData?.viewPreferences,
       },
       lazy: !isPerspectiveReady,
     });
@@ -191,6 +192,7 @@ const PerspectivesPage: React.FC = () => {
         groupBy: [getTimeRangeFilter(aggregation), getGroupByFilter(groupBy)],
         isClusterHourlyData: false,
         limit: 12,
+        preferences: perspectiveData?.viewPreferences,
       },
       lazy: !isPerspectiveReady,
     });
@@ -211,6 +213,7 @@ const PerspectivesPage: React.FC = () => {
       groupBy: [getGroupByFilter(groupBy)],
       isClusterHourlyData: false,
       isClusterOnly,
+      preferences: perspectiveData?.viewPreferences,
       limit: 15,
       offset: page * 15,
     },
@@ -255,9 +258,19 @@ const PerspectivesPage: React.FC = () => {
   } else if (licenses === 'Unauthorized') {
     return (
       <EmptyState
-        title="Harness Cloud Cost Management Engineering"
+        title="Harness Cloud Cost Management"
         missing="info"
         description="The x-api-key is either missing or incorrect in app-config.yaml under proxy settings."
+      />
+    );
+  }
+
+  if (status === AsyncStatus.Forbidden) {
+    return (
+      <EmptyState
+        title="Harness Cloud Cost Management"
+        missing="info"
+        description="You don't have access to view this Perspective"
       />
     );
   }
@@ -278,6 +291,7 @@ const PerspectivesPage: React.FC = () => {
             statsLabel={totalCostStats?.statsLabel || ''}
             statsValue={totalCostStats?.statsValue || ''}
             statsDescription={totalCostStats?.statsDescription || ''}
+            statsTrend={totalCostStats?.statsTrend}
           />
         </Grid>
         <Grid item>
