@@ -5,7 +5,11 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
-import { InfoCard, InfoCardVariants } from '@backstage/core-components';
+import {
+  InfoCard,
+  InfoCardVariants,
+  EmptyState,
+} from '@backstage/core-components';
 import {
   MissingAnnotationEmptyState,
   useEntity,
@@ -21,18 +25,24 @@ import usePerspectiveUrlFromEntity from '../../hooks/usePerspectiveUrlEntity';
 import { useResourceSlugFromEntity } from '../../hooks/useResourceSlugFromEntity';
 import useFetchPerspectiveDetailsSummaryWithBudget from '../../api/useFetchPerspectiveDetailsSummaryWithBudget';
 import {
+  CE_DATE_FORMAT_INTERNAL,
+  DATE_RANGE_SHORTCUTS,
   DEFAULT_GROUP_BY,
   getGMTEndDateTime,
   getGMTStartDateTime,
   getGroupByFilter,
   getTimeFilters,
   getViewFilterForId,
-  LAST_30_DAYS_RANGE,
   PERSPECTIVE_DETAILS_AGGREGATE,
+  perspectiveDefaultTimeRangeMapper,
 } from '../../utils/PerpsectiveUtils';
 import { rootRouteRef } from '../../routes';
 import useFetchPerspectiveRecommendations from '../../api/useFetchPerspectiveRecommendations';
-import { K8sRecommendationFilterDtoInput } from '../../api/types';
+import {
+  AsyncStatus,
+  K8sRecommendationFilterDtoInput,
+} from '../../api/types';
+import useGetPerspective from '../../hooks/useGetPerspective';
 
 const useStyles = makeStyles({
   mainCtn: {
@@ -76,6 +86,28 @@ function OverviewCard(props: OverviewCardProps) {
     perspectiveId,
   } = useResourceSlugFromEntity(perspectiveUrl);
 
+  const { perspective: perspectiveData, status } = useGetPerspective({
+    accountId,
+    backendBaseUrl,
+    perspectiveId,
+    envFromUrl,
+  });
+
+  const groupBy =
+    perspectiveData?.viewVisualization?.groupBy || DEFAULT_GROUP_BY;
+
+  const viewTimeRangeType = perspectiveData?.viewTimeRange?.viewTimeRangeType;
+
+  const dateRange =
+    (viewTimeRangeType &&
+      perspectiveDefaultTimeRangeMapper[viewTimeRangeType]) ||
+    DATE_RANGE_SHORTCUTS.LAST_30_DAYS;
+
+  const timeRange = {
+    to: dateRange[1].format(CE_DATE_FORMAT_INTERNAL),
+    from: dateRange[0].format(CE_DATE_FORMAT_INTERNAL),
+  };
+
   const { perspectiveSummary, loading: isSummaryLoading } =
     useFetchPerspectiveDetailsSummaryWithBudget({
       accountId,
@@ -86,11 +118,11 @@ function OverviewCard(props: OverviewCardProps) {
         filters: [
           getViewFilterForId(perspectiveId),
           ...getTimeFilters(
-            getGMTStartDateTime(LAST_30_DAYS_RANGE[0]),
-            getGMTEndDateTime(LAST_30_DAYS_RANGE[1]),
+            getGMTStartDateTime(timeRange.from),
+            getGMTEndDateTime(timeRange.to),
           ),
         ],
-        groupBy: [getGroupByFilter(DEFAULT_GROUP_BY)],
+        groupBy: [getGroupByFilter(groupBy)],
         isClusterHourlyData: false,
         isClusterQuery: false,
       },
@@ -106,8 +138,8 @@ function OverviewCard(props: OverviewCardProps) {
           perspectiveFilters: [
             getViewFilterForId(perspectiveId),
             ...getTimeFilters(
-              getGMTStartDateTime(LAST_30_DAYS_RANGE[0]),
-              getGMTEndDateTime(LAST_30_DAYS_RANGE[1]),
+              getGMTStartDateTime(timeRange.from),
+              getGMTEndDateTime(timeRange.to),
             ),
           ],
           minSaving: 1,
@@ -119,9 +151,29 @@ function OverviewCard(props: OverviewCardProps) {
 
   if (!isHarnessCcmAvailable(entity)) {
     return (
-      <>
+      <InfoCard
+        title="Cloud Cost Management"
+        variant={variant}
+        cardClassName={classes.emptyState}
+      >
         <MissingAnnotationEmptyState annotation="harness.io/perspective-url" />
-      </>
+      </InfoCard>
+    );
+  }
+
+  if (status === AsyncStatus.Forbidden) {
+    return (
+      <InfoCard
+        title="Cloud Cost Management"
+        variant={variant}
+        cardClassName={classes.emptyState}
+      >
+        <EmptyState
+          title=""
+          missing="info"
+          description="You don't have access to view this Perspective"
+        />
+      </InfoCard>
     );
   }
 
