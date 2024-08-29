@@ -32,9 +32,9 @@ const columns: TableColumn[] = [
       <Typography>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {rowData.costTrend >= 0 ? (
-            <ArrowDownwardOutlinedIcon style={{ color: '#4dc952' }} />
-          ) : (
             <ArrowUpwardOutlinedIcon style={{ color: '#e43326' }} />
+          ) : (
+            <ArrowDownwardOutlinedIcon style={{ color: '#4dc952' }} />
           )}
           {rowData.costTrend < 0 ? rowData.costTrend * -1 : rowData.costTrend}%
         </div>
