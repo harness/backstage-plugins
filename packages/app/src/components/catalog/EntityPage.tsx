@@ -237,9 +237,9 @@ const ccmContent = (
 
     <EntitySwitch.Case>
       <EmptyState
-        title="No Chaos data available for this entity"
+        title="No Cloud Cost Management data available for this entity"
         missing="info"
-        description="You need to add an annotation to your component if you want to enable Chaos for it. You can read more about annotations in Backstage by clicking the button below."
+        description="You need to add an annotation to your component if you want to enable Cloud Cost Management for it. You can read more about annotations in Backstage by clicking the button below."
         action={
           <Button
             variant="contained"
