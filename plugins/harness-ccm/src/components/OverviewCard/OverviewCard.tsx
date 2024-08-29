@@ -179,7 +179,9 @@ function OverviewCard(props: OverviewCardProps) {
     );
   }
 
-  if (isPerspectiveLoading || isSummaryLoading || areRecommendationsLoading) {
+  const isSummaryLoaded = !isSummaryLoading && perspectiveSummary;
+
+  if (isPerspectiveLoading || !isSummaryLoaded || areRecommendationsLoading) {
     return (
       <InfoCard
         title="Cloud Cost Management"
