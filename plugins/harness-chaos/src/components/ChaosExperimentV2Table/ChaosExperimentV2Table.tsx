@@ -86,7 +86,7 @@ export const useStyles = makeStyles({
 
 const columns: TableColumn[] = [
   { field: 'name', title: 'name', width: '20%' },
-  { field: 'infra', title: 'network map', width: '20%' },
+  { field: 'infra', title: 'application map', width: '20%' },
   { field: 'runs', title: 'recent experiment runs', width: '26%' },
   { field: 'updatedBy', title: 'last updated by', width: '22%' },
   { field: 'execute', title: '', width: '6%' },
@@ -163,16 +163,16 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
     allNMs && allNMs?.length > 1 ? (
       <FormControl fullWidth>
         <InputLabel
-          htmlFor="Network Map"
+          htmlFor="Application Map"
           classes={{
             root: classes.label,
           }}
         >
-          Network Map
+          Application Map
         </InputLabel>
         <Select
-          labelId="Network Map"
-          id="Network Map"
+          labelId="Application Map"
+          id="Application Map"
           value={selectedNM}
           onChange={e => setSelectedNM(e.target.value)}
         >
@@ -271,7 +271,6 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
                 sx={{ display: 'inline' }}
                 component="span"
                 variant="caption"
-                fontSize="0.3rem"
                 color="white"
               >
                 {timeDifference(
