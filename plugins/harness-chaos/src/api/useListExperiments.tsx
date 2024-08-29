@@ -55,8 +55,8 @@ const useGetExperimentsList = ({
     body,
   });
 
-  const experiments = data?.data.listWorkflow.workflows;
-  const totalExperiments = data?.data.listWorkflow.totalNoOfWorkflows || 0;
+  const experiments = data?.data?.listWorkflow?.workflows;
+  const totalExperiments = data?.data?.listWorkflow?.totalNoOfWorkflows || 0;
 
   return { experiments, totalExperiments, ...fetcherProps };
 };

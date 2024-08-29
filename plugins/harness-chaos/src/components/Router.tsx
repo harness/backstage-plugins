@@ -24,7 +24,7 @@ export const Router = () => {
           annotation={[
             'harness.io/project-url',
             'harness.io/service-tags',
-            'harness.io/network-map-tags',
+            'harness.io/application-map-tags',
           ]}
         />
       </>

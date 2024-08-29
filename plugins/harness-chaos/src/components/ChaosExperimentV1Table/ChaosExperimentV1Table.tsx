@@ -156,7 +156,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
         MenuProps={{
           PaperProps: {
             sx: {
-              '& .MuiList-root': {
+              '.v5-MuiList-root': {
                 display: 'flex',
                 flexDirection: 'column',
               },
@@ -268,7 +268,6 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 sx={{ display: 'inline', paddingLeft: '4px' }}
                 component="span"
                 variant="caption"
-                fontSize="0.3rem"
                 color="white"
               >
                 {infrastructure?.infraType}
@@ -307,7 +306,6 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 sx={{ display: 'inline' }}
                 component="span"
                 variant="caption"
-                fontSize="0.3rem"
                 color="white"
               >
                 {timeDifference(
