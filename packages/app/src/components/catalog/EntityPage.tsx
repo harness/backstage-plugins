@@ -230,7 +230,7 @@ const chaosContent = (
 );
 
 const ccmContent = (
-  <EntitySwitch>w
+  <EntitySwitch>
     <EntitySwitch.Case if={isHarnessCcmAvailable}>
       <EntityCcmContent />
     </EntitySwitch.Case>
