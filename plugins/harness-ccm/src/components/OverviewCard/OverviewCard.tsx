@@ -38,10 +38,7 @@ import {
 } from '../../utils/PerpsectiveUtils';
 import { rootRouteRef } from '../../routes';
 import useFetchPerspectiveRecommendations from '../../api/useFetchPerspectiveRecommendations';
-import {
-  AsyncStatus,
-  K8sRecommendationFilterDtoInput,
-} from '../../api/types';
+import { AsyncStatus, K8sRecommendationFilterDtoInput } from '../../api/types';
 import useGetPerspective from '../../hooks/useGetPerspective';
 
 const useStyles = makeStyles({
@@ -93,6 +90,9 @@ function OverviewCard(props: OverviewCardProps) {
     envFromUrl,
   });
 
+  const isPerspectiveLoading = status === AsyncStatus.Loading;
+  const isPerspectiveReady = !isPerspectiveLoading && perspectiveData;
+
   const groupBy =
     perspectiveData?.viewVisualization?.groupBy || DEFAULT_GROUP_BY;
 
@@ -126,6 +126,7 @@ function OverviewCard(props: OverviewCardProps) {
         isClusterHourlyData: false,
         isClusterQuery: false,
       },
+      lazy: !isPerspectiveReady,
     });
 
   const { perspectiveRecommendations, loading: areRecommendationsLoading } =
@@ -147,6 +148,7 @@ function OverviewCard(props: OverviewCardProps) {
           limit: 10,
         } as unknown as K8sRecommendationFilterDtoInput,
       },
+      lazy: !isPerspectiveReady,
     });
 
   if (!isHarnessCcmAvailable(entity)) {
@@ -177,7 +179,7 @@ function OverviewCard(props: OverviewCardProps) {
     );
   }
 
-  if (isSummaryLoading || areRecommendationsLoading) {
+  if (isPerspectiveLoading || isSummaryLoading || areRecommendationsLoading) {
     return (
       <InfoCard
         title="Cloud Cost Management"
