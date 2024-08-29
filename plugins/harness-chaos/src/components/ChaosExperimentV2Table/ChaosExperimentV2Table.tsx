@@ -185,7 +185,7 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
     ) : null;
 
   const DropDownComponent = (
-    <Grid container spacing={3}>
+    <Grid margin={1} container spacing={3}>
       <Grid item md={3}>
         {NMDropDown}
       </Grid>
