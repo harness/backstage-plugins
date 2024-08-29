@@ -16,7 +16,7 @@ Welcome to the Harness CCM plugin for Backstage!
 1. Open terminal and navigate to the _root of your Backstage app_. Then run
 
 ```
-yarn add --cwd packages/app @harnessio/backstage-plugin-ccm
+yarn add --cwd packages/app @harnessio/backstage-plugin-harness-ccm
 
 yarn install
 ```
@@ -45,7 +45,7 @@ Notes:
 
 - Set the value of target to your on-prem URL if you are using the Harness on-prem offering
 
-3. Inside your Backstage's `EntityPage.tsx`, import the `EntityCcmContent` and `isHarnessCcmAvailable`  from `@harnessio/backstage-plugin-ccm` and add `<EntityHarnessCcmContent />`. Something like this -
+3. Inside your Backstage's `EntityPage.tsx`, import the `EntityCcmContent` and `isHarnessCcmAvailable`  from `@harnessio/backstage-plugin-harness-ccm` and add `<EntityHarnessCcmContent />`. Something like this -
 
 ```tsx
 // In packages/app/src/components/catalog/EntityPage.tsx
@@ -53,7 +53,7 @@ Notes:
 import {
   isHarnessCcmAvailable,
   EntityCcmContent,
-} from '@harnessio/backstage-plugin-ccm';
+} from '@harnessio/backstage-plugin-harness-ccm';
 
 const ccmContent = (
   // ...
