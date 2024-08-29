@@ -112,7 +112,7 @@ If only the project url is provided we default to V1 table that shows experiment
 
 > NOTE: service tag based filtering will be available at a later date.
 
-> NOTE: Locating a application map tag
+Refer image below to locate an application map tag.
 
 <img src="./src/assets/application-map-tags.png" />
 
