@@ -148,7 +148,9 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.COMPLETED:
       return (
         <Chip
-          icon={<CheckCircleIcon style={{ color: 'white' }} />}
+          icon={
+            <CheckCircleIcon style={{ color: 'white', marginLeft: '5px' }} />
+          }
           label="Completed"
           style={{ backgroundColor: '#1b841d', color: 'white' }}
         />
@@ -158,14 +160,14 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
       return (
         <Chip
           label="Completed"
-          icon={<ErrorIcon style={{ color: 'white' }} />}
+          icon={<ErrorIcon style={{ color: 'white', marginLeft: '5px' }} />}
           style={{ backgroundColor: '#ff832b', color: 'white' }}
         />
       );
     case ExperimentRunStatus.ERROR:
       return (
         <Chip
-          icon={<CancelIcon style={{ color: 'white' }} />}
+          icon={<CancelIcon style={{ color: 'white', marginLeft: '5px' }} />}
           label="Error"
           style={{ backgroundColor: '#da291d', color: 'white' }}
         />
@@ -173,7 +175,9 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.TIMEOUT:
       return (
         <Chip
-          icon={<AccessTimeIcon style={{ color: 'white' }} />}
+          icon={
+            <AccessTimeIcon style={{ color: 'white', marginLeft: '5px' }} />
+          }
           label="Timeout"
           style={{ backgroundColor: '#da291d', color: 'white' }}
         />
@@ -181,7 +185,7 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.RUNNING:
       return (
         <Chip
-          icon={<MoreHorizIcon style={{ color: 'black' }} />}
+          icon={<MoreHorizIcon style={{ color: 'black', marginLeft: '5px' }} />}
           label="Running"
           style={{ backgroundColor: '#ffffff', color: 'black' }}
         />
@@ -189,7 +193,7 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.QUEUED:
       return (
         <Chip
-          icon={<PauseIcon style={{ color: 'white' }} />}
+          icon={<PauseIcon style={{ color: 'white', marginLeft: '5px' }} />}
           label="Queued"
           style={{ backgroundColor: '#9d8ed6', color: 'white' }}
         />
@@ -197,7 +201,11 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.STOPPED:
       return (
         <Chip
-          icon={<StopCircleOutlinedIcon style={{ color: 'white' }} />}
+          icon={
+            <StopCircleOutlinedIcon
+              style={{ color: 'white', marginLeft: '5px' }}
+            />
+          }
           label="Stopped"
           style={{ backgroundColor: '#383946', color: 'white' }}
         />
@@ -205,7 +213,11 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     default:
       return (
         <Chip
-          icon={<NotInterestedOutlinedIcon sx={{ color: 'white' }} />}
+          icon={
+            <NotInterestedOutlinedIcon
+              sx={{ color: 'white', marginLeft: '5px' }}
+            />
+          }
           label="N/A"
           style={{ backgroundColor: '#383946', color: 'white' }}
         />
