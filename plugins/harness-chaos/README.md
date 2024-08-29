@@ -110,9 +110,9 @@ Based upon the annotations that the user provides, we decide which version of ex
 For ease of use of the user, we check if project url is provided and then see if the service tag or network tag is provided.
 If only the project url is provided we default to V1 table that shows experiments for all infrastructures else if we see the other annotations also, we show service specific or application map specific experiments.
 
->>> NOTE: service tag based filtering will be available at a later date.
+> NOTE: service tag based filtering will be available at a later date.
 
->>> NOTE: Locating a application map tag
+> NOTE: Locating a application map tag
 
 <img src="./src/assets/application-map-tags.png" />
 
