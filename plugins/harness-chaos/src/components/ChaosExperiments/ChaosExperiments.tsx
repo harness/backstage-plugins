@@ -3,8 +3,7 @@ import { EmptyState } from '@backstage/core-components';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 
-import { makeStyles } from '@mui/styles';
-import Button from '@mui/material/Button';
+import { Button, makeStyles } from '@material-ui/core';
 
 import useGetLicense from '../../hooks/useGetLicense';
 import { isV2Compatible } from '../../utils/getCompatibleVersion';

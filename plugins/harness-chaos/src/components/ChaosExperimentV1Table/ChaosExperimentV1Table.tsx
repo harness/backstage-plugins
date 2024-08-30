@@ -10,18 +10,19 @@ import {
 } from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 
-import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
-import { makeStyles } from '@mui/styles';
-import Select from '@mui/material/Select';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import InputLabel from '@mui/material/InputLabel';
-import Typography from '@mui/material/Typography';
-import FormControl from '@mui/material/FormControl';
-import ListItemText from '@mui/material/ListItemText';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import {
+  Chip,
+  FormControl,
+  IconButton,
+  Input,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+  Tooltip,
+  Typography,
+  makeStyles,
+} from '@material-ui/core';
 
 import SyncIcon from '@mui/icons-material/Sync';
 import CheckIcon from '@mui/icons-material/Check';
@@ -46,7 +47,7 @@ interface ChaosExperimentTableProps {
   baseUrl: string;
 }
 
-export const useStyles = makeStyles({
+export const useStyles = makeStyles(theme => ({
   gridItemCard: {
     display: 'flex',
     flexDirection: 'column',
@@ -66,19 +67,25 @@ export const useStyles = makeStyles({
     justifyContent: 'flex-start',
     fontSize: '11px',
   },
+  formControl: {
+    marginLeft: theme.spacing(1),
+    minWidth: 300,
+    height: 56,
+  },
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
   chip: {
-    marginBottom: 0,
-    marginRight: '8px',
-    background: 'grey',
-    borderRadius: '12px',
+    margin: 2,
   },
-  infraDropDownLabel: { fontSize: '14px !important', marginRight: '4px' },
-  menuItem: {
-    display: 'inline-flex',
-    padding: '6px 8px',
-    justifyContent: 'flex-start',
+  checkIcon: {
+    marginLeft: '6px',
   },
-});
+  infraText: {
+    paddingLeft: '4px',
+  },
+}));
 
 const columns: TableColumn[] = [
   { field: 'name', title: 'name', width: '20%' },
@@ -107,6 +114,9 @@ const allInfrastructures = [
     value: 'Windows',
   },
 ];
+
+const INFRA_ITEM_HEIGHT = 48;
+const INFRA_ITEM_PADDING_TOP = 8;
 
 export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
   const classes = useStyles();
@@ -145,40 +155,16 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
   }
 
   const infrastructureSelector = (
-    <FormControl sx={{ m: 1, minWidth: 350 }}>
-      <InputLabel size="small">Filter Infrastructures</InputLabel>
+    <FormControl className={classes.formControl}>
+      <InputLabel>Filter Infrastructures</InputLabel>
       <Select
-        size="small"
         multiple
         value={infrastructures}
         onChange={e => setInfrastructures(e.target.value as string[])}
-        input={<OutlinedInput label="Filter Infrastructures" />}
-        MenuProps={{
-          PaperProps: {
-            sx: {
-              '.v5-MuiList-root': {
-                display: 'flex',
-                flexDirection: 'column',
-              },
-            },
-          },
-        }}
-        IconComponent={
-          infrastructures.length > 0
-            ? () => (
-                <IconButton
-                  sx={{ marginRight: '8px !important' }}
-                  size="small"
-                  onClick={() => setInfrastructures([])}
-                >
-                  <ClearIcon color="error" fontSize="small" />
-                </IconButton>
-              )
-            : undefined
-        }
+        input={<Input />}
         renderValue={selected => (
-          <Stack direction="row" flexWrap="wrap">
-            {selected.map(value => (
+          <div className={classes.chips}>
+            {(selected as string[]).map(value => (
               <Chip
                 key={value}
                 size="small"
@@ -196,20 +182,35 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 }
               />
             ))}
-          </Stack>
+          </div>
         )}
+        MenuProps={{
+          PaperProps: {
+            style: {
+              maxHeight: INFRA_ITEM_HEIGHT * 4.5 + INFRA_ITEM_PADDING_TOP,
+              width: 350,
+            },
+          },
+        }}
+        IconComponent={
+          infrastructures.length > 0
+            ? () => (
+                <IconButton size="small" onClick={() => setInfrastructures([])}>
+                  <ClearIcon color="error" fontSize="small" />
+                </IconButton>
+              )
+            : undefined
+        }
       >
         {allInfrastructures.map(infra => (
-          <MenuItem
-            className={classes.menuItem}
-            key={infra.label}
-            value={infra.value}
-          >
-            <Typography className={classes.infraDropDownLabel}>
-              {infra.label}
-            </Typography>
+          <MenuItem key={infra.value} value={infra.value}>
+            {infra.label}
             {infrastructures.includes(infra.value) ? (
-              <CheckIcon color="info" fontSize="small" />
+              <CheckIcon
+                className={classes.checkIcon}
+                color="info"
+                fontSize="small"
+              />
             ) : null}
           </MenuItem>
         ))}
@@ -247,13 +248,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
               underline="none"
               color="inherit"
             >
-              <Typography
-                sx={{ display: 'inline' }}
-                component="span"
-                variant="body2"
-                color="white"
-                display="inline"
-              >
+              <Typography variant="body2">
                 {infrastructure?.name || 'N/A'}
               </Typography>
             </Link>
@@ -265,10 +260,9 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
                 color={getInfraIconColor(infrastructure?.isActive)}
               />
               <Typography
-                sx={{ display: 'inline', paddingLeft: '4px' }}
                 component="span"
                 variant="caption"
-                color="white"
+                className={classes.infraText}
               >
                 {infrastructure?.infraType}
               </Typography>
@@ -286,28 +280,14 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
         <ListItemText
           primary={
             <React.Fragment>
-              <Typography
-                sx={{
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  textOverflow: 'ellipsis',
-                  lineClamp: 1,
-                }}
-                variant="body2"
-                color="white"
-              >
+              <Typography variant="body2">
                 {experiment.updatedBy?.username || 'Chaos Controller'}
               </Typography>
             </React.Fragment>
           }
           secondary={
             <React.Fragment>
-              <Typography
-                sx={{ display: 'inline' }}
-                component="span"
-                variant="caption"
-                color="white"
-              >
+              <Typography component="span" variant="caption">
                 {timeDifference(
                   new Date().getTime(),
                   Number(experiment.updatedAt),
