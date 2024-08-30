@@ -2,14 +2,16 @@ import Swal from 'sweetalert2';
 import React, { useState } from 'react';
 import { useApi, discoveryApiRef } from '@backstage/core-plugin-api';
 
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContentText from '@mui/material/DialogContentText';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Tooltip,
+} from '@material-ui/core';
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
@@ -121,10 +123,10 @@ const RunExperimentButton = ({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} variant="outlined" color="error">
+          <Button onClick={handleClose} variant="outlined" color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleClick} variant="contained" color="success">
+          <Button onClick={handleClick} variant="contained" color="primary">
             Run Experiment
           </Button>
         </DialogActions>
