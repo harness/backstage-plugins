@@ -10,17 +10,19 @@ import {
 } from '@backstage/core-components';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 
-import Grid from '@mui/material/Grid';
-import { makeStyles } from '@mui/styles';
-import Select from '@mui/material/Select';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import FormControl from '@mui/material/FormControl';
-import ListItemText from '@mui/material/ListItemText';
-import FormHelperText from '@mui/material/FormHelperText';
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+  Tooltip,
+  Typography,
+  makeStyles,
+} from '@material-ui/core';
 
 import SyncIcon from '@mui/icons-material/Sync';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -82,11 +84,14 @@ export const useStyles = makeStyles({
     marginBottom: '2px',
     fontSize: '14px !important',
   },
+  infraText: {
+    paddingLeft: '4px',
+  },
 });
 
 const columns: TableColumn[] = [
   { field: 'name', title: 'name', width: '20%' },
-  { field: 'infra', title: 'network map', width: '20%' },
+  { field: 'infra', title: 'application map', width: '20%' },
   { field: 'runs', title: 'recent experiment runs', width: '26%' },
   { field: 'updatedBy', title: 'last updated by', width: '22%' },
   { field: 'execute', title: '', width: '6%' },
@@ -163,18 +168,18 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
     allNMs && allNMs?.length > 1 ? (
       <FormControl fullWidth>
         <InputLabel
-          htmlFor="Network Map"
+          htmlFor="Application Map"
           classes={{
             root: classes.label,
           }}
         >
-          Network Map
+          Application Map
         </InputLabel>
         <Select
-          labelId="Network Map"
-          id="Network Map"
+          labelId="Application Map"
+          id="Application Map"
           value={selectedNM}
-          onChange={e => setSelectedNM(e.target.value)}
+          onChange={e => setSelectedNM(e.target.value as string)}
         >
           {allNMs.map(nm => (
             <MenuItem value={nm.value}>{nm.label}</MenuItem>
@@ -229,11 +234,8 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
               color={getInfraIconColor(infrastructure?.isActive)}
             />
             <Typography
-              sx={{ display: 'inline' }}
-              component="span"
-              paddingLeft="4px"
+              className={classes.infraText}
               variant="body2"
-              color="white"
               display="inline"
             >
               {infrastructure?.name || 'N/A'}
@@ -251,29 +253,14 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
         <ListItemText
           primary={
             <React.Fragment>
-              <Typography
-                sx={{
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  textOverflow: 'ellipsis',
-                  lineClamp: 1,
-                }}
-                variant="body2"
-                color="white"
-              >
+              <Typography variant="body2">
                 {experiment.updatedBy?.username || 'Chaos Controller'}
               </Typography>
             </React.Fragment>
           }
           secondary={
             <React.Fragment>
-              <Typography
-                sx={{ display: 'inline' }}
-                component="span"
-                variant="caption"
-                fontSize="0.3rem"
-                color="white"
-              >
+              <Typography component="span" variant="caption">
                 {timeDifference(
                   new Date().getTime(),
                   Number(experiment.updatedAt),

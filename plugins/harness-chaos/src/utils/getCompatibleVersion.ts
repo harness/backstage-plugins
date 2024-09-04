@@ -8,13 +8,13 @@ export const getChaosVersion = (entity: Entity | undefined): ChaosVersion => {
   if (
     Boolean(entity.metadata.annotations?.['harness.io/project-url']) &&
     !Boolean(entity.metadata.annotations?.['harness.io/service-tags']) &&
-    !Boolean(entity.metadata.annotations?.['harness.io/network-map-tags'])
+    !Boolean(entity.metadata.annotations?.['harness.io/application-map-tags'])
   )
     return 'V1';
   if (
     Boolean(entity.metadata.annotations?.['harness.io/project-url']) &&
     (Boolean(entity.metadata.annotations?.['harness.io/service-tags']) ||
-      Boolean(entity.metadata.annotations?.['harness.io/network-map-tags']))
+      Boolean(entity.metadata.annotations?.['harness.io/application-map-tags']))
   )
     return 'V2';
   return 'V1';
@@ -26,7 +26,7 @@ export const isV1Compatible = (entity: Entity | undefined): boolean => {
   return (
     Boolean(entity.metadata.annotations?.['harness.io/project-url']) &&
     !Boolean(entity.metadata.annotations?.['harness.io/service-tags']) &&
-    !Boolean(entity.metadata.annotations?.['harness.io/network-map-tags'])
+    !Boolean(entity.metadata.annotations?.['harness.io/application-map-tags'])
   );
 };
 
@@ -36,6 +36,6 @@ export const isV2Compatible = (entity: Entity | undefined): boolean => {
   return (
     Boolean(entity.metadata.annotations?.['harness.io/project-url']) &&
     (Boolean(entity.metadata.annotations?.['harness.io/service-tags']) ||
-      Boolean(entity.metadata.annotations?.['harness.io/network-map-tags']))
+      Boolean(entity.metadata.annotations?.['harness.io/application-map-tags']))
   );
 };

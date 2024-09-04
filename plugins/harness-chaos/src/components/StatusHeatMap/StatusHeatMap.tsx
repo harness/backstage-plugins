@@ -1,15 +1,17 @@
 import React from 'react';
 import { Link } from '@backstage/core-components';
 
-import Box from '@mui/material/Box';
-import List from '@mui/material/List';
-import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
-import { makeStyles } from '@mui/styles';
-import Popper from '@mui/material/Popper';
-import ListItem from '@mui/material/ListItem';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import {
+  makeStyles,
+  Chip,
+  Popper,
+  Box,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@material-ui/core';
 
 import ErrorIcon from '@mui/icons-material/Error';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -148,7 +150,9 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.COMPLETED:
       return (
         <Chip
-          icon={<CheckCircleIcon style={{ color: 'white' }} />}
+          icon={
+            <CheckCircleIcon style={{ color: 'white', marginLeft: '5px' }} />
+          }
           label="Completed"
           style={{ backgroundColor: '#1b841d', color: 'white' }}
         />
@@ -158,14 +162,14 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
       return (
         <Chip
           label="Completed"
-          icon={<ErrorIcon style={{ color: 'white' }} />}
+          icon={<ErrorIcon style={{ color: 'white', marginLeft: '5px' }} />}
           style={{ backgroundColor: '#ff832b', color: 'white' }}
         />
       );
     case ExperimentRunStatus.ERROR:
       return (
         <Chip
-          icon={<CancelIcon style={{ color: 'white' }} />}
+          icon={<CancelIcon style={{ color: 'white', marginLeft: '5px' }} />}
           label="Error"
           style={{ backgroundColor: '#da291d', color: 'white' }}
         />
@@ -173,7 +177,9 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.TIMEOUT:
       return (
         <Chip
-          icon={<AccessTimeIcon style={{ color: 'white' }} />}
+          icon={
+            <AccessTimeIcon style={{ color: 'white', marginLeft: '5px' }} />
+          }
           label="Timeout"
           style={{ backgroundColor: '#da291d', color: 'white' }}
         />
@@ -181,7 +187,7 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.RUNNING:
       return (
         <Chip
-          icon={<MoreHorizIcon style={{ color: 'black' }} />}
+          icon={<MoreHorizIcon style={{ color: 'black', marginLeft: '5px' }} />}
           label="Running"
           style={{ backgroundColor: '#ffffff', color: 'black' }}
         />
@@ -189,7 +195,7 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.QUEUED:
       return (
         <Chip
-          icon={<PauseIcon style={{ color: 'white' }} />}
+          icon={<PauseIcon style={{ color: 'white', marginLeft: '5px' }} />}
           label="Queued"
           style={{ backgroundColor: '#9d8ed6', color: 'white' }}
         />
@@ -197,7 +203,11 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     case ExperimentRunStatus.STOPPED:
       return (
         <Chip
-          icon={<StopCircleOutlinedIcon style={{ color: 'white' }} />}
+          icon={
+            <StopCircleOutlinedIcon
+              style={{ color: 'white', marginLeft: '5px' }}
+            />
+          }
           label="Stopped"
           style={{ backgroundColor: '#383946', color: 'white' }}
         />
@@ -205,7 +215,11 @@ function StatusChip({ status }: StatusIconProps): React.ReactElement {
     default:
       return (
         <Chip
-          icon={<NotInterestedOutlinedIcon sx={{ color: 'white' }} />}
+          icon={
+            <NotInterestedOutlinedIcon
+              sx={{ color: 'white', marginLeft: '5px' }}
+            />
+          }
           label="N/A"
           style={{ backgroundColor: '#383946', color: 'white' }}
         />
@@ -299,9 +313,6 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
         {!hidePopperForStatus(execution.phase) && (
           <Popper
             id="mouse-over-popover"
-            sx={{
-              pointerEvents: 'none',
-            }}
             open={open}
             anchorEl={anchorEl}
             className={classes.popper}
@@ -310,31 +321,18 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
               sx={{
                 position: 'relative',
                 mt: '10px',
-                '&::before': {
-                  backgroundColor: '#17293F',
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  width: 14,
-                  height: 14,
-                  top: -5,
-                  transform: 'rotate(45deg)',
-                  left: 'calc(50% - 6px)',
-                },
               }}
             />
             <Paper className={classes.paper}>
-              <List sx={{ width: '100%', maxWidth: 300 }}>
+              <List>
                 <ListItem>
                   <Box sx={{ width: '45%' }}>
                     <ListItemText
                       primary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
                             component="span"
                             variant="body2"
-                            color="white"
                             display="inline"
                           >
                             Resilience Score:
@@ -348,26 +346,15 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
                       primary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
                             component="span"
                             variant="h6"
-                            color={
-                              // eslint-disable-next-line no-nested-ternary
-                              execution.resiliencyScore === 100
-                                ? 'green'
-                                : execution.resiliencyScore === 0
-                                ? 'red'
-                                : 'orange'
-                            }
                             display="inline"
                           >
                             {`${(execution.resiliencyScore ?? 0).toString()} `}
                           </Typography>
                           <Typography
-                            sx={{ display: 'inline' }}
                             component="span"
                             variant="body2"
-                            color="white"
                             display="inline"
                           >
                             / 100
@@ -383,10 +370,8 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
                       primary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
                             component="span"
                             variant="body2"
-                            color="white"
                             display="inline"
                           >
                             Status:
@@ -405,10 +390,8 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
                       primary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
                             component="span"
                             variant="body2"
-                            color="white"
                             display="inline"
                           >
                             Executed by:
@@ -421,16 +404,7 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
                     <ListItemText
                       primary={
                         <React.Fragment>
-                          <Typography
-                            sx={{
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap',
-                              textOverflow: 'ellipsis',
-                              lineClamp: 1,
-                            }}
-                            variant="body2"
-                            color="white"
-                          >
+                          <Typography variant="body2">
                             {execution.createdBy?.username ||
                               'Chaos Controller'}
                           </Typography>
@@ -438,12 +412,7 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
                       }
                       secondary={
                         <React.Fragment>
-                          <Typography
-                            component="span"
-                            variant="caption"
-                            fontSize="0.6rem"
-                            color="white"
-                          >
+                          <Typography variant="caption">
                             {timeDifference(
                               new Date().getTime(),
                               Number(execution.createdAt),

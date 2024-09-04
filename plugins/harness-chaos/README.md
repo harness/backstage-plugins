@@ -6,7 +6,7 @@ Welcome to the Harness Chaos Engineering plugin for Backstage!
 
 ## Screenshots
 
-<img src="./src/assets/chaosExperiments.png" />
+<img src="./src/assets/chaos-experiments.png" />
 
 ## Setup steps
 
@@ -95,7 +95,26 @@ const serviceEntityPage = (
 
 4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file. (optional)
 
-By default, all the chaos experiments will be fetched from the provided project url, providing optional annotations will fetch experiments for a specific network map.
+By default, all the chaos experiments will be fetched from the provided project url, providing optional annotations will fetch experiments for a specific application map.
+
+Based upon the annotations that the user provides, we decide which version of experiments table to show.
+
+##### Chaos V1:
+- scoped to all infrastructure (lists all experiments)
+- only requires project-url annotations
+
+##### Chaos V2:
+ - based on services/application-maps tags (lists experiments scoped to a service tag or a application map tag)
+- requires project-url annotations AND either service-tag(s) or network-tag(s)
+
+For ease of use of the user, we check if project url is provided and then see if the service tag or network tag is provided.
+If only the project url is provided we default to V1 table that shows experiments for all infrastructures else if we see the other annotations also, we show service specific or application map specific experiments.
+
+> NOTE: service tag based filtering will be available at a later date.
+
+Refer image below to locate an application map tag.
+
+<img src="./src/assets/application-map-tags.png" />
 
 Here is an example: [catalog-info.yaml](../../examples/catalog-harness-chaos.yaml)
 
@@ -109,7 +128,7 @@ metadata:
     harness.io/project-url: <harness_project_url>
 
     # optional annotations
-    harness.io/network-map-tags: |
+    harness.io/application-map-tags: |
       <nm-name_1>: <nm-label_1>
       <nm-name_2>: <nm-label_2>
 
@@ -135,7 +154,7 @@ harness:
 ## Features
 
 - Connect a Backstage service with a Harness project and view all the chaos experiments associated with that project.
-- Add network-map tags to view targeted chaos experiments for a specific service/network map.
+- Add network-map tags to view targeted chaos experiments for a specific service/application map.
 - Support for various infrastructure filters on the go.
 - See details for last 10 runs such as resilience score, status and cron schedules.
 - Directly run a chaos experiment from the dashboard itself.
