@@ -33,7 +33,7 @@ export const useGetNetworkMapEntity = () => {
   const { entity } = useEntity();
 
   const harnessChaosNMObject = convertStringToObject(
-    entity.metadata.annotations?.['harness.io/network-map-tags'],
+    entity.metadata.annotations?.['harness.io/application-map-tags'],
   );
 
   return harnessChaosNMObject;
