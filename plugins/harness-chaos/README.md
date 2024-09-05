@@ -13,7 +13,7 @@ Welcome to the Harness Chaos Engineering plugin for Backstage!
 1. Open terminal and navigate to the _root of your Backstage app_. Then run
 
 ```
-yarn add --cwd packages/app @harnessio/backstage-plugin-chaos
+yarn add --cwd packages/app @harnessio/backstage-plugin-harness-chaos
 
 yarn install
 ```
