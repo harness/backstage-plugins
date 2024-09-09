@@ -9,8 +9,8 @@ export const useResourceSlugFromEntity = (perspectiveUrl?: string) => {
 
   let urlMatch;
 
-  const containsModule = perspectiveUrl.includes('/module/');
-  const containsAll = perspectiveUrl.includes('/all/');
+  const containsModule = perspectiveUrl?.includes('/module/');
+  const containsAll = perspectiveUrl?.includes('/all/');
 
   if (containsModule) {
     urlMatch = match(
