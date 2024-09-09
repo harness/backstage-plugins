@@ -18,6 +18,7 @@ import useGetResources from '../../hooks/useGetResources';
 import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
 import ResourceTable from '../ResourceTable';
+import { EmptyState } from '@backstage/core-components';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -48,6 +49,16 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     gap: '5px',
   },
+  noAccess: {
+    padding: theme.spacing(2),
+    display: 'flex',
+
+    textAlign: 'center',
+  },
+  workspaceList: {
+    marginTop: '-40px',
+  },
+  workspaceItem: { padding: '0.75rem', fontSize: '1rem' },
 }));
 
 export interface Workspace {
@@ -152,6 +163,31 @@ function WorkspaceList() {
       ) : null}
     </Grid>
   );
+
+  if (state === AsyncStatus.Unauthorized) {
+    const urls = Object.values(harnessWorkspaceUrlObject).map(url =>
+      url.replace('|', ''),
+    );
+    return (
+      <EmptyState
+        title="You don't have the permission to View the following IaCM workspace(s)"
+        missing="info"
+        action={
+          <ul className={classes.workspaceList}>
+            {urls.map(workspace => (
+              <li
+                value={workspace}
+                key={workspace}
+                className={classes.workspaceItem}
+              >
+                <span>{workspace}</span>
+              </li>
+            ))}
+          </ul>
+        }
+      />
+    );
+  }
 
   if (state === AsyncStatus.Init || state === AsyncStatus.Loading) {
     return (
