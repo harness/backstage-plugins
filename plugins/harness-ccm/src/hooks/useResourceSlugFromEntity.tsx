@@ -7,12 +7,33 @@ export const useResourceSlugFromEntity = (perspectiveUrl?: string) => {
   let projectId;
   let perspectiveId;
 
-  const urlMatch = match(
-    '(.*)/account/:accountId/module/:module/perspectives/:perspectiveId/(.*)',
-    {
-      decode: decodeURIComponent,
-    },
-  );
+  let urlMatch;
+
+  const containsModule = perspectiveUrl.includes('/module/');
+  const containsAll = perspectiveUrl.includes('/all/');
+
+  if (containsModule) {
+    urlMatch = match(
+      '(.*)/account/:accountId/module/:module/perspectives/:perspectiveId/(.*)',
+      {
+        decode: decodeURIComponent,
+      },
+    );
+  } else if (containsAll) {
+    urlMatch = match(
+      '(.*)/account/:accountId/all/:module/perspectives/:perspectiveId/(.*)',
+      {
+        decode: decodeURIComponent,
+      },
+    );
+  } else {
+    urlMatch = match(
+      '(.*)/account/:accountId/:module/perspectives/:perspectiveId/(.*)',
+      {
+        decode: decodeURIComponent,
+      },
+    );
+  }
 
   if (cleanedString) {
     const hostname = new URL(cleanedString).hostname;
