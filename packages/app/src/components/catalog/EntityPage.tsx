@@ -82,6 +82,12 @@ import {
   isHarnessIacmAvailable,
 } from '@harnessio/backstage-plugin-harness-iacm';
 
+import {
+  isHarnessCcmAvailable,
+  EntityCcmContent,
+  EntityCcmOverviewCard,
+} from '@harnessio/backstage-plugin-harness-ccm';
+
 const techdocsContent = (
   <EntityTechdocsContent>
     <TechDocsAddons>
@@ -222,6 +228,32 @@ const chaosContent = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
+
+const ccmContent = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={isHarnessCcmAvailable}>
+      <EntityCcmContent />
+    </EntitySwitch.Case>
+
+    <EntitySwitch.Case>
+      <EmptyState
+        title="No Cloud Cost Management data available for this entity"
+        missing="info"
+        description="You need to add a harness.io/perspective-url annotation to your component if you want to enable Cloud Cost Management for it. You can read more about annotations in Backstage by clicking the button below."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
+          >
+            Read more
+          </Button>
+        }
+      />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
+
 const iacmContent = (
   <EntitySwitch>
     <EntitySwitch.Case if={isHarnessIacmAvailable}>
@@ -245,6 +277,9 @@ const overviewContent = (
     <Grid item md={8} xs={12}>
       <EntityHasSubcomponentsCard variant="gridItem" />
     </Grid>
+    <Grid item md={6} xs={12}>
+      <EntityCcmOverviewCard variant="gridItem" />
+    </Grid>
   </Grid>
 );
 
@@ -266,6 +301,10 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/chaos" title="Chaos Engineering">
       {chaosContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/ccm" title="Cloud Cost Management">
+      {ccmContent}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/feature-flag" title="Feature Flags">
@@ -319,6 +358,10 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/chaos" title="Chaos Engineering">
       {chaosContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/ccm" title="Cloud Cost Management">
+      {ccmContent}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/dependencies" title="Dependencies">
