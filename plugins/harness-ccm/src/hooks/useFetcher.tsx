@@ -46,6 +46,7 @@ function useFetcher<T>({
     if (!lazy) {
       const query = new URLSearchParams({
         routingId: `${accountId}`,
+        accountIdentifier: `${accountId}`,
       });
 
       const token = getSecureHarnessKey('token');
