@@ -1,4 +1,4 @@
-# Harness plugins for [Backstage](https://backstage.io)
+# Harness Plugins for [Backstage](https://backstage.io)
 
 ![Harness gif](./docs/assets/hero-animation_desktop.gif)
 
@@ -10,9 +10,9 @@
 
 ## About
 
-This project consists of Backstage plugins to integrate with [Harness](https://harness.io) modules on the [Backstage Developer Platform](https://backstage.io). If you are a Harness user and have Backstage as your Internal Developer Portal, try out our plugins for a seamless Developer Experience for your developers.
+This project consists of Backstage plugins to integrate with [Harness](https://harness.io) modules on the [Backstage.io](https://backstage.io). If you are a Harness user and have an Internal Developer Portal (IDP) built on the open source Backstage framework, try out our plugins for a seamless Developer Experience for your developers.
 
-Harness plugins for Backstage is an Open Source project. It's open for your ideas, suggestions and contributions.
+Harness plugins for Backstage is an Open Source project. Note that this project is not part of the commercial Harness Platform and hence makes no SLA committments with respect to new feature delivery and/or bug fixes. We recommend filing new Issues on this project, brainstorm designs in there and then follow up with your own Pull requests that we will review and merge. If this process does not work for any reason, we recommend forking the project and maintain your own fork thereafter.
 
 ## How to use?
 
