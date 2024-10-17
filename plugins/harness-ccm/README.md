@@ -45,7 +45,7 @@ Notes:
 
 - Set the value of target to your on-prem URL if you are using the Harness on-prem offering
 
-3. Inside your Backstage's `EntityPage.tsx`, import the `EntityCcmContent` and `isHarnessCcmAvailable`  from `@harnessio/backstage-plugin-harness-ccm` and add `<EntityHarnessCcmContent />`. Something like this -
+3. In your Backstage `EntityPage.tsx` file, import `EntityCcmContent`, `isHarnessCcmAvailable`, and `EntityCcmOverviewCard` from `@harnessio/backstage-plugin-harness-ccm`:
 
 ```tsx
 // In packages/app/src/components/catalog/EntityPage.tsx
@@ -53,16 +53,33 @@ Notes:
 import {
   isHarnessCcmAvailable,
   EntityCcmContent,
+  EntityCcmOverviewCard,
 } from '@harnessio/backstage-plugin-harness-ccm';
+```
 
+#### Add EntityCcmContent
+Use the imported components to add the Harness CCM content to your entity page:
+```tsx
 const ccmContent = (
-  // ...
   <EntitySwitch.Case if={isHarnessCcmAvailable}>
-    <EntityHarnessCcmContent />
+    <EntityCcmContent />
   </EntitySwitch.Case>
-  // ...
 );
 ```
+
+#### Add EntityCcmOverviewCard Widget
+Add the EntityCcmOverviewCard to display an overview card:
+```tsx
+const overviewContent = (
+  <Grid container spacing={3}>
+    <Grid item md={6} xs={12}>
+      <EntityCcmOverviewCard variant="gridItem" />
+    </Grid>
+  </Grid>
+);
+```
+
+
 
 4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file.
 
@@ -79,6 +96,7 @@ metadata:
 
 ## Features
 
-- Connect a Backstage service with a Harness Perspective and view resources in ways that are more meaningful to your business needs.
+- Link a Backstage service to a Harness Perspective to view resources in ways that better align with your business needs.
+
 
 
