@@ -37,7 +37,10 @@ export const Router = () => {
   if (!isHarnessCiCdAvailable(entity)) {
     return (
       <>
-        <MissingAnnotationEmptyState annotation="harness.io/project-url" />
+        <MissingAnnotationEmptyState
+          annotation="harness.io/pipelines"
+          readMoreUrl="https://developer.harness.io/docs/internal-developer-portal/plugins/available-plugins/harness-ci-cd#annotations"
+        />
       </>
     );
   }
