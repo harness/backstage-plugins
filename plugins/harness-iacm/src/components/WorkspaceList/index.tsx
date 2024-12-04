@@ -230,9 +230,9 @@ function WorkspaceList() {
           aria-label="workspace_list_tabs"
           style={{ paddingBottom: 5 }}
         >
-          <Tab label={`Resources ${resources?.length}`} />
+          <Tab label={`Resources (${resources?.length})`} />
 
-          <Tab label={`Outputs ${outputs?.length}`} />
+          <Tab label={`Outputs (${outputs?.length})`} />
         </Tabs>
         <WorkspaceTable
           setRefresh={setRefresh}

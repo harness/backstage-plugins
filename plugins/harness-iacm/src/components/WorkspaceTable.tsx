@@ -77,7 +77,11 @@ const WorkspaceTable: React.FC<Props> = ({
           <CircularProgress />
         </div>
       }
-      title="Workspace Resources"
+      title={
+        workspaceDataType === WorkspaceDataType.Resource
+          ? 'Workspace Resources'
+          : 'Workspace Outputs'
+      }
       page={page}
       onPageChange={handleChangePage}
       totalCount={totalElements}
