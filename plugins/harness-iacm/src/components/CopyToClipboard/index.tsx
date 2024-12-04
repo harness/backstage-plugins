@@ -1,11 +1,22 @@
 import React, { FC } from 'react';
-import { Button } from '@material-ui/core';
+import { Button, makeStyles } from '@material-ui/core';
 import CopyIcon from '@material-ui/icons/FileCopyOutlined';
 
 interface Props {
   copyValue?: string;
 }
+
+const useStyles = makeStyles(theme => ({
+  iconButton: {
+    color: '#0A6EBE',
+    width: 15,
+    height: 15,
+  },
+}));
+
 const CopyToClipboard: FC<Props> = ({ copyValue }) => {
+  const classes = useStyles();
+
   const copy = (content?: string) => async () => {
     try {
       await navigator.clipboard.writeText(content || '');
@@ -15,7 +26,7 @@ const CopyToClipboard: FC<Props> = ({ copyValue }) => {
   };
   return (
     <Button onClick={copy(copyValue)} variant="text">
-      <CopyIcon style={{ color: '#0A6EBE', width: '15', height: '15' }} />
+      <CopyIcon className={classes.iconButton} />
     </Button>
   );
 };
