@@ -80,7 +80,7 @@ import {
 import {
   EntityIacmContent,
   isHarnessIacmAvailable,
-} from '@harnessio/backstage-plugin-harness-iacm';
+} from '@internal/backstage-plugin-harness-iacm';
 
 import {
   isHarnessCcmAvailable,
