@@ -26,8 +26,16 @@ export interface Resource {
     availability_zone: string;
   };
 }
+
+export interface Output {
+  id: string;
+  name: string;
+  sensitive: boolean;
+  value: string;
+}
+
 export interface ResourcesResponse {
-  resources: { resources: Resource[] | null };
+  resources: { resources: Resource[] | null; outputs: Output[] };
   status: AsyncStatus;
 }
 
@@ -72,6 +80,10 @@ const useGetResources = ({
             id: new Date().getTime().toString() + index.toString(),
           }),
         ),
+        outputs: (data.outputs as Output[]).map((output: Output, index) => ({
+          ...output,
+          id: new Date().getTime().toString() + index.toString(),
+        })),
       };
 
       setResources(dataWithId);
