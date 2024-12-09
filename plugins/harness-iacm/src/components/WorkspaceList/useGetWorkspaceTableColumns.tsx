@@ -1,6 +1,6 @@
 import { TableColumn } from '@backstage/core-components';
 import { Button, Link, Typography, makeStyles } from '@material-ui/core';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { TableData } from '../../types';
 
 import Aws from '../../icons/aws';
@@ -150,7 +150,8 @@ export const useGetWorkspaceTableColumns = ({
         width: '70%',
         render: (row: Partial<Output>) => {
           const isSensitive = row.sensitive;
-          const [show, setShow] = React.useState(!isSensitive);
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const [show, setShow] = useState(!isSensitive);
           return (
             <span className={classes.flexCenter}>
               <Typography className={classes.smallGreyText}>
