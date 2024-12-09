@@ -6,7 +6,7 @@ interface Props {
   copyValue?: string;
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   iconButton: {
     color: '#0A6EBE',
     width: 15,
@@ -21,6 +21,7 @@ const CopyToClipboard: FC<Props> = ({ copyValue }) => {
     try {
       await navigator.clipboard.writeText(content || '');
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to copy text: ', err);
     }
   };

@@ -228,7 +228,6 @@ function WorkspaceList() {
           textColor="primary"
           onChange={handleChange}
           aria-label="workspace_list_tabs"
-          style={{ paddingBottom: 5 }}
         >
           <Tab label={`Resources (${resources?.length})`} />
 
