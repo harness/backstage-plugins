@@ -1,5 +1,5 @@
 /* eslint-disable @backstage/no-undeclared-imports */
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   CircularProgress,
   FormControl,
@@ -9,6 +9,8 @@ import {
   makeStyles,
   MenuItem,
   Select,
+  Tab,
+  Tabs,
 } from '@material-ui/core';
 // eslint-disable-next-line no-restricted-imports
 import { Grid } from '@mui/material';
@@ -17,8 +19,8 @@ import { AsyncStatus } from '../../types';
 import useGetResources from '../../hooks/useGetResources';
 import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
-import ResourceTable from '../ResourceTable';
 import { EmptyState } from '@backstage/core-components';
+import WorkspaceTable from '../WorkspaceTable';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -66,6 +68,11 @@ export interface Workspace {
   name: string;
 }
 
+export enum WorkspaceDataType {
+  Resource,
+  Output,
+}
+
 function WorkspaceList() {
   const [refresh, setRefresh] = useState(false);
 
@@ -85,7 +92,13 @@ function WorkspaceList() {
   });
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
+  const [selectedTab, setSelectedTab] = React.useState<WorkspaceDataType>(
+    WorkspaceDataType.Resource,
+  );
 
+  const handleChange = (_event: unknown, resourceType: WorkspaceDataType) => {
+    setSelectedTab(resourceType);
+  };
   const {
     projectId,
     orgId,
@@ -98,7 +111,7 @@ function WorkspaceList() {
     selectedResourceUrl,
   );
 
-  const { resources, status: state } = useGetResources({
+  const { resources: workspaceData, status: state } = useGetResources({
     backendBaseUrl,
     accountId,
     orgId,
@@ -108,21 +121,29 @@ function WorkspaceList() {
     workspace: workspaceId || null,
   });
 
+  const { resources, outputs } = workspaceData || {};
+
   const handleWorkspaceChange = (event: any) => {
     setSelectedProjectUrl(event.target.value as string);
 
     setSelectedResourceUrl(harnessWorkspaceUrlObject[event.target.value]);
   };
 
-  const handleChangePage = (currentPage: number, currentPageSize: number) => {
-    setPage(currentPage);
-    setPageSize(currentPageSize);
-  };
+  const handleChangePage = useCallback(
+    (currentPage: number, currentPageSize: number) => {
+      setPage(currentPage);
+      setPageSize(currentPageSize);
+    },
+    [setPage, setPageSize],
+  );
 
-  const handleChangeRowsPerPage = (currentPageSize: number) => {
-    setPage(0);
-    setPageSize(currentPageSize);
-  };
+  const handleChangeRowsPerPage = useCallback(
+    (currentPageSize: number) => {
+      setPage(0);
+      setPageSize(currentPageSize);
+    },
+    [setPage, setPageSize],
+  );
 
   const newWorkspaceDropdown = (
     <FormControl fullWidth>
@@ -196,24 +217,40 @@ function WorkspaceList() {
       </div>
     );
   }
+
   return (
     <>
       <div className={classes.container}>
         {DropDownComponent}
-        <ResourceTable
-          accountId={accountId}
-          orgId={orgId}
-          backendBaseUrl={backendBaseUrl}
+        <Tabs
+          value={selectedTab}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={handleChange}
+          aria-label="workspace_list_tabs"
+        >
+          <Tab label={`Resources (${resources?.length})`} />
+
+          <Tab label={`Outputs (${outputs?.length})`} />
+        </Tabs>
+        <WorkspaceTable
           setRefresh={setRefresh}
           refresh={refresh}
           pageSize={pageSize}
-          currTableData={resources?.resources}
+          currTableData={
+            selectedTab === WorkspaceDataType.Resource ? resources : outputs
+          }
           page={page}
           handleChangePage={handleChangePage}
-          totalElements={resources?.resources?.length}
+          totalElements={
+            selectedTab === WorkspaceDataType.Resource
+              ? resources?.length
+              : outputs?.length
+          }
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           classes={classes}
           baseUrl={urlForWorkspace}
+          workspaceDataType={selectedTab}
         />
       </div>
     </>
