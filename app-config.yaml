@@ -64,7 +64,6 @@ proxy:
         'x-api-key': ${HARNESS_STRESS_API_KEY}
     '/harnessfme':
       target: 'https://api.split.io/'
-      credentials: dangerously-allow-unauthenticated
       headers:
         'Authorization': 'Bearer ${FME_API_KEY}'
 
