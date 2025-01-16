@@ -26,8 +26,9 @@ import { MissingAnnotationEmptyState } from '@backstage/plugin-catalog-react';
 /** @public */
 export const isHarnessFMEFeatureFlagAvailable = (entity: Entity) =>
   Boolean(
-      entity.metadata.annotations?.['harnessfme/accountId'] && 
-      entity.metadata.annotations?.['harnessfme/projectId']);
+    entity.metadata.annotations?.['harnessfme/accountId'] &&
+      entity.metadata.annotations?.['harnessfme/projectId'],
+  );
 
 /** @public */
 
@@ -36,9 +37,7 @@ export const Router = () => {
   const requiredAnnotations = ['harnessfme/orgId', 'harnessfme/workspaceId'];
 
   if (!isHarnessFMEFeatureFlagAvailable(entity)) {
-    return (
-      <MissingAnnotationEmptyState annotation={requiredAnnotations} />
-    );
+    return <MissingAnnotationEmptyState annotation={requiredAnnotations} />;
   }
 
   return (

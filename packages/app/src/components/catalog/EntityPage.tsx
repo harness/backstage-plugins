@@ -70,9 +70,7 @@ import {
 import {
   isHarnessFMEFeatureFlagAvailable,
   EntityHarnessFMEFeatureFlagContent,
-} from '@harnessio/harness-fme-feature-flags';
-
-
+} from '@harnessio/backstage-plugin-fme-feature-flags';
 
 import {
   EntityHarnessSrmContent,
@@ -159,7 +157,6 @@ const featureFlagList = (
   </EntitySwitch>
 );
 
-
 const FMEList = (
   <EntitySwitch>
     <EntitySwitch.Case if={isHarnessFMEFeatureFlagAvailable}>
@@ -184,8 +181,6 @@ const FMEList = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
-
-
 
 const entityWarningContent = (
   <>
@@ -351,7 +346,6 @@ const serviceEntityPage = (
       {FMEList}
     </EntityLayout.Route>
 
-
     <EntityLayout.Route path="/api" title="API">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item md={6}>
@@ -392,7 +386,6 @@ const websiteEntityPage = (
     <EntityLayout.Route path="/harness-iacm" title="IACM">
       <EntityHarnessFeatureFlagContent />
     </EntityLayout.Route>
-
 
     <EntityLayout.Route path="/fme-feature-flag" title="FME Feature Flags">
       {FMEList}

@@ -14,15 +14,18 @@ const useGetFeatureStatus = ({
   resolvedBackendBaseUrl,
   refresh,
 }: useGetFeatureStatusEnv) => {
-  const [featureStatusMap, setFeatureStatusMap] = useState<Record<string, FeatureStatus>>({});
+  const [featureStatusMap, setFeatureStatusMap] = useState<
+    Record<string, FeatureStatus>
+  >({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchFeatureStatus = async () => {
       if (!envId || !workspaceId || !resolvedBackendBaseUrl) return;
 
-      const baseUrl =  resolvedBackendBaseUrl;
-      const pause = (duration: number) => new Promise(resolve => setTimeout(resolve, duration));
+      const baseUrl = resolvedBackendBaseUrl;
+      const pause = (duration: number) =>
+        new Promise(resolve => setTimeout(resolve, duration));
 
       setLoading(true);
       let offset = 0;
@@ -53,15 +56,20 @@ const useGetFeatureStatus = ({
               offset += 50;
             }
           } else if (resp.status === 429) {
-            const orgResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-org') || '2', 10);
-            const ipResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-ip') || '2', 10);
+            const orgResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-org') || '2',
+              10,
+            );
+            const ipResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-ip') || '2',
+              10,
+            );
             const resetSeconds = Math.max(orgResetSeconds, ipResetSeconds);
             await pause(resetSeconds * 1000);
           } else {
             hasMore = false;
           }
         } catch (error) {
-          console.error('Error fetching feature status:', error);
           hasMore = false;
         }
         flagFetchCount += 1;
@@ -72,7 +80,7 @@ const useGetFeatureStatus = ({
     };
 
     fetchFeatureStatus();
-  }, [ resolvedBackendBaseUrl, workspaceId, envId, refresh]);
+  }, [resolvedBackendBaseUrl, workspaceId, envId, refresh]);
 
   return { featureStatusMap, loading };
 };

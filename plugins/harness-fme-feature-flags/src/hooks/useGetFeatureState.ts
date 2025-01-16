@@ -16,7 +16,6 @@ const useGetFeatureState = ({
 }: useGetFeatureStatusEnv) => {
   const [totalElements, setTotalElements] = useState(50);
   const [currTableData, setCurrTableData] = useState<Feature[]>([]);
-  const [isCallDone, setIsCallDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -24,7 +23,8 @@ const useGetFeatureState = ({
       if (!envId.id || !workspaceId || !resolvedBackendBaseUrl) return;
 
       const baseUrl = resolvedBackendBaseUrl;
-      const pause = (duration: number) => new Promise(resolve => setTimeout(resolve, duration));
+      const pause = (duration: number) =>
+        new Promise(resolve => setTimeout(resolve, duration));
 
       setLoading(true);
       let offset = 0;
@@ -36,7 +36,7 @@ const useGetFeatureState = ({
         'Content-Type': 'application/json',
       });
 
-      while (hasMore ) {
+      while (hasMore) {
         try {
           const resp = await fetch(
             `${baseUrl}/harnessfme/internal/api/v2/splits/ws/${workspaceId}/environments/${envId.id}?limit=50&offset=${offset}`,
@@ -56,9 +56,9 @@ const useGetFeatureState = ({
               trafficType: feature?.trafficType.name,
               defaultTreatment: feature?.defaultTreatment,
               flagSets: feature?.flagSets,
-              lastTrafficReceivedAt: feature?.lastTrafficReceivedAt
+              lastTrafficReceivedAt: feature?.lastTrafficReceivedAt,
             }));
-            
+
             featureList.push(...newFeatures);
             if (data.objects.length < 50) {
               hasMore = false;
@@ -66,23 +66,24 @@ const useGetFeatureState = ({
               offset += 50;
             }
           } else if (resp.status === 429) {
-            const orgResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-org') || '2', 10);
-            const ipResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-ip') || '2', 10);
+            const orgResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-org') || '2',
+              10,
+            );
+            const ipResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-ip') || '2',
+              10,
+            );
             const resetSeconds = Math.max(orgResetSeconds, ipResetSeconds);
             await pause(resetSeconds * 1000);
           } else {
             hasMore = false;
           }
         } catch (error) {
-          console.error('Error fetching feature state:', error);
           hasMore = false;
         }
-
       }
 
-      if (!isCallDone) {
-        setIsCallDone(true);
-      }
       setCurrTableData(featureList);
       setLoading(false);
     };
@@ -90,7 +91,7 @@ const useGetFeatureState = ({
     fetchFeatureState();
   }, [resolvedBackendBaseUrl, workspaceId, envId.id, refresh]);
 
-  return { totalElements, currTableData, isCallDone, loading };
+  return { totalElements, currTableData, loading };
 };
 
 export default useGetFeatureState;

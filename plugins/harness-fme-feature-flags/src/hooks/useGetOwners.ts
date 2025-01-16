@@ -11,10 +11,7 @@ interface UserResponse {
   nextMarker: string | null;
 }
 
-const useGetOwners = ({
-  resolvedBackendBaseUrl,
-  refresh,
-}: UseGetOwners) => {
+const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
   const [ownersMap, setOwnersMap] = useState<Record<string, Owner>>({});
   const [loading, setLoading] = useState(false);
 
@@ -32,11 +29,11 @@ const useGetOwners = ({
       let hasMore = true;
       const ownerList: Record<string, Owner> = {};
 
-
-      const pause = (duration: number) => new Promise(resolve => setTimeout(resolve, duration));
+      const pause = (duration: number) =>
+        new Promise(resolve => setTimeout(resolve, duration));
 
       // Fetch groups
-      while (hasMore ) {
+      while (hasMore) {
         try {
           const resp = await fetch(
             `${baseUrl}/harnessfme/internal/api/v2/groups?limit=50&offset=${offset}`,
@@ -55,27 +52,33 @@ const useGetOwners = ({
               offset += 50;
             }
           } else if (resp.status === 429) {
-            const orgResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-org') || '0', 10);
-            const ipResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-ip') || '0', 10);
+            const orgResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-org') || '0',
+              10,
+            );
+            const ipResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-ip') || '0',
+              10,
+            );
             const resetSeconds = Math.max(orgResetSeconds, ipResetSeconds);
             await pause(resetSeconds * 1000);
           } else {
             hasMore = false;
           }
         } catch (error) {
-          console.error('Error fetching groups:', error);
           hasMore = false;
         }
-
       }
 
       // Fetch users
       hasMore = true;
       let nextMarker = null;
-      while (hasMore ) {
+      while (hasMore) {
         try {
           const respUsers = await fetch(
-            `${baseUrl}/harnessfme/internal/api/v2/users?limit=10${nextMarker !== null ? "&nextMarker="+nextMarker : ''}`,
+            `${baseUrl}/harnessfme/internal/api/v2/users?limit=200${
+              nextMarker !== null ? `&nextMarker=${nextMarker}` : ''
+            }`,
             { headers },
           );
 
@@ -85,24 +88,32 @@ const useGetOwners = ({
               ownerList[d.id] = d;
             });
 
-            if (dataUsers.data.length < 10 || !dataUsers.nextMarker || nextMarker == dataUsers.nextMarker ) {
+            if (
+              dataUsers.data.length < 200 ||
+              !dataUsers.nextMarker ||
+              nextMarker === dataUsers.nextMarker
+            ) {
               hasMore = false;
             } else {
               nextMarker = dataUsers.nextMarker;
             }
           } else if (respUsers.status === 429) {
-            const orgResetSeconds = parseInt(respUsers.headers.get('x-ratelimit-reset-seconds-org') || '2', 10);
-            const ipResetSeconds = parseInt(respUsers.headers.get('x-ratelimit-reset-seconds-ip') || '2', 10);
+            const orgResetSeconds = parseInt(
+              respUsers.headers.get('x-ratelimit-reset-seconds-org') || '2',
+              10,
+            );
+            const ipResetSeconds = parseInt(
+              respUsers.headers.get('x-ratelimit-reset-seconds-ip') || '2',
+              10,
+            );
             const resetSeconds = Math.max(orgResetSeconds, ipResetSeconds);
             await pause(resetSeconds * 1000);
           } else {
             hasMore = false;
           }
         } catch (error) {
-          console.error('Error fetching users:', error);
           hasMore = false;
         }
-
       }
 
       setOwnersMap(ownerList);

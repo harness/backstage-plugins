@@ -7,7 +7,7 @@ export enum AsyncStatus {
 }
 
 export interface TableData {
-  id: string
+  id: string;
   name?: string;
   lastUpdateTime?: any;
   creationTime?: any;
@@ -18,7 +18,7 @@ export interface TableData {
   flagSets?: any;
 }
 export interface Feature {
-  id: string
+  id: string;
   name?: string;
   lastUpdateTime?: any;
   creationTime?: any;
@@ -29,7 +29,6 @@ export interface Feature {
   flagSets?: any;
 }
 
-
 export interface FeatureStatus {
   id: string;
   name: string;
@@ -37,9 +36,9 @@ export interface FeatureStatus {
     name: string;
   };
   tags: {
-    name: string
+    name: string;
   }[];
-  owners: {id: string, type: string}[];
+  owners: { id: string; type: string }[];
   creationTime: string;
 }
 

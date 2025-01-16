@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
 import { FlagSet } from '../types';
 
-interface UseGetFlagSets {
+interface UseGetFlagSetsWs {
   resolvedBackendBaseUrl: string;
   workspaceId: string;
   refresh: number;
 }
 
-
 const UseGetFlagSets = ({
   resolvedBackendBaseUrl,
   workspaceId,
   refresh,
-}: UseGetFlagSets) => {
+}: UseGetFlagSetsWs) => {
   const [flagSetsMap, setFlagSetsMap] = useState<Record<string, FlagSet>>({});
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +19,7 @@ const UseGetFlagSets = ({
     const fetchFlagSets = async () => {
       if (!resolvedBackendBaseUrl) return;
 
-      const baseUrl =  resolvedBackendBaseUrl;
+      const baseUrl = resolvedBackendBaseUrl;
       const headers = new Headers({
         'Content-Type': 'application/json',
       });
@@ -29,14 +28,16 @@ const UseGetFlagSets = ({
       let hasMore = true;
       const flagsetsList: Record<string, FlagSet> = {};
 
-
-      const pause = (duration: number) => new Promise(resolve => setTimeout(resolve, duration));
-      let nextMarker = 'null'
+      const pause = (duration: number) =>
+        new Promise(resolve => setTimeout(resolve, duration));
+      let nextMarker = 'null';
       // Fetch groups
-      while (hasMore ) {
+      while (hasMore) {
         try {
           const resp = await fetch(
-            `${baseUrl}/harnessfme/api/v3/flag-sets?workspace_id=${workspaceId}&limit=200${nextMarker !== 'null' ? '&after='+nextMarker : ''}`,
+            `${baseUrl}/harnessfme/api/v3/flag-sets?workspace_id=${workspaceId}&limit=200${
+              nextMarker !== 'null' ? `&after=${nextMarker}` : ''
+            }`,
             { headers },
           );
 
@@ -52,26 +53,30 @@ const UseGetFlagSets = ({
               nextMarker = data.nextMarker;
             }
           } else if (resp.status === 429) {
-            const orgResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-org') || '2', 10);
-            const ipResetSeconds = parseInt(resp.headers.get('x-ratelimit-reset-seconds-ip') || '2', 10);
+            const orgResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-org') || '2',
+              10,
+            );
+            const ipResetSeconds = parseInt(
+              resp.headers.get('x-ratelimit-reset-seconds-ip') || '2',
+              10,
+            );
             const resetSeconds = Math.max(orgResetSeconds, ipResetSeconds);
             await pause(resetSeconds * 1000);
           } else {
             hasMore = false;
           }
         } catch (error) {
-          console.error('Error fetching flagsets:', error);
           hasMore = false;
         }
       }
-
 
       setFlagSetsMap(flagsetsList);
       setLoading(false);
     };
 
     fetchFlagSets();
-  }, [ resolvedBackendBaseUrl, refresh]); // Include dependencies in useEffect
+  }, [workspaceId, resolvedBackendBaseUrl, refresh]); // Include dependencies in useEffect
 
   return { flagSetsMap, loading };
 };

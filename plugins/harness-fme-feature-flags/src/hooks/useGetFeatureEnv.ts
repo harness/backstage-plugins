@@ -15,7 +15,6 @@ const useGetFeatureEnv = ({
   const [ffEnvIds, setffEnvIds] = useState<{ id: string; name: string }[]>([]);
   const [status, setStatus] = useState<AsyncStatus>(AsyncStatus.Init);
 
-
   useEffect(() => {
     const fetchEnvironments = async () => {
       if (!workspaceId || !resolvedBackendBaseUrl) return;
@@ -33,7 +32,9 @@ const useGetFeatureEnv = ({
 
         if (resp.status === 200) {
           const data = await resp.json();
-          setffEnvIds(data?.map((obj: any) => ({ 'id': obj.id, 'name': obj.name })));
+          setffEnvIds(
+            data?.map((obj: any) => ({ id: obj.id, name: obj.name })),
+          );
           setStatus(AsyncStatus.Success);
         } else if (resp.status === 401) {
           setStatus(AsyncStatus.Unauthorized);
@@ -41,7 +42,6 @@ const useGetFeatureEnv = ({
           setStatus(AsyncStatus.Error);
         }
       } catch (error) {
-        console.error('Error fetching environments:', error);
         setStatus(AsyncStatus.Error);
       }
     };

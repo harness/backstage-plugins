@@ -1,4 +1,4 @@
-import React, {  useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import {
   Box,
@@ -14,7 +14,7 @@ import {
   Select as SelectComponent,
   SelectedItems,
 } from '@backstage/core-components';
- import RetryIcon from '@material-ui/icons/Replay';
+import RetryIcon from '@material-ui/icons/Replay';
 import {
   discoveryApiRef,
   useApi,
@@ -42,27 +42,21 @@ const useStyles = makeStyles(theme => ({
 
 function FMEFeatureList() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
- //  const [isLoading, setIsLoading] = useState(true);
 
-
- const [resolvedBackendBaseUrl, setResolvedBackendBaseUrl] = useState('');
+  const [resolvedBackendBaseUrl, setResolvedBackendBaseUrl] = useState('');
 
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
-  const backendBaseUrl = discoveryApi.getBaseUrl('proxy').then((url) => setResolvedBackendBaseUrl(url));
+  discoveryApi.getBaseUrl('proxy').then(url => setResolvedBackendBaseUrl(url));
   const config = useApi(configApiRef);
-  const baseUrl = config.getOptionalString('harnessfme.baseUrl') ?? 'https://app.split.io/';
+  const baseUrl =
+    config.getOptionalString('harnessfme.baseUrl') ?? 'https://app.split.io/';
   const { workspaceId, orgId } = useProjectSlugFromEntity();
 
   // Memoize the refresh callback
   const refresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
-
-
-
-
-
 
   // Consolidate data fetching
   const { ffEnvIds, status: state } = useGetFeatureEnv({
@@ -71,58 +65,38 @@ function FMEFeatureList() {
     refresh: refreshTrigger,
   });
   // Initialize envId with null and update it once we have data
-  const [envId, setEnvId] = useState({id: '', name: ''});
-
-  // Update envId when ffEnvIds changes and we don't have an envId set
-  // useEffect(() => {
-  //   console.log('ffEnvIds:', ffEnvIds);
-  //   console.log('Current envId:', envId);
-  //   if (ffEnvIds.length > 0 && !envId) {
-  //     setEnvId(ffEnvIds[0]);
-  //   }
-  // }, [ffEnvIds]);
-
+  const [envId, setEnvId] = useState({ id: '', name: '' });
 
   useEffect(() => {
-    if (envId.id == '' && ffEnvIds.length > 0) {
+    if (envId.id === '' && ffEnvIds.length > 0) {
       setEnvId(ffEnvIds[0]);
     }
- 
-  }, [ffEnvIds]);
-  
+  }, [envId.id, ffEnvIds]);
+
   const { flagSetsMap } = useGetFlagSets({
     resolvedBackendBaseUrl,
     workspaceId,
     refresh: refreshTrigger,
   });
 
-
-
   const { ownersMap } = useGetOwners({
     resolvedBackendBaseUrl,
     refresh: refreshTrigger,
   });
-
-
-
 
   const { currTableData, totalElements } = useGetFeatureState({
     workspaceId,
     envId,
     resolvedBackendBaseUrl,
     refresh: refreshTrigger,
-  })  ;
+  });
 
-
-
-  const { featureStatusMap } =  useGetFeatureStatus({
+  const { featureStatusMap } = useGetFeatureStatus({
     workspaceId,
     envId,
     resolvedBackendBaseUrl,
     refresh: refreshTrigger,
   });
-
-
 
   const handleChange = (selected: SelectedItems) => {
     const selectedEnv = ffEnvIds.find(env => env.name === selected);
@@ -130,15 +104,6 @@ function FMEFeatureList() {
       setEnvId(selectedEnv);
     }
   };
-
-  // // Show loading state while initial data loads
-  // if (!ownersMap || !ffEnvIds.length || !currTableData || !featureStatusMap || !flagSetsMap) {
-  //   return (
-  //     <div className="loading">
-  //       <CircularProgress />
-  //     </div>
-  //   );
-  // }
 
   const columns: TableColumn[] = [
     {
@@ -148,9 +113,6 @@ function FMEFeatureList() {
       render: (row: Partial<TableData>) => {
         const featureStatus = featureStatusMap[row.name as string];
         const link = `${baseUrl}org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}`;
-        // return (!ownersMap || !ffEnvIds.length || !currTableData || !featureStatusMap || !flagSetsMap) ? (
-        //   <CircularProgress size={20} />
-        // ) : (
         return (
           <Link href={link} target="_blank">
             <b>{row.name}</b>
@@ -172,12 +134,17 @@ function FMEFeatureList() {
       field: 'col1',
       width: '10%',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        return (row1.killed === row2.killed) ? 0 : (row1.killed ? 1 : -1);
+        if (row1.killed === row2.killed) {
+          return 0;
+        }
+        return row1.killed ? 1 : -1;
       },
       render: (row: Partial<TableData>) => {
         return (
-          <Typography style={{ fontSize: 'medium', color: row.killed ? 'red' : 'green' }}>
-            <b>{row.killed == true ? 'Killed' : 'Live'} </b>
+          <Typography
+            style={{ fontSize: 'medium', color: row.killed ? 'red' : 'green' }}
+          >
+            <b>{row.killed === true ? 'Killed' : 'Live'} </b>
           </Typography>
         );
       },
@@ -187,37 +154,39 @@ function FMEFeatureList() {
       field: 'col2',
       width: '30%',
       sorting: true,
-        customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-          // Extract owner names for comparison
-          const getOwnerNames = (row: Partial<TableData>) => {
-            const featureStatus = featureStatusMap[row.name as string];
-            const owners = featureStatus?.owners;
-            const ownerData = owners?.map(owner => ownersMap[owner.id]) || [];
-            return ownerData
-              .map(owner => owner?.name || '')
-              .sort() // Sort names alphabetically
-              .join(',')
-              .toLowerCase();
-          };
-      
-          const owners1 = getOwnerNames(row1);
-          const owners2 = getOwnerNames(row2);
-          
-          return owners1.localeCompare(owners2);
-        },
-      
+      customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
+        // Extract owner names for comparison
+        const getOwnerNames = (row: Partial<TableData>) => {
+          const featureStatus = featureStatusMap[row.name as string];
+          const owners = featureStatus?.owners;
+          const ownerData = owners?.map(owner => ownersMap[owner.id]) || [];
+          return ownerData
+            .map(owner => owner?.name || '')
+            .sort() // Sort names alphabetically
+            .join(',')
+            .toLowerCase();
+        };
+
+        const owners1 = getOwnerNames(row1);
+        const owners2 = getOwnerNames(row2);
+
+        return owners1.localeCompare(owners2);
+      },
+
       render: (row: Partial<TableData>) => {
         const featureStatus = featureStatusMap[row.name as string];
         const owners = featureStatus?.owners;
         const ownerData = owners?.map(owner => ownersMap[owner.id]) || [];
-        const ownerDisplay = ownerData.map(owner => {
-          if (owner?.type === 'user') {
-            return `<a href="mailto:${owner.email}" target="_blank">${owner.name}</a>`;
-          } else if (owner?.type === 'group') {
-            return `<a href="${baseUrl}org/${orgId}/ws/${workspaceId}/admin/groups/details/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`;
-          }
-          return owner?.name || '';
-        }).join(', ');
+        const ownerDisplay = ownerData
+          .map(owner => {
+            if (owner?.type === 'user') {
+              return `<a href="mailto:${owner.email}" target="_blank">${owner.name}</a>`;
+            } else if (owner?.type === 'group') {
+              return `<a href="${baseUrl}org/${orgId}/ws/${workspaceId}/admin/groups/details/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`;
+            }
+            return owner?.name || '';
+          })
+          .join(', ');
 
         return (
           <Typography style={{ fontSize: 'small', color: 'grey' }}>
@@ -248,15 +217,17 @@ function FMEFeatureList() {
       field: 'col4',
       type: 'string',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const status1 = featureStatusMap[row1.name as string]?.rolloutStatus?.name?.toLowerCase() ?? '';
-        const status2 = featureStatusMap[row2.name as string]?.rolloutStatus?.name?.toLowerCase() ?? '';
+        const status1 =
+          featureStatusMap[
+            row1.name as string
+          ]?.rolloutStatus?.name?.toLowerCase() ?? '';
+        const status2 =
+          featureStatusMap[
+            row2.name as string
+          ]?.rolloutStatus?.name?.toLowerCase() ?? '';
         return status1.localeCompare(status2);
       },
       render: (row: Partial<TableData>) => {
-        // if (isLoading) {
-        //   return <CircularProgress size={20} />;
-        // }
-
         const ffIdentifier = row.name as string;
         const ffStatus = featureStatusMap[ffIdentifier]?.rolloutStatus?.name;
         return (
@@ -289,15 +260,33 @@ function FMEFeatureList() {
       field: 'col6',
       type: 'string',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const sets1 = row1.flagSets?.map((f: { id: string | number; }) => flagSetsMap[f.id]?.name).join(',').toLowerCase() ?? '';
-        const sets2 = row2.flagSets?.map((f: { id: string | number; }) => flagSetsMap[f.id]?.name).join(',').toLowerCase() ?? '';
+        const sets1 =
+          row1.flagSets
+            ?.map((f: { id: string | number }) => flagSetsMap[f.id]?.name)
+            .join(',')
+            .toLowerCase() ?? '';
+        const sets2 =
+          row2.flagSets
+            ?.map((f: { id: string | number }) => flagSetsMap[f.id]?.name)
+            .join(',')
+            .toLowerCase() ?? '';
         return sets1.localeCompare(sets2);
       },
       render: (row: Partial<TableData>) => {
-        
         return (
           <Typography style={{ fontSize: 'small' }} noWrap>
-            <b>{`${row.flagSets && row.flagSets.length > 0 ? row.flagSets.map((f: { id: string, type: string }) => flagSetsMap[f.id]).map((fs: { name: string }) => fs.name).join(', ') : 'None'}`} </b>
+            <b>
+              {`${
+                row.flagSets && row.flagSets.length > 0
+                  ? row.flagSets
+                      .map(
+                        (f: { id: string; type: string }) => flagSetsMap[f.id],
+                      )
+                      .map((fs: { name: string }) => fs.name)
+                      .join(', ')
+                  : 'None'
+              }`}{' '}
+            </b>
           </Typography>
         );
       },
@@ -307,12 +296,18 @@ function FMEFeatureList() {
       field: 'col7',
       type: 'date',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const date1 = row1.creationTime ? new Date(row1.creationTime).getTime() : 0;
-        const date2 = row2.creationTime ? new Date(row2.creationTime).getTime() : 0;
+        const date1 = row1.creationTime
+          ? new Date(row1.creationTime).getTime()
+          : 0;
+        const date2 = row2.creationTime
+          ? new Date(row2.creationTime).getTime()
+          : 0;
         return date1 - date2;
       },
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.creationTime).format('DD MMM YYYY HH:mm A [GMT]');
+        const time = dayjs(row.creationTime).format(
+          'DD MMM YYYY HH:mm A [GMT]',
+        );
         return <Typography>{time}</Typography>;
       },
     },
@@ -321,12 +316,18 @@ function FMEFeatureList() {
       field: 'col8',
       type: 'date',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const date1 = row1.lastUpdateTime ? new Date(row1.lastUpdateTime).getTime() : 0;
-        const date2 = row2.lastUpdateTime ? new Date(row2.lastUpdateTime).getTime() : 0;
+        const date1 = row1.lastUpdateTime
+          ? new Date(row1.lastUpdateTime).getTime()
+          : 0;
+        const date2 = row2.lastUpdateTime
+          ? new Date(row2.lastUpdateTime).getTime()
+          : 0;
         return date1 - date2;
       },
       render: (row: Partial<TableData>) => {
-        const time = dayjs(row.lastUpdateTime).format('DD MMM YYYY HH:mm A [GMT]');
+        const time = dayjs(row.lastUpdateTime).format(
+          'DD MMM YYYY HH:mm A [GMT]',
+        );
         return <Typography>{time}</Typography>;
       },
     },
@@ -335,13 +336,18 @@ function FMEFeatureList() {
       field: 'col9',
       type: 'date',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const date1 = row1.lastTrafficReceivedAt ? new Date(row1.lastTrafficReceivedAt).getTime() : 0;
-        const date2 = row2.lastTrafficReceivedAt ? new Date(row2.lastTrafficReceivedAt).getTime() : 0;
+        const date1 = row1.lastTrafficReceivedAt
+          ? new Date(row1.lastTrafficReceivedAt).getTime()
+          : 0;
+        const date2 = row2.lastTrafficReceivedAt
+          ? new Date(row2.lastTrafficReceivedAt).getTime()
+          : 0;
         return date1 - date2;
       },
       render: (row: Partial<TableData>) => {
-        
-        const time = row.lastTrafficReceivedAt ? dayjs(row.lastTrafficReceivedAt).format('DD MMM YYYY HH:mm A [GMT]'): 'Never';
+        const time = row.lastTrafficReceivedAt
+          ? dayjs(row.lastTrafficReceivedAt).format('DD MMM YYYY HH:mm A [GMT]')
+          : 'Never';
         return <Typography>{time}</Typography>;
       },
     },
@@ -355,13 +361,14 @@ function FMEFeatureList() {
   ) {
     let description = '';
     if (state === AsyncStatus.Unauthorized) {
-      description = 'Could not find any Feature Flags, the bearer auth token is either missing or incorrect in app-config.yaml under proxy settings.';
+      description =
+        'Could not find any Feature Flags, the bearer auth token is either missing or incorrect in app-config.yaml under proxy settings.';
     } else if (!workspaceId && !orgId) {
-      description = 'Could not find any Feature Flags, please check your workspaceId and orgId configuration in catalog-info.yaml.';
-    // } else if (state === AsyncStatus.Success && currTableData.length === 0) {
-    //   description = 'No Feature Flags configured';
-     } else {
-      description = 'Could not find any Feature Flags, please check your configurations in catalog-info.yaml or check your token permissions.';
+      description =
+        'Could not find any Feature Flags, please check your workspaceId and orgId configuration in catalog-info.yaml.';
+    } else {
+      description =
+        'Could not find any Feature Flags, please check your configurations in catalog-info.yaml or check your token permissions.';
     }
     return (
       <EmptyState
@@ -371,8 +378,6 @@ function FMEFeatureList() {
       />
     );
   }
-
-
 
   return (
     <div className={classes.container}>
@@ -397,7 +402,11 @@ function FMEFeatureList() {
           },
         ]}
         emptyContent={
-          !ownersMap || !ffEnvIds.length || !currTableData || !featureStatusMap || !flagSetsMap ? (
+          !ownersMap ||
+          !ffEnvIds.length ||
+          !currTableData ||
+          !featureStatusMap ||
+          !flagSetsMap ? (
             <div className={classes.empty}>
               <CircularProgress />
             </div>

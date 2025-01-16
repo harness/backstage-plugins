@@ -50,7 +50,7 @@ proxy:
       target: 'https://app.harness.io/'
       headers:
         'x-api-key': ${HARNESS_PROD_API_KEY}
-      '/harness/qa':
+    '/harness/qa':
       target: 'https://qa.harness.io/'
       headers:
         'x-api-key': ${HARNESS_QA_API_KEY}
@@ -66,8 +66,6 @@ proxy:
       target: 'https://api.split.io/'
       headers:
         'Authorization': 'Bearer ${FME_API_KEY}'
-
-    
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
