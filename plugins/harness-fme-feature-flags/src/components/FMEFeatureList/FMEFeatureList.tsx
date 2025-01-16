@@ -111,8 +111,10 @@ function FMEFeatureList() {
       field: 'col1',
       width: '30%',
       render: (row: Partial<TableData>) => {
-        const featureStatus = featureStatusMap[row.name as string];
-        const link = `${baseUrl}org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}`;
+        const featureStatus = featureStatusMap[row.name as string] || {
+          id: '',
+        };
+        const link = `${baseUrl}org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`;
         return (
           <Link href={link} target="_blank">
             <b>{row.name}</b>
