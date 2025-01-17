@@ -404,15 +404,9 @@ function FMEFeatureList() {
           },
         ]}
         emptyContent={
-          !ownersMap ||
-          !ffEnvIds.length ||
-          !currTableData ||
-          !featureStatusMap ||
-          !flagSetsMap ? (
-            <div className={classes.empty}>
-              <CircularProgress />
-            </div>
-          ) : null
+          <div className={classes.empty}>
+            <CircularProgress />
+          </div>
         }
         title="Feature Flags"
         totalCount={totalElements}
