@@ -27,7 +27,7 @@ import { ExperimentRunStatus, RecentWorkflowRun } from '../../api/types';
 import { getIdentifiersFromUrl } from '../../utils/getIdentifiersFromUrl';
 import { useProjectUrlFromEntity } from '../../hooks/useGetSlugsFromEntity';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   statusHeatMap: {
     display: 'flex',
     alignItems: 'end',
@@ -111,7 +111,7 @@ const useStyles = makeStyles(() => ({
     width: '300px',
     maxWidth: 400,
     overflow: 'auto',
-    backgroundColor: '#17293F',
+    backgroundColor: theme.palette.type === 'dark' ? '#17293F' : '#fff',
   },
 }));
 

@@ -5172,10 +5172,10 @@
     path-to-regexp "^6.2.1"
     react-use "^17.2.4"
 
-"@harnessio/backstage-plugin-harness-chaos@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-harness-chaos/-/backstage-plugin-harness-chaos-0.1.0.tgz#06bb0c5014cc7f4e3788d63a812dc1c4ce2b582c"
-  integrity sha512-dqn0ZShXxYUtirT8rL4QzqwPMmkJAm2W8VuA7fFk5fX7vEHbV/1W0X/eToAQvGxtagpEyNKuYC17VQlAAfuRnw==
+"@harnessio/backstage-plugin-harness-chaos@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-harness-chaos/-/backstage-plugin-harness-chaos-0.2.0.tgz#0194db9f284dab06955f52b983b7c15f42363cf3"
+  integrity sha512-USlL+yHX5zexUJGZsD9B5upDZUbArcAqvsa5jBQ1Xd8F4OQU7g+hK/FQbt1HnvE87amanaIN+nzx5R+T+Mgq2Q==
   dependencies:
     "@backstage/catalog-model" "^1.4.5"
     "@backstage/core-components" "^0.14.0"
@@ -10217,7 +10217,7 @@ apg-lite@^1.0.3:
     "@harnessio/backstage-plugin-ci-cd" "^0.9.0"
     "@harnessio/backstage-plugin-feature-flags" "^0.2.0"
     "@harnessio/backstage-plugin-harness-ccm" "^0.1.0"
-    "@harnessio/backstage-plugin-harness-chaos" "^0.1.0"
+    "@harnessio/backstage-plugin-harness-chaos" "^0.2.0"
     "@harnessio/backstage-plugin-harness-iacm" "0.3.0"
     "@harnessio/backstage-plugin-harness-srm" "^0.2.0"
     "@material-ui/core" "^4.12.2"
