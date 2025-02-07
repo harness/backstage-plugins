@@ -68,6 +68,11 @@ import {
 } from '@harnessio/backstage-plugin-feature-flags';
 
 import {
+  isHarnessFMEFeatureFlagAvailable,
+  EntityHarnessFMEFeatureFlagContent,
+} from '@harnessio/backstage-plugin-fme-feature-flags';
+
+import {
   EntityHarnessSrmContent,
   isHarnessSRMAvailable,
 } from '@harnessio/backstage-plugin-harness-srm';
@@ -151,6 +156,32 @@ const featureFlagList = (
     </EntitySwitch.Case>
   </EntitySwitch>
 );
+
+const FMEList = (
+  <EntitySwitch>
+    <EntitySwitch.Case if={isHarnessFMEFeatureFlagAvailable}>
+      <EntityHarnessFMEFeatureFlagContent />
+    </EntitySwitch.Case>
+
+    <EntitySwitch.Case>
+      <EmptyState
+        title="No FME Feature Flags available for this entity"
+        missing="info"
+        description="You need to add an annotation to your component for harnessfme/accountId and harnessfme/projectId if you want to enable FME Feature Flags for it. You can read more about annotations in Backstage by clicking the button below."
+        action={
+          <Button
+            variant="contained"
+            color="primary"
+            href="https://backstage.io/docs/features/software-catalog/well-known-annotations"
+          >
+            Read more
+          </Button>
+        }
+      />
+    </EntitySwitch.Case>
+  </EntitySwitch>
+);
+
 const entityWarningContent = (
   <>
     <EntitySwitch>
@@ -311,6 +342,10 @@ const serviceEntityPage = (
       {featureFlagList}
     </EntityLayout.Route>
 
+    <EntityLayout.Route path="/fme-feature-flag" title="FME Feature Flags">
+      {FMEList}
+    </EntityLayout.Route>
+
     <EntityLayout.Route path="/api" title="API">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item md={6}>
@@ -352,8 +387,8 @@ const websiteEntityPage = (
       <EntityHarnessFeatureFlagContent />
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/feature-flag" title="Feature Flags">
-      {featureFlagList}
+    <EntityLayout.Route path="/fme-feature-flag" title="FME Feature Flags">
+      {FMEList}
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/chaos" title="Chaos Engineering">
