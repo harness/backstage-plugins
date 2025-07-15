@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Owner } from '../types';
-
+import { fetchApiRef,useApi } from '@backstage/core-plugin-api';
 interface UseGetOwners {
   resolvedBackendBaseUrl: string;
   refresh: number;
@@ -14,7 +14,7 @@ interface UserResponse {
 const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
   const [ownersMap, setOwnersMap] = useState<Record<string, Owner>>({});
   const [loading, setLoading] = useState(false);
-
+  const fetchApi = useApi(fetchApiRef);
   useEffect(() => {
     const fetchOwners = async () => {
       if (!resolvedBackendBaseUrl) return;
@@ -35,7 +35,7 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
       // Fetch groups
       while (hasMore) {
         try {
-          const resp = await fetch(
+          const resp = await fetchApi.fetch(
             `${baseUrl}/harnessfme/internal/api/v2/groups?limit=50&offset=${offset}`,
             { headers },
           );

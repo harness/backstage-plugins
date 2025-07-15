@@ -2,6 +2,10 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: ${{ values.name | dump }}
+  annotations:
+    # mandatory annotation
+    harnessfme/projectId: 205e9e60-5e28-11f0-b256-ae42fb35a0c7
+    harnessfme/accountId: 203d33b0-5e28-11f0-b256-ae42fb35a0c7
 spec:
   type: service
   owner: user:guest

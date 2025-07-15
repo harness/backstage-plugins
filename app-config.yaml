@@ -65,7 +65,7 @@ proxy:
     '/harnessfme':
       target: 'https://api.split.io/'
       headers:
-        'Authorization': 'Bearer ${FME_API_KEY}'
+        'Authorization': 'Bearer g819gs76doo0ub5ae558hd4tj4gja0h9b7di'
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs

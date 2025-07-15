@@ -15,8 +15,8 @@ metadata:
   annotations:
     # mandatory annotation
     # harness.io/project-url: https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_NAME/feature-flags
-    # harnessfme/projectId: FME_PROJECT_ID
-    # harnessfme/accountId: FME_ACCOUNT_ID
+    harnessfme/projectId: 205e9e60-5e28-11f0-b256-ae42fb35a0c7
+    harnessfme/accountId: 203d33b0-5e28-11f0-b256-ae42fb35a0c7
 
 spec:
   type: service

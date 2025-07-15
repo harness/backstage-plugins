@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AsyncStatus } from '../types';
-
+import {fetchApiRef, useApi} from '@backstage/core-plugin-api';
 interface useGetFeatureEnvArgs {
   resolvedBackendBaseUrl: string;
   workspaceId: string;
@@ -14,7 +14,7 @@ const useGetFeatureEnv = ({
 }: useGetFeatureEnvArgs) => {
   const [ffEnvIds, setffEnvIds] = useState<{ id: string; name: string }[]>([]);
   const [status, setStatus] = useState<AsyncStatus>(AsyncStatus.Init);
-
+  const fetchApi = useApi(fetchApiRef);
   useEffect(() => {
     const fetchEnvironments = async () => {
       if (!workspaceId || !resolvedBackendBaseUrl) return;
@@ -25,7 +25,7 @@ const useGetFeatureEnv = ({
           'Content-Type': 'application/json',
         });
 
-        const resp = await fetch(
+        const resp = await fetchApi.fetch(
           `${resolvedBackendBaseUrl}/harnessfme/internal/api/v2/environments/ws/${workspaceId}`,
           { headers },
         );
