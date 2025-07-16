@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FlagSet } from '../types';
-
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 interface UseGetFlagSetsWs {
   resolvedBackendBaseUrl: string;
   workspaceId: string;
@@ -14,7 +14,7 @@ const UseGetFlagSets = ({
 }: UseGetFlagSetsWs) => {
   const [flagSetsMap, setFlagSetsMap] = useState<Record<string, FlagSet>>({});
   const [loading, setLoading] = useState(false);
-
+  const fetchApi = useApi(fetchApiRef);
   useEffect(() => {
     const fetchFlagSets = async () => {
       if (!resolvedBackendBaseUrl) return;
@@ -34,7 +34,7 @@ const UseGetFlagSets = ({
       // Fetch groups
       while (hasMore) {
         try {
-          const resp = await fetch(
+          const resp = await fetchApi.fetch(
             `${baseUrl}/harnessfme/api/v3/flag-sets?workspace_id=${workspaceId}&limit=200${
               nextMarker !== 'null' ? `&after=${nextMarker}` : ''
             }`,

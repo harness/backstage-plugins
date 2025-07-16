@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Feature } from '../types';
-
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 interface useGetFeatureStatusEnv {
   workspaceId: string;
   envId: { id: string; name: string };
@@ -17,7 +17,7 @@ const useGetFeatureState = ({
   const [totalElements, setTotalElements] = useState(50);
   const [currTableData, setCurrTableData] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const fetchApi = useApi(fetchApiRef);
   useEffect(() => {
     const fetchFeatureState = async () => {
       if (!envId.id || !workspaceId || !resolvedBackendBaseUrl) return;
@@ -38,7 +38,7 @@ const useGetFeatureState = ({
 
       while (hasMore) {
         try {
-          const resp = await fetch(
+          const resp = await fetchApi.fetch(
             `${baseUrl}/harnessfme/internal/api/v2/splits/ws/${workspaceId}/environments/${envId.id}?limit=50&offset=${offset}`,
             { headers },
           );
