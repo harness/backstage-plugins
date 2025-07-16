@@ -76,8 +76,9 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
       let nextMarker = null;
       while (hasMore) {
         try {
-          const respUsers = await fetch(
-            `${baseUrl}/harnessfme/internal/api/v2/users?limit=200${nextMarker !== null ? `&nextMarker=${nextMarker}` : ''
+          const respUsers = await fetchApi.fetch(
+            `${baseUrl}/harnessfme/internal/api/v2/users?limit=200${
+              nextMarker !== null ? `&nextMarker=${nextMarker}` : ''
             }`,
             { headers },
           );

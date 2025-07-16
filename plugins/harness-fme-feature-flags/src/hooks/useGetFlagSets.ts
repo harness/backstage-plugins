@@ -36,7 +36,8 @@ const UseGetFlagSets = ({
       while (hasMore) {
         try {
           const resp = await fetchApi.fetch(
-            `${baseUrl}/harnessfme/api/v3/flag-sets?workspace_id=${workspaceId}&limit=200${nextMarker !== 'null' ? `&after=${nextMarker}` : ''
+            `${baseUrl}/harnessfme/api/v3/flag-sets?workspace_id=${workspaceId}&limit=200${
+              nextMarker !== 'null' ? `&after=${nextMarker}` : ''
             }`,
             { headers },
           );
