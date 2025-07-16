@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FeatureStatus } from '../types';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+
 interface useGetFeatureStatusEnv {
   workspaceId: string;
   envId: { id: string; name: string };
@@ -80,7 +81,7 @@ const useGetFeatureStatus = ({
     };
 
     fetchFeatureStatus();
-  }, [resolvedBackendBaseUrl, workspaceId, envId, refresh]);
+  }, [resolvedBackendBaseUrl, workspaceId, envId, refresh, fetchApi]);
 
   return { featureStatusMap, loading };
 };

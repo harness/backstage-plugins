@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AsyncStatus } from '../types';
-import {fetchApiRef, useApi} from '@backstage/core-plugin-api';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+
 interface useGetFeatureEnvArgs {
   resolvedBackendBaseUrl: string;
   workspaceId: string;
@@ -47,7 +48,7 @@ const useGetFeatureEnv = ({
     };
 
     fetchEnvironments();
-  }, [resolvedBackendBaseUrl, workspaceId, refresh]); // Now using resolvedBaseUrl instead of the Promise
+  }, [resolvedBackendBaseUrl, workspaceId, refresh, fetchApi]); // Now using resolvedBaseUrl instead of the Promise
 
   return { ffEnvIds, status };
 };

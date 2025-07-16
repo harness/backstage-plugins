@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Owner } from '../types';
-import { fetchApiRef,useApi } from '@backstage/core-plugin-api';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+
 interface UseGetOwners {
   resolvedBackendBaseUrl: string;
   refresh: number;
@@ -76,8 +77,7 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
       while (hasMore) {
         try {
           const respUsers = await fetch(
-            `${baseUrl}/harnessfme/internal/api/v2/users?limit=200${
-              nextMarker !== null ? `&nextMarker=${nextMarker}` : ''
+            `${baseUrl}/harnessfme/internal/api/v2/users?limit=200${nextMarker !== null ? `&nextMarker=${nextMarker}` : ''
             }`,
             { headers },
           );
@@ -121,7 +121,7 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
     };
 
     fetchOwners();
-  }, [resolvedBackendBaseUrl, refresh]); // Include dependencies in useEffect
+  }, [resolvedBackendBaseUrl, refresh, fetchApi]); // Include dependencies in useEffect
 
   return { ownersMap, loading };
 };
