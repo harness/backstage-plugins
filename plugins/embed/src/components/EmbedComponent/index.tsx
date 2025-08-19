@@ -1,0 +1,1 @@
+export { EmbedComponent } from './EmbedComponent';
