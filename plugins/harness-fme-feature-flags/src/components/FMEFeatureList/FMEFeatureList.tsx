@@ -278,16 +278,15 @@ function FMEFeatureList() {
         return (
           <Typography style={{ fontSize: 'small' }} noWrap>
             <b>
-              {`${
-                row.flagSets && row.flagSets.length > 0
-                  ? row.flagSets
-                      .map(
-                        (f: { id: string; type: string }) => flagSetsMap[f.id],
-                      )
-                      .map((fs: { name: string }) => fs.name)
-                      .join(', ')
-                  : 'None'
-              }`}{' '}
+              {`${row.flagSets && row.flagSets.length > 0
+                ? row.flagSets
+                  .map(
+                    (f: { id: string; type: string }) => flagSetsMap[f.id],
+                  )
+                  .map((fs: { name: string }) => fs.name)
+                  .join(', ')
+                : 'None'
+                }`}{' '}
             </b>
           </Typography>
         );
@@ -334,7 +333,7 @@ function FMEFeatureList() {
       },
     },
     {
-      title: 'Last Traffic Recieved',
+      title: 'Last Traffic Received',
       field: 'col9',
       type: 'date',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
