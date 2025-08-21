@@ -278,15 +278,16 @@ function FMEFeatureList() {
         return (
           <Typography style={{ fontSize: 'small' }} noWrap>
             <b>
-              {`${row.flagSets && row.flagSets.length > 0
-                ? row.flagSets
-                  .map(
-                    (f: { id: string; type: string }) => flagSetsMap[f.id],
-                  )
-                  .map((fs: { name: string }) => fs.name)
-                  .join(', ')
-                : 'None'
-                }`}{' '}
+              {`${
+                row.flagSets && row.flagSets.length > 0
+                  ? row.flagSets
+                      .map(
+                        (f: { id: string; type: string }) => flagSetsMap[f.id],
+                      )
+                      .map((fs: { name: string }) => fs.name)
+                      .join(', ')
+                  : 'None'
+              }`}{' '}
             </b>
           </Typography>
         );
