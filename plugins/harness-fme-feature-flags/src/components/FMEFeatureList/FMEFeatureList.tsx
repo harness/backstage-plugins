@@ -334,7 +334,7 @@ function FMEFeatureList() {
       },
     },
     {
-      title: 'Last Traffic Recieved',
+      title: 'Last Traffic Received',
       field: 'col9',
       type: 'date',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {

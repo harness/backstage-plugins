@@ -34,7 +34,7 @@ export const isHarnessFMEFeatureFlagAvailable = (entity: Entity) =>
 
 export const Router = () => {
   const { entity } = useEntity();
-  const requiredAnnotations = ['harnessfme/orgId', 'harnessfme/workspaceId'];
+  const requiredAnnotations = ['harnessfme/accountId', 'harnessfme/projectId'];
 
   if (!isHarnessFMEFeatureFlagAvailable(entity)) {
     return <MissingAnnotationEmptyState annotation={requiredAnnotations} />;
