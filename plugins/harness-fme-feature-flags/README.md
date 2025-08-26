@@ -22,17 +22,17 @@ If you are looking to get started with Backstage, check out [backstage.io/docs](
 
 For testing purposes, you can also clone this repository to try out the plugin. It contains an example Backstage app setup which is pre-installed with Harness plugins. However, you must create a new Backstage app if you are looking to get started with Backstage.
 
-2. Configure proxy for harness in your `app-config.yaml` under the `proxy` config. Add your Harness FME Admin API Key for `Authorization: Bearer`. See the [Harness FME docs](https://help.split.io/hc/en-us/articles/360019916211-API-keys) for generating an API Key.
+2. Configure proxy for harness in your `app-config.yaml` under the `proxy` config. Ensure you have a service account for `x-api-key`. See the [Harness FME docs](https://help.split.io/hc/en-us/articles/360019916211-API-keys) for generating an API Key.
 
 ```yaml
 # In app-config.yaml
 
 proxy:
   # ... existing proxy settings
-  '/harnessfme':      
-    target: 'https://api.split.io/'
+  '/harness/prod':      
+    target: 'https://app.harness.io/'
     headers:
-      'Authorization': 'Bearer <API KEY>'
+      'x-api-key': '<API KEY>'
 # ...
 ```
 
@@ -108,8 +108,11 @@ metadata:
   # ...
   annotations:
     # mandatory annotation
-    harnessfme/projectId: <project id>
-    harnessfme/accountId: <account id>
+    harnessfme/projectId: <project id>  # FME project identifier (UUID)
+    harnessfme/accountId: <account id>  # FME org identifier (UUID)
+    harnessfme/harnessAccountId: <org id>  # Harness org identifier (String)
+    harnessfme/harnessOrgId: <org id>  # Harness org identifier (String)
+    harnessfme/harnessProjectId: <project id>  # Harness project identifier (String)
 
   type: service
   # ...
