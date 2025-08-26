@@ -114,7 +114,7 @@ function FMEFeatureList() {
         const featureStatus = featureStatusMap[row.name as string] || {
           id: '',
         };
-        const link = `${baseUrl}ng/account/${harnessAccountId}A/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`
+        const link = `${baseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`
         return (
           <Link href={link} target="_blank">
             <b>{row.name}</b>

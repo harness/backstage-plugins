@@ -49,7 +49,7 @@ proxy:
     '/harness/prod':
       target: 'https://app.harness.io/'
       headers:
-        'x-api-key': sat.E0oDbbZUQn6gsBj-M7jUBA.68acec5c1d6fca7467b3a9d2.JcXmFTEluxwj3amU4cDD
+        'x-api-key': ${HARNESS_PROD_API_KEY}
     '/harness/qa':
       target: 'https://qa.harness.io/'
       headers:
