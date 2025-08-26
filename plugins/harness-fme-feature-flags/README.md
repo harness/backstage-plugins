@@ -22,7 +22,7 @@ If you are looking to get started with Backstage, check out [backstage.io/docs](
 
 For testing purposes, you can also clone this repository to try out the plugin. It contains an example Backstage app setup which is pre-installed with Harness plugins. However, you must create a new Backstage app if you are looking to get started with Backstage.
 
-2. Configure proxy for harness in your `app-config.yaml` under the `proxy` config. Ensure you have a service account for `x-api-key`. See the [Harness FME docs](https://help.split.io/hc/en-us/articles/360019916211-API-keys) for generating an API Key.
+2. Configure proxy for harness in your `app-config.yaml` under the `proxy` config. Ensure you have a service account for `x-api-key`. See the [Harness API Docs](https://developer.harness.io/docs/platform/automation/api/api-quickstart/) for generating an API Key.
 
 ```yaml
 # In app-config.yaml
@@ -32,7 +32,7 @@ proxy:
   '/harness/prod':      
     target: 'https://app.harness.io/'
     headers:
-      'x-api-key': '<API KEY>'
+      'x-api-key': '<API Token>'
 # ...
 ```
 
@@ -97,7 +97,7 @@ You will need your accountId (formerly Org ID) and projectId (formerly Workspace
 
 You can get these from the URL when you are logged in to the FME console.
 
-https://app.split.io/org/<ACCOUNT ID>/ws/<PROJECT ID>>/mywork
+https://app.harness.io/ng/account/<harnessAccountId>/module/fme/orgs/<harnessOrgId>/projects/<harnessProjectId>/org/<accountId>/ws/<workspaceId>/mywork
 
 
 

@@ -15,11 +15,11 @@ metadata:
   annotations:
     # mandatory annotation
     # harness.io/project-url: https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_NAME/feature-flags
-    harnessfme/projectId: 4baf0690-6d25-11e9-8497-12a5cc2af8fe # GUID
-    harnessfme/accountId: 4ba7daa0-6d25-11e9-8497-12a5cc2af8fe # GUID
-    harnessfme/projectIdentifier: Hotels
-    harnessfme/accountIdentifier: E0oDbbZUQn6gsBj-M7jUBA
-    harnessfme/orgIdentifier: SplitTrainingFME
+    harnessfme/projectId: Harness FME Project # GUID
+    harnessfme/accountId:  Harness FME Account # GUID
+    harnessfme/projectIdentifier: 
+    harnessfme/accountIdentifier: Harness Account Identifier (string)
+    harnessfme/orgIdentifier: Harness Org Identifier (string)
 
 spec:
   type: service
