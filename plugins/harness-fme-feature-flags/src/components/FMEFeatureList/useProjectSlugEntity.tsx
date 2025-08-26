@@ -3,20 +3,21 @@ import { useEntity } from '@backstage/plugin-catalog-react';
 
 export const useProjectSlugFromEntity = () => {
   const { entity } = useEntity();
-  const workspaceIdAnnotation = 'harnessfme/projectId';
-  const workspaceId = entity.metadata.annotations?.[ workspaceIdAnnotation] as string;
 
-  const orgIdAnnotation = 'harnessfme/accountId';
-  const orgId = entity.metadata.annotations?.[orgIdAnnotation] as string;
+  const myWorkAnnotation = 'harnessfme/mywork';
+  const myWorkUrl = entity.metadata.annotations?.[myWorkAnnotation] as string;
+  const urlAsArray = myWorkUrl.split('/');
+  const workspaceId = urlAsArray[urlAsArray.length - 2];
+  const orgId = urlAsArray[urlAsArray.length - 4];
+  const harnessProjectId = urlAsArray[urlAsArray.length - 6];
+  const harnessAccountId = urlAsArray[urlAsArray.length - 12];
+  const harnessOrgId = urlAsArray[urlAsArray.length - 8];
 
-  const harnessAccountAnnotation = 'harness/accountIdentifier'
-  const harnessAccountId = entity.metadata.annotations?.[harnessAccountAnnotation] as string;
-
-  const harnessOrgIdentifier = 'harness/orgIdentifier'
-  const harnessOrgId = entity.metadata.annotations?.[harnessOrgIdentifier] as string;
-
-  const harnessProjectIdentifier = 'harness/projectIdentifier'
-  const harnessProjectId = entity.metadata.annotations?.[harnessProjectIdentifier] as string;
-
-  return { workspaceId, orgId, harnessAccountId, harnessOrgId, harnessProjectId };
+  return {
+    workspaceId,
+    orgId,
+    harnessAccountId,
+    harnessOrgId,
+    harnessProjectId,
+  };
 };

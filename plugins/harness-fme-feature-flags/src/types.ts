@@ -43,8 +43,8 @@ export interface FeatureStatus {
 }
 
 export interface HarnessGroup {
-  identifier: string,
-  name: string
+  identifier: string;
+  name: string;
 }
 
 export interface HarnessUser {
@@ -53,12 +53,12 @@ export interface HarnessUser {
   email: string;
 }
 
-
 export interface Owner {
   id: string;
   type: string;
   name: string;
   email?: string;
+  identifier?: string;
 }
 
 export interface FlagSet {

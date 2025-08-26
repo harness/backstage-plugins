@@ -100,10 +100,11 @@ const serviceEntityPage = (
 ```
 
 4. Add required Harness FME specific annotations to your software component's respective `catalog-info.yaml` file. 
-You will need your accountId (formerly Org ID) and projectId (formerly Workspace ID)
+)
 
-You can get these from the URL when you are logged in to the FME console.
+You will need your `My Work` URL from the Harness FME console and add that as an annotation to your software component's respective `catalog-info.yaml` file. To get that - log into your Harness FME console and navigate to the `My Work` section. Copy the URL from the browser and add it as an annotation to your software component's respective `catalog-info.yaml` file.
 
+Example:
 https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/fme/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_ID/org/fmeAcountId/ws/fmeProjectId/mywork
 
 
@@ -115,11 +116,8 @@ metadata:
   # ...
   annotations:
     # mandatory annotation
-    harnessfme/projectId: <project id>  # FME project identifier (UUID)
-    harnessfme/accountId: <account id>  # FME org identifier (UUID)
-    harness/accountIdentifier: <account id>  # Harness account identifier (String)
-    harness/orgIdentifier: <org id>  # Harness org identifier (String)
-    harness/projectIdentifier: <project id>  # Harness project identifier (String)
+    harnessfme/mywork: https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/fme/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_ID/org/fmeAcountId/ws/fmeProjectId/mywork
+    
 
   type: service
   # ...

@@ -25,10 +25,7 @@ import { MissingAnnotationEmptyState } from '@backstage/plugin-catalog-react';
 
 /** @public */
 export const isHarnessFMEFeatureFlagAvailable = (entity: Entity) =>
-  Boolean(
-    entity.metadata.annotations?.['harnessfme/accountId'] &&
-      entity.metadata.annotations?.['harnessfme/projectId'],
-  );
+  Boolean(entity.metadata.annotations?.['harnessfme/mywork']);
 
 /** @public */
 

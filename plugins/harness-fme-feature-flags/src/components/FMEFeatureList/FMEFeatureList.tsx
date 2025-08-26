@@ -49,10 +49,15 @@ function FMEFeatureList() {
   const discoveryApi = useApi(discoveryApiRef);
   discoveryApi.getBaseUrl('proxy').then(url => setResolvedBackendBaseUrl(url));
   const config = useApi(configApiRef);
-  const baseUrl =
-    config.getOptionalString('harnessfme.baseUrl') ?? 'https://app.split.io/';
-  const harnessBaseUrl = config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
-  const { workspaceId, orgId, harnessAccountId, harnessOrgId, harnessProjectId } = useProjectSlugFromEntity();
+  const harnessBaseUrl =
+    config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
+  const {
+    workspaceId,
+    orgId,
+    harnessAccountId,
+    harnessOrgId,
+    harnessProjectId,
+  } = useProjectSlugFromEntity();
 
   // Memoize the refresh callback
   const refresh = useCallback(() => {
@@ -115,7 +120,7 @@ function FMEFeatureList() {
         const featureStatus = featureStatusMap[row.name as string] || {
           id: '',
         };
-        const link = `${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`
+        const link = `${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`;
         return (
           <Link href={link} target="_blank">
             <b>{row.name}</b>
@@ -219,8 +224,14 @@ function FMEFeatureList() {
       title: 'Tags',
       field: 'col4',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const a = featureStatusMap[row1.name as string]?.tags?.map((tag: { name: String; }) => tag.name).join(',') || '';
-        const b = featureStatusMap[row2.name as string]?.tags?.map((tag: { name: String; }) => tag.name).join(',') || '';
+        const a =
+          featureStatusMap[row1.name as string]?.tags
+            ?.map((tag: { name: String }) => tag.name)
+            .join(',') || '';
+        const b =
+          featureStatusMap[row2.name as string]?.tags
+            ?.map((tag: { name: String }) => tag.name)
+            .join(',') || '';
         return a.localeCompare(b);
       },
       type: 'string',
@@ -228,7 +239,11 @@ function FMEFeatureList() {
         const featureStatus = featureStatusMap[row.name as string];
         return (
           <Typography style={{ fontSize: 'small', color: 'black' }}>
-            <b>{featureStatus.tags?.map((tag: { name: String; }) => tag.name).join(',')||'None'} </b>
+            <b>
+              {featureStatus.tags
+                ?.map((tag: { name: String }) => tag.name)
+                .join(',') || 'None'}{' '}
+            </b>
           </Typography>
         );
       },

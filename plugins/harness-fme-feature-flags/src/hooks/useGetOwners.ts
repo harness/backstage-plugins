@@ -7,11 +7,9 @@ interface UseGetOwners {
   refresh: number;
 }
 
-
-
 interface GroupResponse {
   data: {
-    content: Owner[];
+    content: HarnessGroup[];
   };
 }
 
@@ -33,9 +31,6 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
       let hasMore = true;
       const ownerList: Record<string, Owner> = {};
 
-      const pause = (duration: number) =>
-        new Promise(resolve => setTimeout(resolve, duration));
-
       // Fetch groups
       while (hasMore) {
         try {
@@ -46,8 +41,13 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
 
           if (resp.status === 200) {
             const data = await resp.json();
-            data.data.content.forEach((d: {user: HarnessUser}) => {
-              ownerList[d.user.uuid] = {id: d.user.uuid, name: d.user.name, email: d.user.email, type: 'user'};
+            data.data.content.forEach((d: { user: HarnessUser }) => {
+              ownerList[d.user.uuid] = {
+                id: d.user.uuid,
+                name: d.user.name,
+                email: d.user.email,
+                type: 'user',
+              };
             });
 
             if (data.data.content.length < 50) {
@@ -55,7 +55,6 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
             } else {
               pageIndex += 1;
             }
-          
           } else {
             hasMore = false;
           }
@@ -77,17 +76,18 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
           if (respGroups.status === 200) {
             const dataGroups: GroupResponse = await respGroups.json();
             dataGroups.data.content.forEach((d: HarnessGroup) => {
-              ownerList[d.identifier] = {id: d.identifier, name: d.name, type: 'group'};
+              ownerList[d.identifier] = {
+                id: d.identifier,
+                name: d.name,
+                type: 'group',
+              };
             });
 
-            if (
-              dataGroups.data.content.length < 50
-            ) {
+            if (dataGroups.data.content.length < 50) {
               hasMore = false;
             } else {
               pageIndex += 1;
             }
-          
           } else {
             hasMore = false;
           }
