@@ -97,7 +97,7 @@ You will need your accountId (formerly Org ID) and projectId (formerly Workspace
 
 You can get these from the URL when you are logged in to the FME console.
 
-https://app.harness.io/ng/account/<harnessAccountId>/module/fme/orgs/<harnessOrgId>/projects/<harnessProjectId>/org/<accountId>/ws/<workspaceId>/mywork
+https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/fme/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_ID/org/projectId/ws/workspaceId/mywork
 
 
 
