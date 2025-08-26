@@ -51,6 +51,7 @@ function FMEFeatureList() {
   const config = useApi(configApiRef);
   const baseUrl =
     config.getOptionalString('harnessfme.baseUrl') ?? 'https://app.split.io/';
+  const harnessBaseUrl = config.getOptionalString('harness.baseUrl') ?? 'https://app.harness.io/';
   const { workspaceId, orgId, harnessAccountId, harnessOrgId, harnessProjectId } = useProjectSlugFromEntity();
 
   // Memoize the refresh callback
@@ -114,7 +115,7 @@ function FMEFeatureList() {
         const featureStatus = featureStatusMap[row.name as string] || {
           id: '',
         };
-        const link = `${baseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`
+        const link = `${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`
         return (
           <Link href={link} target="_blank">
             <b>{row.name}</b>
@@ -184,7 +185,7 @@ function FMEFeatureList() {
             if (owner?.type === 'user') {
               return `<a href="mailto:${owner.email}" target="_blank">${owner.name}</a>`;
             } else if (owner?.type === 'group') {
-              return `<a href="${baseUrl}ng/account/${harnessAccountId}/module/fme/settings/access-control/user-groups/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`;
+              return `<a href="${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/settings/access-control/user-groups/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`;
             }
             return owner?.name || '';
           })
@@ -218,16 +219,16 @@ function FMEFeatureList() {
       title: 'Tags',
       field: 'col4',
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
-        const a = featureStatusMap[row1.name as string]?.tags?.map((tag: { name: String; }) => tag.name).join(',');
-        const b = featureStatusMap[row2.name as string]?.tags?.map((tag: { name: String; }) => tag.name).join(',');
+        const a = featureStatusMap[row1.name as string]?.tags?.map((tag: { name: String; }) => tag.name).join(',') || '';
+        const b = featureStatusMap[row2.name as string]?.tags?.map((tag: { name: String; }) => tag.name).join(',') || '';
         return a.localeCompare(b);
       },
       type: 'string',
       render: (row: Partial<TableData>) => {
         const featureStatus = featureStatusMap[row.name as string];
         return (
-          <Typography style={{ fontSize: 'medium', color: 'black' }}>
-            <b>{featureStatus.tags.map((tag: { name: String; }) => tag.name).join(',')} </b>
+          <Typography style={{ fontSize: 'small', color: 'black' }}>
+            <b>{featureStatus.tags?.map((tag: { name: String; }) => tag.name).join(',')||'None'} </b>
           </Typography>
         );
       },

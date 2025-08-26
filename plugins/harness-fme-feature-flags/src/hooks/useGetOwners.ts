@@ -41,10 +41,7 @@ const useGetOwners = ({ resolvedBackendBaseUrl, refresh }: UseGetOwners) => {
         try {
           const resp = await fetchApi.fetch(
             `${baseUrl}/harness/prod/ng/api/user/aggregate?pageIndex=${pageIndex}`,
-            { headers },
-            {
-              method: 'POST',
-            }
+            { headers, method: 'POST' },
           );
 
           if (resp.status === 200) {

@@ -34,6 +34,13 @@ proxy:
     headers:
       'x-api-key': '<API Token>'
 # ...
+
+# You can also configure the base URLs in app-config.yaml
+harness:
+  baseUrl: 'https://app.harness.io/'
+
+harnessfme:
+  baseUrl: 'https://api.split.io/'
 ```
 
 Notes:
@@ -97,7 +104,7 @@ You will need your accountId (formerly Org ID) and projectId (formerly Workspace
 
 You can get these from the URL when you are logged in to the FME console.
 
-https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/fme/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_ID/org/projectId/ws/workspaceId/mywork
+https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/fme/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_ID/org/fmeAcountId/ws/fmeProjectId/mywork
 
 
 
@@ -110,9 +117,9 @@ metadata:
     # mandatory annotation
     harnessfme/projectId: <project id>  # FME project identifier (UUID)
     harnessfme/accountId: <account id>  # FME org identifier (UUID)
-    harnessfme/harnessAccountId: <org id>  # Harness org identifier (String)
-    harnessfme/harnessOrgId: <org id>  # Harness org identifier (String)
-    harnessfme/harnessProjectId: <project id>  # Harness project identifier (String)
+    harness/accountIdentifier: <account id>  # Harness account identifier (String)
+    harness/orgIdentifier: <org id>  # Harness org identifier (String)
+    harness/projectIdentifier: <project id>  # Harness project identifier (String)
 
   type: service
   # ...

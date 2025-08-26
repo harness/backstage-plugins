@@ -15,11 +15,11 @@ metadata:
   annotations:
     # mandatory annotation
     # harness.io/project-url: https://app.harness.io/ng/account/HARNESS_ACCOUNT_ID/module/orgs/HARNESS_ORG_ID/projects/HARNESS_PROJECT_NAME/feature-flags
-    harnessfme/projectId: Harness FME Project # GUID
-    harnessfme/accountId:  Harness FME Account # GUID
-    harnessfme/projectIdentifier:  Harness Project Identifier (string)
-    harnessfme/accountIdentifier: Harness Account Identifier (string)
-    harnessfme/orgIdentifier: Harness Org Identifier (string)
+    harnessfme/projectId: ${FME_PROJECT_ID} # GUID
+    harnessfme/accountId: ${FME_ACCOUNT_ID} # GUID
+    harness/projectIdentifier: ${HARNESS_PROJECT_IDENTIFIER} # string
+    harness/accountIdentifier: ${HARNESS_ACCOUNT_IDENTIFIER} # string
+    harness/orgIdentifier: ${HARNESS_ORG_IDENTIFIER} # string
 
 spec:
   type: service

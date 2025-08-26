@@ -9,13 +9,13 @@ export const useProjectSlugFromEntity = () => {
   const orgIdAnnotation = 'harnessfme/accountId';
   const orgId = entity.metadata.annotations?.[orgIdAnnotation] as string;
 
-  const harnessAccountAnnotation = 'harnessfme/harnessAccountId'
+  const harnessAccountAnnotation = 'harness/accountIdentifier'
   const harnessAccountId = entity.metadata.annotations?.[harnessAccountAnnotation] as string;
 
-  const harnessOrgIdentifier = 'harnessfme/harnessOrgId'
+  const harnessOrgIdentifier = 'harness/orgIdentifier'
   const harnessOrgId = entity.metadata.annotations?.[harnessOrgIdentifier] as string;
 
-  const harnessProjectIdentifier = 'harnessfme/harnessProjectId'
+  const harnessProjectIdentifier = 'harness/projectIdentifier'
   const harnessProjectId = entity.metadata.annotations?.[harnessProjectIdentifier] as string;
 
   return { workspaceId, orgId, harnessAccountId, harnessOrgId, harnessProjectId };

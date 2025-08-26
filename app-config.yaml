@@ -62,6 +62,10 @@ proxy:
       target: 'https://stress.harness.io/'
       headers:
         'x-api-key': ${HARNESS_STRESS_API_KEY}
+    '/harnessfme':
+      target: 'https://api.split.io/'
+      headers:
+        'x-api-key': ${HARNESS_PROD_API_KEY}
 
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
