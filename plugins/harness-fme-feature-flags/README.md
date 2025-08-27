@@ -100,7 +100,6 @@ const serviceEntityPage = (
 ```
 
 4. Add required Harness FME specific annotations to your software component's respective yaml file. 
-)
 
 You will need your `My Work` URL from the Harness FME console and add that as an annotation to your software component's respective `catalog-info.yaml` file. To get that - log into your Harness FME console and navigate to the `My Work` section. Copy the URL from the browser and add it as an annotation to your software component's respective `catalog-info.yaml` file.
 
