@@ -122,9 +122,10 @@ function FMEFeatureList() {
         const featureStatus = featureStatusMap[row.name as string] || {
           id: '',
         };
-        const link = isMigrated == 'true' ? 
-        `${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition` : 
-        `${fmeBaseUrl}org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`;
+        const link =
+          isMigrated === 'true'
+            ? `${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/orgs/${harnessOrgId}/projects/${harnessProjectId}/org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`
+            : `${fmeBaseUrl}org/${orgId}/ws/${workspaceId}/splits/${featureStatus.id}/env/${envId.id}/definition`;
         return (
           <Link href={link} target="_blank">
             <b>{row.name}</b>
@@ -133,7 +134,7 @@ function FMEFeatureList() {
       },
       customFilterAndSearch: (term, row: Partial<TableData>) => {
         const featureStatus = featureStatusMap[row.name as string] || {};
-        
+
         // Concatenate all searchable fields
         const searchableText = [
           row.name || '',
@@ -142,17 +143,21 @@ function FMEFeatureList() {
           row.defaultTreatment || '',
           featureStatus?.rolloutStatus?.name || '',
           // Owners
-          featureStatus?.owners?.map((owner: { id: string }) => 
-            ownersMap[owner.id]?.name || ''
-          ).join(' ') || '',
+          featureStatus?.owners
+            ?.map((owner: { id: string }) => ownersMap[owner.id]?.name || '')
+            .join(' ') || '',
           // Tags
-          featureStatus?.tags?.map((tag: { name: string }) => tag.name).join(' ') || '',
+          featureStatus?.tags
+            ?.map((tag: { name: string }) => tag.name)
+            .join(' ') || '',
           // Flag Sets
-          row.flagSets?.map((f: { id: string }) => 
-            flagSetsMap[f.id]?.name || ''
-          ).join(' ') || ''
-        ].join(' ').toLowerCase();
-        
+          row.flagSets
+            ?.map((f: { id: string }) => flagSetsMap[f.id]?.name || '')
+            .join(' ') || '',
+        ]
+          .join(' ')
+          .toLowerCase();
+
         return searchableText.indexOf(term.toLowerCase()) > -1;
       },
       customSort: (row1: Partial<TableData>, row2: Partial<TableData>) => {
@@ -214,8 +219,9 @@ function FMEFeatureList() {
             if (owner?.type === 'user') {
               return `<a href="mailto:${owner.email}" target="_blank">${owner.name}</a>`;
             } else if (owner?.type === 'group') {
-              return isMigrated === 'true' ? `<a href="${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/settings/access-control/user-groups/${owner.id}" target="_blank"> ${owner.name} (Group) </a>` :
-               `<a href="${fmeBaseUrl}org/${orgId}/ws/${workspaceId}/admin/groups/details/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`;
+              return isMigrated === 'true'
+                ? `<a href="${harnessBaseUrl}ng/account/${harnessAccountId}/module/fme/settings/access-control/user-groups/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`
+                : `<a href="${fmeBaseUrl}org/${orgId}/ws/${workspaceId}/admin/groups/details/${owner.id}" target="_blank"> ${owner.name} (Group) </a>`;
             }
             return owner?.name || '';
           })

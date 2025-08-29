@@ -5,7 +5,9 @@ export const useProjectSlugFromEntity = () => {
   const { entity } = useEntity();
 
   const isMigratedAnnotation = 'harnessfme/isMigrated';
-  const isMigrated = entity.metadata.annotations?.[isMigratedAnnotation] as string;
+  const isMigrated = entity.metadata.annotations?.[
+    isMigratedAnnotation
+  ] as string;
 
   let workspaceId = '';
   let orgId = '';
