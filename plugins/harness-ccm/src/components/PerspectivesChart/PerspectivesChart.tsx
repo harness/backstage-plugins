@@ -8,8 +8,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
 } from 'recharts';
 import { CircularProgress, makeStyles } from '@material-ui/core';
 import { TimeSeriesDataPoints, ViewVisualization } from '../../api/types';
@@ -117,7 +117,7 @@ const PerspectivesChart: React.FC<PerspectivesChartProps> = ({
             ))}
           </BarChart>
         ) : (
-          <AreaChart
+          <LineChart
             width={730}
             height={250}
             data={formattedData}
@@ -129,18 +129,19 @@ const PerspectivesChart: React.FC<PerspectivesChartProps> = ({
             <Tooltip formatter={tickFormatter} />
             <Legend />
             {keys.map((key, idx) => (
-              <Area
+              <Line
                 type="monotone"
                 key={key}
                 dataKey={key}
-                fill={
+                stroke={
                   key === 'Others'
                     ? OTHERS_COLOR_HEX
                     : CE_COLOR_CONST_NEW[idx % CE_COLOR_CONST_NEW.length]
                 }
+                strokeWidth={2}
               />
             ))}
-          </AreaChart>
+          </LineChart>
         )}
       </ResponsiveContainer>
     </div>
