@@ -65,7 +65,7 @@ const ccmContent = (
 );
 ```
 
-#### Example for using ccmContent
+#### Add CCM to Entity Page
 ```tsx
 const websiteEntityPage = (
   <EntityLayout>
