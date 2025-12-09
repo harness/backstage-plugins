@@ -61,9 +61,23 @@ import {
 Use the imported components to add the Harness CCM content to your entity page:
 ```tsx
 const ccmContent = (
-  <EntitySwitch.Case if={isHarnessCcmAvailable}>
     <EntityCcmContent />
-  </EntitySwitch.Case>
+);
+```
+
+#### Add CCM to Entity Page
+```tsx
+const websiteEntityPage = (
+  <EntityLayout>
+    <EntityLayout.Route path="/" title="Overview">
+      {overviewContent}
+    </EntityLayout.Route>
+    {/* Add this route */}
+    <EntityLayout.Route path="/ccm" title="Cloud Cost Management">
+      {ccmContent}
+    </EntityLayout.Route>
+    {/* ... other routes ... */}
+  </EntityLayout>
 );
 ```
 
