@@ -42,11 +42,23 @@ export interface FeatureStatus {
   creationTime: string;
 }
 
+export interface HarnessGroup {
+  identifier: string;
+  name: string;
+}
+
+export interface HarnessUser {
+  uuid: string;
+  name: string;
+  email: string;
+}
+
 export interface Owner {
   id: string;
   type: string;
   name: string;
   email?: string;
+  identifier?: string;
 }
 
 export interface FlagSet {
