@@ -1,5 +1,5 @@
 /* eslint-disable @backstage/no-undeclared-imports */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   CircularProgress,
   FormControl,
@@ -21,6 +21,7 @@ import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
 import { EmptyState } from '@backstage/core-components';
 import WorkspaceTable from '../WorkspaceTable';
+import { getCurrTableData, getTotalElements } from '../../utils/getWorkspaceData';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -70,6 +71,7 @@ export interface Workspace {
 
 export enum WorkspaceDataType {
   Resource,
+  DataSource,
   Output,
 }
 
@@ -121,7 +123,26 @@ function WorkspaceList() {
     workspace: workspaceId || null,
   });
 
-  const { resources, outputs } = workspaceData || {};
+  const { resources, outputs, data_sources: dataSources } = workspaceData || {};
+
+  const workspaceDataObj = useMemo(
+    () => ({
+      resources,
+      outputs,
+      dataSources,
+    }),
+    [resources, outputs, dataSources],
+  );
+
+  const currTableData = useMemo(
+    () => getCurrTableData(selectedTab, workspaceDataObj),
+    [selectedTab, workspaceDataObj],
+  );
+
+  const totalElements = useMemo(
+    () => getTotalElements(selectedTab, workspaceDataObj),
+    [selectedTab, workspaceDataObj],
+  );
 
   const handleWorkspaceChange = (event: any) => {
     setSelectedProjectUrl(event.target.value as string);
@@ -230,23 +251,17 @@ function WorkspaceList() {
           aria-label="workspace_list_tabs"
         >
           <Tab label={`Resources (${resources?.length})`} />
-
+          <Tab label={`Data Sources (${dataSources?.length})`} />
           <Tab label={`Outputs (${outputs?.length})`} />
         </Tabs>
         <WorkspaceTable
           setRefresh={setRefresh}
           refresh={refresh}
           pageSize={pageSize}
-          currTableData={
-            selectedTab === WorkspaceDataType.Resource ? resources : outputs
-          }
+          currTableData={currTableData}
           page={page}
           handleChangePage={handleChangePage}
-          totalElements={
-            selectedTab === WorkspaceDataType.Resource
-              ? resources?.length
-              : outputs?.length
-          }
+          totalElements={totalElements}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           classes={classes}
           baseUrl={urlForWorkspace}
