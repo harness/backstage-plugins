@@ -181,6 +181,7 @@ export const useGetWorkspaceTableColumns = ({
 
   return {
     resourceColumns,
+    dataSourceColumns : resourceColumns as TableColumn[], // dataSource is also a resource column are same.
     outputsColumns,
   };
 };

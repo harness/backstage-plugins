@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CircularProgress } from '@material-ui/core';
 
 import { Table } from '@backstage/core-components';
 import RetryIcon from '@material-ui/icons/Replay';
 import { useGetWorkspaceTableColumns } from '../components/WorkspaceList/useGetWorkspaceTableColumns';
 import { WorkspaceDataType } from './WorkspaceList';
-import { Resource, Output } from '../hooks/useGetResources';
+import { Resource, Output, DataSource } from '../hooks/useGetResources';
 import { ClassNameMap } from '@material-ui/core/styles/withStyles';
+import { getWorkspaceTableConfig } from '../utils/getWorkspaceTableConfig';
 
 interface Props {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   refresh: boolean;
   pageSize: number;
-  currTableData: Resource[] | Output[] | null;
+  currTableData: Resource[] | Output[] | DataSource[] | null;
   page: number;
   handleChangePage: (currentPage: number, currentPageSize: number) => void;
   totalElements?: number;
@@ -43,9 +44,15 @@ const WorkspaceTable: React.FC<Props> = ({
   baseUrl,
   workspaceDataType,
 }) => {
-  const { resourceColumns, outputsColumns } = useGetWorkspaceTableColumns({
+  const columnsData = useGetWorkspaceTableColumns({
     baseUrl: baseUrl || '',
   });
+
+  const { columns, title } = useMemo(
+    () => getWorkspaceTableConfig(workspaceDataType, columnsData),
+    [workspaceDataType, columnsData],
+  );
+
   return (
     <Table
       options={{
@@ -57,11 +64,7 @@ const WorkspaceTable: React.FC<Props> = ({
       }}
       key="id'"
       data={currTableData ?? []}
-      columns={
-        workspaceDataType === WorkspaceDataType.Resource
-          ? resourceColumns
-          : outputsColumns
-      }
+      columns={columns}
       actions={[
         {
           icon: () => <RetryIcon />,
@@ -77,11 +80,7 @@ const WorkspaceTable: React.FC<Props> = ({
           <CircularProgress />
         </div>
       }
-      title={
-        workspaceDataType === WorkspaceDataType.Resource
-          ? 'Workspace Resources'
-          : 'Workspace Outputs'
-      }
+      title={title}
       page={page}
       onPageChange={handleChangePage}
       totalCount={totalElements}
