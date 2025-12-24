@@ -1,6 +1,4 @@
 import React, { useMemo } from 'react';
-import { CircularProgress } from '@material-ui/core';
-
 import { Table } from '@backstage/core-components';
 import RetryIcon from '@material-ui/icons/Replay';
 import { useGetWorkspaceTableColumns } from '../components/WorkspaceList/useGetWorkspaceTableColumns';
@@ -8,6 +6,8 @@ import { WorkspaceDataType } from './WorkspaceList';
 import { Resource, Output, DataSource } from '../hooks/useGetResources';
 import { ClassNameMap } from '@material-ui/core/styles/withStyles';
 import { getWorkspaceTableConfig } from '../utils/getWorkspaceTableConfig';
+import { AsyncStatus } from '../types';
+import TableEmptyState from './TableEmptyState';
 
 interface Props {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,6 +30,8 @@ interface Props {
   >;
   baseUrl?: string;
   workspaceDataType: WorkspaceDataType;
+  onRowClick?: (data: any) => void;
+  status?: AsyncStatus;
 }
 const WorkspaceTable: React.FC<Props> = ({
   setRefresh,
@@ -43,6 +45,8 @@ const WorkspaceTable: React.FC<Props> = ({
   classes,
   baseUrl,
   workspaceDataType,
+  onRowClick,
+  status,
 }) => {
   const columnsData = useGetWorkspaceTableColumns({
     baseUrl: baseUrl || '',
@@ -53,6 +57,8 @@ const WorkspaceTable: React.FC<Props> = ({
     [workspaceDataType, columnsData],
   );
 
+  const hasData = currTableData && currTableData.length > 0;
+
   return (
     <Table
       options={{
@@ -60,7 +66,9 @@ const WorkspaceTable: React.FC<Props> = ({
         filtering: false,
         emptyRowsWhenPaging: false,
         pageSize: pageSize,
-        pageSizeOptions: [5, 10, 25],
+        search: true,  
+        pageSizeOptions: [ 10, 25, 50],
+        rowStyle: { cursor: onRowClick ? 'pointer' : 'default' },
       }}
       key="id'"
       data={currTableData ?? []}
@@ -75,10 +83,13 @@ const WorkspaceTable: React.FC<Props> = ({
           },
         },
       ]}
+      onRowClick={onRowClick ? (_event, _rowData) => onRowClick(_rowData) : undefined}
       emptyContent={
-        <div className={classes.empty}>
-          <CircularProgress />
-        </div>
+        <TableEmptyState
+          status={status}
+          hasData={!!hasData}
+          classes={classes}
+        />
       }
       title={title}
       page={page}

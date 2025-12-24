@@ -62,14 +62,9 @@ export const useGetWorkspaceTableColumns = ({
         field: 'col1',
         width: '22%',
         render: (row: Partial<TableData>) => (
-          <Link
-            href={baseUrl}
-            target="_blank"
-            className={classes.flexCenter}
-            key={row.id}
-          >
-            <b>{row.provider}</b>
-          </Link>
+           <Typography className={classes.smallGreyText}>
+            {row.provider}
+          </Typography>
         ),
         customFilterAndSearch: (term, row: Partial<TableData>) =>
           (row.provider ?? '').toLowerCase().includes(term.toLowerCase()),
