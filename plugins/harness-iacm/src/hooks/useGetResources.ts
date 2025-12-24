@@ -19,6 +19,7 @@ interface BaseResource {
   type: string;
   name: string;
   module: string;
+  drift_status: string;
   attributes: {
     ami: string;
     arn: string;

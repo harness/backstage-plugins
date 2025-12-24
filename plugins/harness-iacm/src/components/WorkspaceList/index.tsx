@@ -16,12 +16,13 @@ import {
 import { Grid } from '@mui/material';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { AsyncStatus } from '../../types';
-import useGetResources from '../../hooks/useGetResources';
+import useGetResources, { DataSource, Resource } from '../../hooks/useGetResources';
 import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
 import { EmptyState } from '@backstage/core-components';
 import WorkspaceTable from '../WorkspaceTable';
 import { getCurrTableData, getTotalElements } from '../../utils/getWorkspaceData';
+import ResourceDetailDrawer from './ResourceDetailDrawer';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -97,10 +98,16 @@ function WorkspaceList() {
   const [selectedTab, setSelectedTab] = React.useState<WorkspaceDataType>(
     WorkspaceDataType.Resource,
   );
+  const [selectedRowData, setSelectedRowData] = useState<Resource | DataSource | null>(null);
 
   const handleChange = (_event: unknown, resourceType: WorkspaceDataType) => {
     setSelectedTab(resourceType);
   };
+  const drawerTitle = useMemo(() => {
+    const driftStatus = selectedRowData?.drift_status || '';
+    const capitalizedStatus = driftStatus ? driftStatus.charAt(0).toUpperCase() + driftStatus.slice(1) : '';
+    return `${capitalizedStatus}  ${selectedTab === WorkspaceDataType.Resource ? 'Resources' : 'Data Sources'}`
+  }, [selectedRowData, selectedTab]);
   const {
     projectId,
     orgId,
@@ -165,6 +172,15 @@ function WorkspaceList() {
     },
     [setPage, setPageSize],
   );
+
+  const handleRowClick = useCallback((data:  Resource  | DataSource) => {
+    if(selectedTab === WorkspaceDataType.Output) return; //do not open drawer for outputs
+    setSelectedRowData(data);
+  }, [selectedTab]);
+
+  const handleDrawerClose = useCallback(() => {
+    setSelectedRowData(null); // clear data to close drawer
+  }, []);
 
   const newWorkspaceDropdown = (
     <FormControl fullWidth>
@@ -266,8 +282,16 @@ function WorkspaceList() {
           classes={classes}
           baseUrl={urlForWorkspace}
           workspaceDataType={selectedTab}
+          onRowClick={handleRowClick}
+          status={state}
         />
       </div>
+      <ResourceDetailDrawer
+        open={!!selectedRowData} //open drawer if there is selected row data
+        resource={selectedRowData}
+        onClose={handleDrawerClose}
+        title={drawerTitle}
+      />
     </>
   );
 }
