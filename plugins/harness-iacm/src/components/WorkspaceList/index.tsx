@@ -94,7 +94,7 @@ function WorkspaceList() {
     return harnessWorkspaceUrlObject[Object.keys(harnessWorkspaceUrlObject)[0]];
   });
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedTab, setSelectedTab] = React.useState<WorkspaceDataType>(
     WorkspaceDataType.Resource,
   );
