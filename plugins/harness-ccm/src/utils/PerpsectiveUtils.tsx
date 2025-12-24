@@ -221,7 +221,7 @@ const LAST_7_DAYS = {
 const LAST_30_DAYS = {
   label: DATE_RANGE_SHORTCUTS_NAME.LAST_30_DAYS,
   dateRange: DATE_RANGE_SHORTCUTS.LAST_30_DAYS,
-  dateFormat: ['MMM YYYY'],
+  dateFormat: ['MMM D', 'MMM D'],
 };
 
 const CURRENT_MONTH = {
