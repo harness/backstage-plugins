@@ -20,7 +20,10 @@ const ResourceDetailDrawer: React.FC<ResourceDetailDrawerProps> = ({
   const [searchValue, setSearchValue] = useState('');
 
   const driftStatus = resource?.drift_status;
-  const driftAttributes = (resource as any)?.drift_attributes || {};
+  const driftAttributes = useMemo(
+    () => resource?.drift_attributes || {},
+    [resource]
+  );
   const isDeleted = driftStatus === 'deleted';
   const allDeleted = isDeleted && Object.keys(driftAttributes).length > 0;
   const headerIcon = driftStatus ? getDriftIcon(driftStatus) : null;
@@ -46,7 +49,7 @@ const ResourceDetailDrawer: React.FC<ResourceDetailDrawerProps> = ({
           {resource && (
             <>
               {/* Search Input - Sticky */}
-              <SearchField value={searchValue} onChange={setSearchValue} sticky />
+              <SearchField value={searchValue} onChange={setSearchValue} />
 
               {/* VALUE Header */}
               <Typography className={classes.valueHeader}>VALUE</Typography>

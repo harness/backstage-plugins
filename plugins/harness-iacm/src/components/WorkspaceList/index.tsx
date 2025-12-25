@@ -71,9 +71,9 @@ export interface Workspace {
 }
 
 export enum WorkspaceDataType {
-  Resource,
-  DataSource,
-  Output,
+  ResourceType = 'Resource',
+  DataSourceType = 'DataSource',
+  OutputType = 'Output',
 }
 
 function WorkspaceList() {
@@ -96,7 +96,7 @@ function WorkspaceList() {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [selectedTab, setSelectedTab] = React.useState<WorkspaceDataType>(
-    WorkspaceDataType.Resource,
+    WorkspaceDataType.ResourceType,
   );
   const [selectedRowData, setSelectedRowData] = useState<Resource | DataSource | null>(null);
 
@@ -106,7 +106,7 @@ function WorkspaceList() {
   const drawerTitle = useMemo(() => {
     const driftStatus = selectedRowData?.drift_status || '';
     const capitalizedStatus = driftStatus ? driftStatus.charAt(0).toUpperCase() + driftStatus.slice(1) : '';
-    return `${capitalizedStatus}  ${selectedTab === WorkspaceDataType.Resource ? 'Resources' : 'Data Sources'}`
+    return `${capitalizedStatus}  ${selectedTab === WorkspaceDataType.ResourceType ? 'Resources' : 'Data Sources'}`
   }, [selectedRowData, selectedTab]);
   const {
     projectId,
@@ -174,7 +174,7 @@ function WorkspaceList() {
   );
 
   const handleRowClick = useCallback((data:  Resource  | DataSource) => {
-    if(selectedTab === WorkspaceDataType.Output) return; //do not open drawer for outputs
+    if(selectedTab === WorkspaceDataType.OutputType) return; // do not open drawer for outputs
     setSelectedRowData(data);
   }, [selectedTab]);
 
@@ -266,9 +266,9 @@ function WorkspaceList() {
           onChange={handleChange}
           aria-label="workspace_list_tabs"
         >
-          <Tab label={`Resources (${resources?.length})`} />
-          <Tab label={`Data Sources (${dataSources?.length})`} />
-          <Tab label={`Outputs (${outputs?.length})`} />
+          <Tab label={`Resources (${resources?.length ?? 0})`} value={WorkspaceDataType.ResourceType} />
+          <Tab label={`Data Sources (${dataSources?.length ?? 0})`} value={WorkspaceDataType.DataSourceType} />
+          <Tab label={`Outputs (${outputs?.length ?? 0})`} value={WorkspaceDataType.OutputType} />
         </Tabs>
         <WorkspaceTable
           setRefresh={setRefresh}
@@ -287,7 +287,7 @@ function WorkspaceList() {
         />
       </div>
       <ResourceDetailDrawer
-        open={!!selectedRowData} //open drawer if there is selected row data
+        open={!!selectedRowData} // open drawer if there is selected row data
         resource={selectedRowData}
         onClose={handleDrawerClose}
         title={drawerTitle}

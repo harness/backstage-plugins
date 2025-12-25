@@ -1,5 +1,5 @@
 import { TableColumn } from '@backstage/core-components';
-import { Button, Link, Typography, makeStyles } from '@material-ui/core';
+import { Button, Typography, makeStyles } from '@material-ui/core';
 import React, { useMemo, useState } from 'react';
 import { TableData } from '../../types';
 
@@ -38,11 +38,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export const useGetWorkspaceTableColumns = ({
-  baseUrl,
-}: {
-  baseUrl: string;
-}) => {
+export const useGetWorkspaceTableColumns = () => {
   const classes = useStyles();
 
   const getProviderIcon = (name?: string): React.ReactNode => {
@@ -115,7 +111,7 @@ export const useGetWorkspaceTableColumns = ({
           (row1.module ?? '').localeCompare(row2.module ?? ''),
       },
     ],
-    [baseUrl, classes],
+    [classes],
   );
 
   const outputsColumns: TableColumn[] = useMemo(
