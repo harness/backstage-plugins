@@ -310,6 +310,7 @@ function WorkspaceList() {
         resource={selectedRowData}
         onClose={handleDrawerClose}
         title={drawerTitle}
+        width={1200}
       />
     </>
   );
