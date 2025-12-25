@@ -50,13 +50,23 @@ interface ValueDisplayProps {
   copyTopOffset?: string;
 }
 
-export const formatValueDisplay = (value: any, isDrift: boolean = false, classes: any): React.ReactNode => {
+export const formatValueDisplay = (
+  value: any,
+  isDrift: boolean = false,
+  classes: any,
+): React.ReactNode => {
   if (isValueUnknown(value)) {
-    return <span style={{ fontStyle: 'italic', color: '#999', fontFamily: 'inherit' }}>Unknown</span>;
+    return (
+      <span
+        style={{ fontStyle: 'italic', color: '#999', fontFamily: 'inherit' }}
+      >
+        Unknown
+      </span>
+    );
   }
   if (typeof value === 'object') {
     return (
-      <pre 
+      <pre
         className={classes.jsonValue}
         style={{ backgroundColor: isDrift ? '' : '#F3F3FA' }}
       >
@@ -64,22 +74,32 @@ export const formatValueDisplay = (value: any, isDrift: boolean = false, classes
       </pre>
     );
   }
-  return <div className={classes.stringValue} style={{ backgroundColor: isDrift ? '' : '#F3F3FA' }}>{String(value)}</div>;
+  return (
+    <div
+      className={classes.stringValue}
+      style={{ backgroundColor: isDrift ? '' : '#F3F3FA' }}
+    >
+      {String(value)}
+    </div>
+  );
 };
 
-const ValueDisplay: React.FC<ValueDisplayProps> = ({ 
-  value, 
-  isDrift = false, 
-  showCopy = true, 
+const ValueDisplay: React.FC<ValueDisplayProps> = ({
+  value,
+  isDrift = false,
+  showCopy = true,
   label,
-  copyTopOffset 
+  copyTopOffset,
 }) => {
   const classes = useStyles();
 
   return (
     <Box style={{ position: 'relative', width: '100%' }}>
       {showCopy && !isValueUnknown(value) && (
-        <Box className={classes.copyButtonWrapper} style={copyTopOffset ? { top: copyTopOffset } : {}}>
+        <Box
+          className={classes.copyButtonWrapper}
+          style={copyTopOffset ? { top: copyTopOffset } : {}}
+        >
           <CopyToClipboard copyValue={formatValue(value)} />
         </Box>
       )}
@@ -90,4 +110,3 @@ const ValueDisplay: React.FC<ValueDisplayProps> = ({
 };
 
 export default ValueDisplay;
-

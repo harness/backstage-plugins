@@ -10,8 +10,13 @@ interface TableEmptyStateProps {
   classes: ClassNameMap<'empty'>;
 }
 
-const TableEmptyState: React.FC<TableEmptyStateProps> = ({ status, hasData, classes }) => {
-  const isLoading = status === AsyncStatus.Init || status === AsyncStatus.Loading;
+const TableEmptyState: React.FC<TableEmptyStateProps> = ({
+  status,
+  hasData,
+  classes,
+}) => {
+  const isLoading =
+    status === AsyncStatus.Init || status === AsyncStatus.Loading;
   const isEmpty = status === AsyncStatus.Success && !hasData;
 
   if (isLoading) {
@@ -36,4 +41,3 @@ const TableEmptyState: React.FC<TableEmptyStateProps> = ({ status, hasData, clas
 };
 
 export default TableEmptyState;
-

@@ -15,7 +15,7 @@ export const formatValue = (value: any): string => {
 export const filterAttributes = (
   attributes: Record<string, any> | undefined,
   driftAttributes: Record<string, any>,
-  searchValue: string
+  searchValue: string,
 ): Array<{ key: string; value: any; driftValue?: any; hasDrift: boolean }> => {
   if (!attributes) return [];
 
@@ -33,7 +33,7 @@ export const filterAttributes = (
     item =>
       item.key.toLowerCase().includes(lowerSearch) ||
       JSON.stringify(item.value).toLowerCase().includes(lowerSearch) ||
-      (item.driftValue && JSON.stringify(item.driftValue).toLowerCase().includes(lowerSearch))
+      (item.driftValue &&
+        JSON.stringify(item.driftValue).toLowerCase().includes(lowerSearch)),
   );
 };
-

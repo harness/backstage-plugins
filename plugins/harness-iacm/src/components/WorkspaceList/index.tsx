@@ -16,12 +16,18 @@ import {
 import { Grid } from '@mui/material';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { AsyncStatus } from '../../types';
-import useGetResources, { DataSource, Resource } from '../../hooks/useGetResources';
+import useGetResources, {
+  DataSource,
+  Resource,
+} from '../../hooks/useGetResources';
 import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
 import { EmptyState } from '@backstage/core-components';
 import WorkspaceTable from '../WorkspaceTable';
-import { getCurrTableData, getTotalElements } from '../../utils/getWorkspaceData';
+import {
+  getCurrTableData,
+  getTotalElements,
+} from '../../utils/getWorkspaceData';
 import ResourceDetailDrawer from './ResourceDetailDrawer';
 
 const useStyles = makeStyles(theme => ({
@@ -98,26 +104,29 @@ function WorkspaceList() {
   const [selectedTab, setSelectedTab] = React.useState<WorkspaceDataType>(
     WorkspaceDataType.ResourceType,
   );
-  const [selectedRowData, setSelectedRowData] = useState<Resource | DataSource | null>(null);
+  const [selectedRowData, setSelectedRowData] = useState<
+    Resource | DataSource | null
+  >(null);
 
   const handleChange = (_event: unknown, resourceType: WorkspaceDataType) => {
     setSelectedTab(resourceType);
   };
   const drawerTitle = useMemo(() => {
     const driftStatus = selectedRowData?.drift_status || '';
-    const capitalizedStatus = driftStatus ? driftStatus.charAt(0).toUpperCase() + driftStatus.slice(1) : '';
-    return `${capitalizedStatus}  ${selectedTab === WorkspaceDataType.ResourceType ? 'Resources' : 'Data Sources'}`
+    const capitalizedStatus = driftStatus
+      ? driftStatus.charAt(0).toUpperCase() + driftStatus.slice(1)
+      : '';
+    return `${capitalizedStatus}  ${
+      selectedTab === WorkspaceDataType.ResourceType
+        ? 'Resources'
+        : 'Data Sources'
+    }`;
   }, [selectedRowData, selectedTab]);
-  const {
-    projectId,
-    orgId,
-    accountId,
-    envFromUrl,
-    workspaceId,
-  } = useResourceSlugFromEntity(
-    isWorkspaceAnnotationPresent,
-    selectedResourceUrl,
-  );
+  const { projectId, orgId, accountId, envFromUrl, workspaceId } =
+    useResourceSlugFromEntity(
+      isWorkspaceAnnotationPresent,
+      selectedResourceUrl,
+    );
 
   const { resources: workspaceData, status: state } = useGetResources({
     backendBaseUrl,
@@ -172,10 +181,13 @@ function WorkspaceList() {
     [setPage, setPageSize],
   );
 
-  const handleRowClick = useCallback((data:  Resource  | DataSource) => {
-    if(selectedTab === WorkspaceDataType.OutputType) return; // do not open drawer for outputs
-    setSelectedRowData(data);
-  }, [selectedTab]);
+  const handleRowClick = useCallback(
+    (data: Resource | DataSource) => {
+      if (selectedTab === WorkspaceDataType.OutputType) return; // do not open drawer for outputs
+      setSelectedRowData(data);
+    },
+    [selectedTab],
+  );
 
   const handleDrawerClose = useCallback(() => {
     setSelectedRowData(null); // clear data to close drawer
@@ -265,9 +277,18 @@ function WorkspaceList() {
           onChange={handleChange}
           aria-label="workspace_list_tabs"
         >
-          <Tab label={`Resources (${resources?.length ?? 0})`} value={WorkspaceDataType.ResourceType} />
-          <Tab label={`Data Sources (${dataSources?.length ?? 0})`} value={WorkspaceDataType.DataSourceType} />
-          <Tab label={`Outputs (${outputs?.length ?? 0})`} value={WorkspaceDataType.OutputType} />
+          <Tab
+            label={`Resources (${resources?.length ?? 0})`}
+            value={WorkspaceDataType.ResourceType}
+          />
+          <Tab
+            label={`Data Sources (${dataSources?.length ?? 0})`}
+            value={WorkspaceDataType.DataSourceType}
+          />
+          <Tab
+            label={`Outputs (${outputs?.length ?? 0})`}
+            value={WorkspaceDataType.OutputType}
+          />
         </Tabs>
         <WorkspaceTable
           setRefresh={setRefresh}

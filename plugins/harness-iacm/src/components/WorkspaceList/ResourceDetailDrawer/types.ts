@@ -21,4 +21,3 @@ export interface AttributeListProps {
   isDeleted: boolean;
   allDeleted: boolean;
 }
-

@@ -43,7 +43,11 @@ export interface Output {
 export interface DataSource extends BaseResource {}
 
 export interface ResourcesResponse {
-  resources: { resources: Resource[] | null; outputs: Output[]; data_sources: DataSource[] };
+  resources: {
+    resources: Resource[] | null;
+    outputs: Output[];
+    data_sources: DataSource[];
+  };
   status: AsyncStatus;
 }
 

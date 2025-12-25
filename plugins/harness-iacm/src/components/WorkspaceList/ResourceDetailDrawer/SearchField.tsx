@@ -17,38 +17,37 @@ const SearchField: React.FC<SearchFieldProps> = ({ value, onChange }) => {
     onChange('');
   };
 
-    return (
-      <Box className={classes.searchFieldSticky}>
-        <TextField
-          placeholder="Search"
-          variant="outlined"
-          size="small"
-          fullWidth
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-            endAdornment: value && (
-              <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={handleClear}
-                  aria-label="clear search"
-                  edge="end"
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-    );
-  
+  return (
+    <Box className={classes.searchFieldSticky}>
+      <TextField
+        placeholder="Search"
+        variant="outlined"
+        size="small"
+        fullWidth
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" />
+            </InputAdornment>
+          ),
+          endAdornment: value && (
+            <InputAdornment position="end">
+              <IconButton
+                size="small"
+                onClick={handleClear}
+                aria-label="clear search"
+                edge="end"
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Box>
+  );
 };
 
 export default SearchField;

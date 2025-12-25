@@ -62,8 +62,8 @@ const WorkspaceTable: React.FC<Props> = ({
         filtering: false,
         emptyRowsWhenPaging: false,
         pageSize: pageSize,
-        search: true,  
-        pageSizeOptions: [ 10, 25, 50],
+        search: true,
+        pageSizeOptions: [10, 25, 50],
         rowStyle: { cursor: onRowClick ? 'pointer' : 'default' },
       }}
       key="id'"
@@ -79,7 +79,9 @@ const WorkspaceTable: React.FC<Props> = ({
           },
         },
       ]}
-      onRowClick={onRowClick ? (_event, _rowData) => onRowClick(_rowData) : undefined}
+      onRowClick={
+        onRowClick ? (_event, _rowData) => onRowClick(_rowData) : undefined
+      }
       emptyContent={
         <TableEmptyState
           status={status}

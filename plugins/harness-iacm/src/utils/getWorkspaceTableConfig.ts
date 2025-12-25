@@ -36,4 +36,3 @@ export const getWorkspaceTableConfig = (
       return { columns: [], title: '' };
   }
 };
-

@@ -58,7 +58,7 @@ export const useGetWorkspaceTableColumns = () => {
         field: 'col1',
         width: '22%',
         render: (row: Partial<TableData>) => (
-           <Typography className={classes.smallGreyText}>
+          <Typography className={classes.smallGreyText}>
             {row.provider}
           </Typography>
         ),
@@ -172,7 +172,7 @@ export const useGetWorkspaceTableColumns = () => {
 
   return {
     resourceColumns,
-    dataSourceColumns : resourceColumns as TableColumn[], // dataSource is also a resource column are same.
+    dataSourceColumns: resourceColumns as TableColumn[], // dataSource is also a resource column are same.
     outputsColumns,
   };
 };
