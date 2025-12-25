@@ -114,7 +114,6 @@ function WorkspaceList() {
     accountId,
     envFromUrl,
     workspaceId,
-    cleanedString: urlForWorkspace,
   } = useResourceSlugFromEntity(
     isWorkspaceAnnotationPresent,
     selectedResourceUrl,
@@ -280,7 +279,6 @@ function WorkspaceList() {
           totalElements={totalElements}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           classes={classes}
-          baseUrl={urlForWorkspace}
           workspaceDataType={selectedTab}
           onRowClick={handleRowClick}
           status={state}

@@ -28,7 +28,6 @@ interface Props {
     | 'workspaceList'
     | 'workspaceItem'
   >;
-  baseUrl?: string;
   workspaceDataType: WorkspaceDataType;
   onRowClick?: (data: any) => void;
   status?: AsyncStatus;
@@ -43,14 +42,11 @@ const WorkspaceTable: React.FC<Props> = ({
   totalElements,
   handleChangeRowsPerPage,
   classes,
-  baseUrl,
   workspaceDataType,
   onRowClick,
   status,
 }) => {
-  const columnsData = useGetWorkspaceTableColumns({
-    baseUrl: baseUrl || '',
-  });
+  const columnsData = useGetWorkspaceTableColumns();
 
   const { columns, title } = useMemo(
     () => getWorkspaceTableConfig(workspaceDataType, columnsData),
