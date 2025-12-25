@@ -34,11 +34,9 @@ export const useStyles = makeStyles(theme => ({
     gap: theme.spacing(0.5),
   },
   subHeaderLabel: {
-    fontSize: '0.875rem',
     color: theme.palette.text.secondary,
   },
   subHeaderValue: {
-    fontSize: '0.875rem',
     fontWeight: 600,
     color: theme.palette.text.primary,
   },
@@ -72,7 +70,6 @@ export const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(2),
   },
   valueHeader: {
-    fontSize: '0.875rem',
     fontWeight: 600,
     textTransform: 'uppercase',
     marginBottom: theme.spacing(1),
@@ -93,7 +90,6 @@ export const useStyles = makeStyles(theme => ({
   },
   attributeKey: {
     fontWeight: 500,
-    fontSize: '0.875rem',
     marginBottom: theme.spacing(0.75),
     color: '#424242',
     display: 'flex',
@@ -102,7 +98,6 @@ export const useStyles = makeStyles(theme => ({
     fontFamily: 'inherit',
   },
   attributeValue: {
-    fontSize: '1rem',
     fontWeight: 400,
     color: '#212121',
     flex: 1,
@@ -110,7 +105,6 @@ export const useStyles = makeStyles(theme => ({
     fontFamily: 'inherit',
   },
   jsonValue: {
-    fontSize: '0.875rem',
     padding: theme.spacing(1),
     borderRadius: 4,
     overflow: 'auto',
@@ -119,7 +113,6 @@ export const useStyles = makeStyles(theme => ({
     fontFamily: 'inherit',
   },
   deletedBadge: {
-    fontSize: '0.7rem',
     fontWeight: 600,
     textTransform: 'uppercase',
     backgroundColor: '#ffebee',
@@ -136,7 +129,6 @@ export const useStyles = makeStyles(theme => ({
   },
   valueLabel: {
     fontWeight: 600,
-    fontSize: '0.875rem',
     marginRight: theme.spacing(1),
     color: theme.palette.text.primary,
   },

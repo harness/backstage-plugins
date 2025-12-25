@@ -55,15 +55,6 @@ export const formatValueDisplay = (
   isDrift: boolean = false,
   classes: any,
 ): React.ReactNode => {
-  if (isValueUnknown(value)) {
-    return (
-      <span
-        style={{ fontStyle: 'italic', color: '#999', fontFamily: 'inherit' }}
-      >
-        Unknown
-      </span>
-    );
-  }
   if (typeof value === 'object') {
     return (
       <pre
@@ -79,7 +70,7 @@ export const formatValueDisplay = (
       className={classes.stringValue}
       style={{ backgroundColor: isDrift ? '' : '#F3F3FA' }}
     >
-      {String(value)}
+      {isValueUnknown(value) ? 'Unknown' : String(value)}
     </div>
   );
 };
