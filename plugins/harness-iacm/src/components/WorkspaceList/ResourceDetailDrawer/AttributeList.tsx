@@ -25,14 +25,19 @@ const AttributeList: React.FC<AttributeListProps> = ({
   return (
     <>
       {attributes.map((item, index) => {
-        const hasDrift = item.hasDrift ;
+        const hasDrift = item.hasDrift;
         const driftValue = item.driftValue;
-        const attributeIcon = hasDrift && driftStatus ? getDriftIcon(driftStatus) : null;
+        const attributeIcon =
+          hasDrift && driftStatus ? getDriftIcon(driftStatus) : null;
 
         return (
           <Box
             key={`${item.key}-${index}`}
-            className={hasDrift ? `${classes.attributeRow} ${classes.attributeRowDrift}` : classes.attributeRow}
+            className={
+              hasDrift
+                ? `${classes.attributeRow} ${classes.attributeRowDrift}`
+                : classes.attributeRow
+            }
           >
             {/* Key/Label */}
             <Typography component="div" className={classes.attributeKey}>
@@ -77,4 +82,3 @@ const AttributeList: React.FC<AttributeListProps> = ({
 };
 
 export default AttributeList;
-

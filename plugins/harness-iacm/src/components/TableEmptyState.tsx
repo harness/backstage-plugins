@@ -1,5 +1,10 @@
 import React from 'react';
-import { CircularProgress, Typography, Box, makeStyles } from '@material-ui/core';
+import {
+  CircularProgress,
+  Typography,
+  Box,
+  makeStyles,
+} from '@material-ui/core';
 import { AsyncStatus } from '../types';
 import { ClassNameMap } from '@material-ui/core/styles/withStyles';
 
@@ -31,9 +36,13 @@ interface TableEmptyStateProps {
   classes: ClassNameMap<'empty'>;
 }
 
-const TableEmptyState: React.FC<TableEmptyStateProps> = ({ status, hasData }) => {
+const TableEmptyState: React.FC<TableEmptyStateProps> = ({
+  status,
+  hasData,
+}) => {
   const localClasses = useStyles();
-  const isLoading = status === AsyncStatus.Init || status === AsyncStatus.Loading;
+  const isLoading =
+    status === AsyncStatus.Init || status === AsyncStatus.Loading;
   const isEmpty = status === AsyncStatus.Success && !hasData;
 
   if (isLoading) {
@@ -61,4 +70,3 @@ const TableEmptyState: React.FC<TableEmptyStateProps> = ({ status, hasData }) =>
 };
 
 export default TableEmptyState;
-

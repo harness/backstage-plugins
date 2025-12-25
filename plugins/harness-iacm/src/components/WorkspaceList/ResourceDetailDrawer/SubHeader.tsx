@@ -17,21 +17,34 @@ const SubHeader: React.FC<SubHeaderProps> = ({ name, provider, module }) => {
     <Box className={classes.drawerSubHeader}>
       <Box className={classes.subHeaderItem}>
         <Typography className={classes.subHeaderLabel}>Name:</Typography>
-        <Typography className={classes.subHeaderValue}>{name || '-'}</Typography>
+        <Typography className={classes.subHeaderValue}>
+          {name || '-'}
+        </Typography>
       </Box>
-      <Divider orientation="vertical" className={classes.subHeaderDivider} flexItem />
+      <Divider
+        orientation="vertical"
+        className={classes.subHeaderDivider}
+        flexItem
+      />
       <Box className={classes.subHeaderItem}>
         <Typography className={classes.subHeaderLabel}>Provider:</Typography>
-        <Typography className={classes.subHeaderValue}>{provider || '-'}</Typography>
+        <Typography className={classes.subHeaderValue}>
+          {provider || '-'}
+        </Typography>
       </Box>
-      <Divider orientation="vertical" className={classes.subHeaderDivider} flexItem />
+      <Divider
+        orientation="vertical"
+        className={classes.subHeaderDivider}
+        flexItem
+      />
       <Box className={classes.subHeaderItem}>
         <Typography className={classes.subHeaderLabel}>Module:</Typography>
-        <Typography className={classes.subHeaderValue}>{module || '-'}</Typography>
+        <Typography className={classes.subHeaderValue}>
+          {module || '-'}
+        </Typography>
       </Box>
     </Box>
   );
 };
 
 export default SubHeader;
-

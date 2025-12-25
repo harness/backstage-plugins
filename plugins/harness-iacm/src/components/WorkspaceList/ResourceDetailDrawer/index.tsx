@@ -22,7 +22,7 @@ const ResourceDetailDrawer: React.FC<ResourceDetailDrawerProps> = ({
   const driftStatus = resource?.drift_status;
   const driftAttributes = useMemo(
     () => resource?.drift_attributes || {},
-    [resource]
+    [resource],
   );
   const isDeleted = driftStatus === 'deleted';
   const allDeleted = isDeleted && Object.keys(driftAttributes).length > 0;
@@ -30,20 +30,20 @@ const ResourceDetailDrawer: React.FC<ResourceDetailDrawerProps> = ({
 
   const filteredAttributes = useMemo(
     () => filterAttributes(resource?.attributes, driftAttributes, searchValue),
-    [resource?.attributes, searchValue, driftAttributes]
+    [resource?.attributes, searchValue, driftAttributes],
   );
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <div className={classes.drawerContent} style={{ width }}>
         <Header title={title} icon={headerIcon} onClose={onClose} />
-        <SubHeader 
+        <SubHeader
           name={resource?.name}
           provider={resource?.provider}
           module={resource?.module}
         />
         <Divider className={classes.divider} />
-        
+
         {/* Body */}
         <div className={classes.drawerBody}>
           {resource && (
@@ -70,4 +70,3 @@ const ResourceDetailDrawer: React.FC<ResourceDetailDrawerProps> = ({
 };
 
 export default ResourceDetailDrawer;
-

@@ -38,4 +38,3 @@ export const getTotalElements = (
       return 0;
   }
 };
-

@@ -8,7 +8,7 @@ export const getDriftIcon = (driftStatus?: string): React.ReactNode => {
     case 'drifted':
       return <ReplayIcon style={{ fontSize: 18, color: '#ff9800' }} />;
     case 'changed':
-        return <ReplayIcon style={{ fontSize: 18, color: '#ff9800' }} />;
+      return <ReplayIcon style={{ fontSize: 18, color: '#ff9800' }} />;
     case 'deleted':
       return <DeleteIcon style={{ fontSize: 18, color: '#9e9e9e' }} />;
     case 'unchanged':
@@ -17,4 +17,3 @@ export const getDriftIcon = (driftStatus?: string): React.ReactNode => {
       return null;
   }
 };
-

@@ -15,11 +15,7 @@ const Header: React.FC<HeaderProps> = ({ title, icon, onClose }) => {
   return (
     <Box className={classes.drawerHeader}>
       <Box display="flex" alignItems="center">
-        {icon && (
-          <Box className={classes.iconContainer}>
-            {icon}
-          </Box>
-        )}
+        {icon && <Box className={classes.iconContainer}>{icon}</Box>}
         <Typography variant="h6" className={classes.drawerTitle}>
           {title}
         </Typography>
@@ -37,4 +33,3 @@ const Header: React.FC<HeaderProps> = ({ title, icon, onClose }) => {
 };
 
 export default Header;
-
