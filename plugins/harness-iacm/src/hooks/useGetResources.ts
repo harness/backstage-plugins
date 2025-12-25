@@ -26,6 +26,9 @@ interface BaseResource {
     associate_public_ip_address: string;
     availability_zone: string;
   };
+  drift_attributes: {
+    [key: string]: string;
+  };
 }
 
 export interface Resource extends BaseResource {}

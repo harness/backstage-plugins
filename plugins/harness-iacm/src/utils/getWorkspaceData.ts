@@ -12,11 +12,11 @@ export const getCurrTableData = (
   data: WorkspaceData,
 ): Resource[] | Output[] | DataSource[] => {
   switch (workspaceDataType) {
-    case WorkspaceDataType.Resource:
+    case WorkspaceDataType.ResourceType:
       return data.resources || [];
-    case WorkspaceDataType.DataSource:
+    case WorkspaceDataType.DataSourceType:
       return data.dataSources || [];
-    case WorkspaceDataType.Output:
+    case WorkspaceDataType.OutputType:
       return data.outputs || [];
     default:
       return [];
@@ -28,11 +28,11 @@ export const getTotalElements = (
   data: WorkspaceData,
 ): number => {
   switch (workspaceDataType) {
-    case WorkspaceDataType.Resource:
+    case WorkspaceDataType.ResourceType:
       return data.resources?.length || 0;
-    case WorkspaceDataType.DataSource:
+    case WorkspaceDataType.DataSourceType:
       return data.dataSources?.length || 0;
-    case WorkspaceDataType.Output:
+    case WorkspaceDataType.OutputType:
       return data.outputs?.length || 0;
     default:
       return 0;

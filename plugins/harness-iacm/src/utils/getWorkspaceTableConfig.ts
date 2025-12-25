@@ -17,17 +17,17 @@ export const getWorkspaceTableConfig = (
   columns: WorkspaceColumns,
 ): WorkspaceTableConfig => {
   switch (workspaceDataType) {
-    case WorkspaceDataType.Resource:
+    case WorkspaceDataType.ResourceType:
       return {
         columns: columns.resourceColumns,
         title: 'Workspace Resources',
       };
-    case WorkspaceDataType.Output:
+    case WorkspaceDataType.OutputType:
       return {
         columns: columns.outputsColumns,
         title: 'Workspace Outputs',
       };
-    case WorkspaceDataType.DataSource:
+    case WorkspaceDataType.DataSourceType:
       return {
         columns: columns.dataSourceColumns,
         title: 'Workspace Data Sources',

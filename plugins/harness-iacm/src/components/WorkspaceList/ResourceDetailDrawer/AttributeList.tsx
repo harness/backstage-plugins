@@ -55,13 +55,13 @@ const AttributeList: React.FC<AttributeListProps> = ({
               <Box className={classes.valueComparison}>
                 <ValueDisplay
                   value={driftValue}
-                  isDrift={true}
+                  isDrift
                   label="Actual Value:"
                   copyTopOffset="25px"
                 />
                 <ValueDisplay
                   value={item.value}
-                  isDrift={true}
+                  isDrift
                   label="Expected Value:"
                   copyTopOffset="25px"
                 />
