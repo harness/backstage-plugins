@@ -6,7 +6,6 @@ import CopyToClipboard from '../../CopyToClipboard';
 
 const useStyles = makeStyles(theme => ({
   jsonValue: {
-    fontSize: '0.875rem',
     padding: theme.spacing(1),
     borderRadius: 4,
     overflow: 'auto',
@@ -24,7 +23,6 @@ const useStyles = makeStyles(theme => ({
   },
   valueLabel: {
     fontWeight: 600,
-    fontSize: '0.875rem',
     marginRight: theme.spacing(1),
     color: theme.palette.text.primary,
   },
