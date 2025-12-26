@@ -86,7 +86,9 @@ export const useStyles = makeStyles(theme => ({
   },
   attributeRowDrift: {
     backgroundColor:
-      theme.palette.type === 'dark' ? 'rgba(255, 183, 77, 0.1)' : '#fff3e0',
+      theme.palette.type === 'dark'
+        ? theme.palette.background.paper
+        : '#fff3e0',
     borderColor: '#ffb74d',
   },
   attributeKey: {

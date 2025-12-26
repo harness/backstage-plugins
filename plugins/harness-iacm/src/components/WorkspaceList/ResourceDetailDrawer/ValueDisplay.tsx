@@ -17,6 +17,18 @@ const useStyles = makeStyles(theme => ({
         ? theme.palette.background.default
         : '#F3F3FA',
   },
+  jsonValueDrift: {
+    padding: theme.spacing(1),
+    borderRadius: 4,
+    overflow: 'auto',
+    marginTop: theme.spacing(0.5),
+    border: `1px solid ${theme.palette.divider}`,
+    fontFamily: 'inherit',
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? theme.palette.background.default
+        : '#fff3e0',
+  },
   attributeValue: {
     fontSize: '1rem',
     fontWeight: 400,
@@ -46,10 +58,21 @@ const useStyles = makeStyles(theme => ({
         ? theme.palette.background.default
         : '#F3F3FA',
   },
+  stringValueDrift: {
+    padding: '8px',
+    borderRadius: 4,
+    border: `1px solid ${theme.palette.divider}`,
+    fontFamily: 'inherit',
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? theme.palette.background.default
+        : '#fff3e0',
+  },
 }));
 
 interface ValueDisplayProps {
   value: any;
+  isDrift?: boolean;
   showCopy?: boolean;
   label?: string;
   copyTopOffset?: string;
@@ -58,14 +81,19 @@ interface ValueDisplayProps {
 export const formatValueDisplay = (
   value: any,
   classes: any,
+  isDrift: boolean = false,
 ): React.ReactNode => {
   if (typeof value === 'object') {
     return (
-      <pre className={classes.jsonValue}>{JSON.stringify(value, null, 2)}</pre>
+      <pre
+        className={isDrift ? classes.jsonValueDrift : classes.jsonValue}
+      >
+        {JSON.stringify(value, null, 2)}
+      </pre>
     );
   }
   return (
-    <div className={classes.stringValue}>
+    <div className={isDrift ? classes.stringValueDrift : classes.stringValue}>
       {isValueUnknown(value) ? 'Unknown' : String(value)}
     </div>
   );
@@ -73,6 +101,7 @@ export const formatValueDisplay = (
 
 const ValueDisplay: React.FC<ValueDisplayProps> = ({
   value,
+  isDrift = false,
   showCopy = true,
   label,
   copyTopOffset,
@@ -90,7 +119,7 @@ const ValueDisplay: React.FC<ValueDisplayProps> = ({
         </Box>
       )}
       {label && <Typography className={classes.valueLabel}>{label}</Typography>}
-      {formatValueDisplay(value, classes)}
+      {formatValueDisplay(value, classes, isDrift)}
     </Box>
   );
 };
