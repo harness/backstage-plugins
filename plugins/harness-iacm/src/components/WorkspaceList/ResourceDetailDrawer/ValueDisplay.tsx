@@ -85,9 +85,7 @@ export const formatValueDisplay = (
 ): React.ReactNode => {
   if (typeof value === 'object') {
     return (
-      <pre
-        className={isDrift ? classes.jsonValueDrift : classes.jsonValue}
-      >
+      <pre className={isDrift ? classes.jsonValueDrift : classes.jsonValue}>
         {JSON.stringify(value, null, 2)}
       </pre>
     );
