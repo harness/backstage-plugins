@@ -1,5 +1,5 @@
 /* eslint-disable @backstage/no-undeclared-imports */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   CircularProgress,
   FormControl,
@@ -16,11 +16,19 @@ import {
 import { Grid } from '@mui/material';
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import { AsyncStatus } from '../../types';
-import useGetResources from '../../hooks/useGetResources';
+import useGetResources, {
+  DataSource,
+  Resource,
+} from '../../hooks/useGetResources';
 import useProjectUrlSlugEntity from '../../hooks/useProjectUrlEntity';
 import { useResourceSlugFromEntity } from './useResourceSlugFromEntity';
 import { EmptyState } from '@backstage/core-components';
 import WorkspaceTable from '../WorkspaceTable';
+import {
+  getCurrTableData,
+  getTotalElements,
+} from '../../utils/getWorkspaceData';
+import ResourceDetailDrawer from './ResourceDetailDrawer';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -69,8 +77,9 @@ export interface Workspace {
 }
 
 export enum WorkspaceDataType {
-  Resource,
-  Output,
+  ResourceType = 'Resource',
+  DataSourceType = 'DataSource',
+  OutputType = 'Output',
 }
 
 function WorkspaceList() {
@@ -91,25 +100,33 @@ function WorkspaceList() {
     return harnessWorkspaceUrlObject[Object.keys(harnessWorkspaceUrlObject)[0]];
   });
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedTab, setSelectedTab] = React.useState<WorkspaceDataType>(
-    WorkspaceDataType.Resource,
+    WorkspaceDataType.ResourceType,
   );
+  const [selectedRowData, setSelectedRowData] = useState<
+    Resource | DataSource | null
+  >(null);
 
   const handleChange = (_event: unknown, resourceType: WorkspaceDataType) => {
     setSelectedTab(resourceType);
   };
-  const {
-    projectId,
-    orgId,
-    accountId,
-    envFromUrl,
-    workspaceId,
-    cleanedString: urlForWorkspace,
-  } = useResourceSlugFromEntity(
-    isWorkspaceAnnotationPresent,
-    selectedResourceUrl,
-  );
+  const drawerTitle = useMemo(() => {
+    const driftStatus = selectedRowData?.drift_status || '';
+    const capitalizedStatus = driftStatus
+      ? driftStatus.charAt(0).toUpperCase() + driftStatus.slice(1)
+      : '';
+    return `${capitalizedStatus}  ${
+      selectedTab === WorkspaceDataType.ResourceType
+        ? 'Resources'
+        : 'Data Sources'
+    }`;
+  }, [selectedRowData, selectedTab]);
+  const { projectId, orgId, accountId, envFromUrl, workspaceId } =
+    useResourceSlugFromEntity(
+      isWorkspaceAnnotationPresent,
+      selectedResourceUrl,
+    );
 
   const { resources: workspaceData, status: state } = useGetResources({
     backendBaseUrl,
@@ -121,7 +138,26 @@ function WorkspaceList() {
     workspace: workspaceId || null,
   });
 
-  const { resources, outputs } = workspaceData || {};
+  const { resources, outputs, data_sources: dataSources } = workspaceData || {};
+
+  const workspaceDataObj = useMemo(
+    () => ({
+      resources,
+      outputs,
+      dataSources,
+    }),
+    [resources, outputs, dataSources],
+  );
+
+  const currTableData = useMemo(
+    () => getCurrTableData(selectedTab, workspaceDataObj),
+    [selectedTab, workspaceDataObj],
+  );
+
+  const totalElements = useMemo(
+    () => getTotalElements(selectedTab, workspaceDataObj),
+    [selectedTab, workspaceDataObj],
+  );
 
   const handleWorkspaceChange = (event: any) => {
     setSelectedProjectUrl(event.target.value as string);
@@ -144,6 +180,18 @@ function WorkspaceList() {
     },
     [setPage, setPageSize],
   );
+
+  const handleRowClick = useCallback(
+    (data: Resource | DataSource) => {
+      if (selectedTab === WorkspaceDataType.OutputType) return; // do not open drawer for outputs
+      setSelectedRowData(data);
+    },
+    [selectedTab],
+  );
+
+  const handleDrawerClose = useCallback(() => {
+    setSelectedRowData(null); // clear data to close drawer
+  }, []);
 
   const newWorkspaceDropdown = (
     <FormControl fullWidth>
@@ -229,30 +277,41 @@ function WorkspaceList() {
           onChange={handleChange}
           aria-label="workspace_list_tabs"
         >
-          <Tab label={`Resources (${resources?.length})`} />
-
-          <Tab label={`Outputs (${outputs?.length})`} />
+          <Tab
+            label={`Resources (${resources?.length ?? 0})`}
+            value={WorkspaceDataType.ResourceType}
+          />
+          <Tab
+            label={`Data Sources (${dataSources?.length ?? 0})`}
+            value={WorkspaceDataType.DataSourceType}
+          />
+          <Tab
+            label={`Outputs (${outputs?.length ?? 0})`}
+            value={WorkspaceDataType.OutputType}
+          />
         </Tabs>
         <WorkspaceTable
           setRefresh={setRefresh}
           refresh={refresh}
           pageSize={pageSize}
-          currTableData={
-            selectedTab === WorkspaceDataType.Resource ? resources : outputs
-          }
+          currTableData={currTableData}
           page={page}
           handleChangePage={handleChangePage}
-          totalElements={
-            selectedTab === WorkspaceDataType.Resource
-              ? resources?.length
-              : outputs?.length
-          }
+          totalElements={totalElements}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           classes={classes}
-          baseUrl={urlForWorkspace}
           workspaceDataType={selectedTab}
+          onRowClick={handleRowClick}
+          status={state}
         />
       </div>
+      <ResourceDetailDrawer
+        open={!!selectedRowData} // open drawer if there is selected row data
+        resource={selectedRowData}
+        onClose={handleDrawerClose}
+        title={drawerTitle}
+        width={1200}
+      />
     </>
   );
 }

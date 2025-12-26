@@ -1,18 +1,19 @@
-import React from 'react';
-import { CircularProgress } from '@material-ui/core';
-
+import React, { useMemo } from 'react';
 import { Table } from '@backstage/core-components';
 import RetryIcon from '@material-ui/icons/Replay';
 import { useGetWorkspaceTableColumns } from '../components/WorkspaceList/useGetWorkspaceTableColumns';
 import { WorkspaceDataType } from './WorkspaceList';
-import { Resource, Output } from '../hooks/useGetResources';
+import { Resource, Output, DataSource } from '../hooks/useGetResources';
 import { ClassNameMap } from '@material-ui/core/styles/withStyles';
+import { getWorkspaceTableConfig } from '../utils/getWorkspaceTableConfig';
+import { AsyncStatus } from '../types';
+import TableEmptyState from './TableEmptyState';
 
 interface Props {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   refresh: boolean;
   pageSize: number;
-  currTableData: Resource[] | Output[] | null;
+  currTableData: Resource[] | Output[] | DataSource[] | null;
   page: number;
   handleChangePage: (currentPage: number, currentPageSize: number) => void;
   totalElements?: number;
@@ -27,8 +28,9 @@ interface Props {
     | 'workspaceList'
     | 'workspaceItem'
   >;
-  baseUrl?: string;
   workspaceDataType: WorkspaceDataType;
+  onRowClick?: (data: any) => void;
+  status?: AsyncStatus;
 }
 const WorkspaceTable: React.FC<Props> = ({
   setRefresh,
@@ -40,12 +42,19 @@ const WorkspaceTable: React.FC<Props> = ({
   totalElements,
   handleChangeRowsPerPage,
   classes,
-  baseUrl,
   workspaceDataType,
+  onRowClick,
+  status,
 }) => {
-  const { resourceColumns, outputsColumns } = useGetWorkspaceTableColumns({
-    baseUrl: baseUrl || '',
-  });
+  const columnsData = useGetWorkspaceTableColumns();
+
+  const { columns, title } = useMemo(
+    () => getWorkspaceTableConfig(workspaceDataType, columnsData),
+    [workspaceDataType, columnsData],
+  );
+
+  const hasData = currTableData && currTableData.length > 0;
+
   return (
     <Table
       options={{
@@ -53,15 +62,13 @@ const WorkspaceTable: React.FC<Props> = ({
         filtering: false,
         emptyRowsWhenPaging: false,
         pageSize: pageSize,
-        pageSizeOptions: [5, 10, 25],
+        search: true,
+        pageSizeOptions: [10, 25, 50],
+        rowStyle: { cursor: onRowClick ? 'pointer' : 'default' },
       }}
       key="id'"
       data={currTableData ?? []}
-      columns={
-        workspaceDataType === WorkspaceDataType.Resource
-          ? resourceColumns
-          : outputsColumns
-      }
+      columns={columns}
       actions={[
         {
           icon: () => <RetryIcon />,
@@ -72,16 +79,17 @@ const WorkspaceTable: React.FC<Props> = ({
           },
         },
       ]}
+      onRowClick={
+        onRowClick ? (_event, _rowData) => onRowClick(_rowData) : undefined
+      }
       emptyContent={
-        <div className={classes.empty}>
-          <CircularProgress />
-        </div>
+        <TableEmptyState
+          status={status}
+          hasData={!!hasData}
+          classes={classes}
+        />
       }
-      title={
-        workspaceDataType === WorkspaceDataType.Resource
-          ? 'Workspace Resources'
-          : 'Workspace Outputs'
-      }
+      title={title}
       page={page}
       onPageChange={handleChangePage}
       totalCount={totalElements}
