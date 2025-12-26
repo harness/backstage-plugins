@@ -76,8 +76,8 @@ export const useStyles = makeStyles(theme => ({
     color: theme.palette.text.secondary,
   },
   attributeRow: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e0e0e0',
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
     borderRadius: 4,
     marginBottom: theme.spacing(1),
     padding: theme.spacing(1.5),
@@ -85,13 +85,14 @@ export const useStyles = makeStyles(theme => ({
     position: 'relative',
   },
   attributeRowDrift: {
-    backgroundColor: '#fff3e0',
+    backgroundColor:
+      theme.palette.type === 'dark' ? 'rgba(255, 183, 77, 0.1)' : '#fff3e0',
     borderColor: '#ffb74d',
   },
   attributeKey: {
     fontWeight: 500,
     marginBottom: theme.spacing(0.75),
-    color: '#424242',
+    color: theme.palette.text.primary,
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing(0.5),
@@ -99,7 +100,7 @@ export const useStyles = makeStyles(theme => ({
   },
   attributeValue: {
     fontWeight: 400,
-    color: '#212121',
+    color: theme.palette.text.primary,
     flex: 1,
     wordBreak: 'break-word',
     fontFamily: 'inherit',
@@ -109,14 +110,16 @@ export const useStyles = makeStyles(theme => ({
     borderRadius: 4,
     overflow: 'auto',
     marginTop: theme.spacing(0.5),
-    border: '1px solid #e0e0e0',
+    border: `1px solid ${theme.palette.divider}`,
     fontFamily: 'inherit',
   },
   deletedBadge: {
     fontWeight: 600,
     textTransform: 'uppercase',
-    backgroundColor: '#ffebee',
-
+    backgroundColor:
+      theme.palette.type === 'dark' ? 'rgba(244, 67, 54, 0.2)' : '#ffebee',
+    color:
+      theme.palette.type === 'dark' ? '#ffcdd2' : theme.palette.text.primary,
     padding: '2px 6px',
     borderRadius: 4,
     display: 'inline-flex',
