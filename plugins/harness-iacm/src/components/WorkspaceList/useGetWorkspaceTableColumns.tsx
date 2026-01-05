@@ -1,5 +1,5 @@
 import { TableColumn } from '@backstage/core-components';
-import { Button, Link, Typography, makeStyles } from '@material-ui/core';
+import { Button, Typography, makeStyles } from '@material-ui/core';
 import React, { useMemo, useState } from 'react';
 import { TableData } from '../../types';
 
@@ -38,11 +38,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export const useGetWorkspaceTableColumns = ({
-  baseUrl,
-}: {
-  baseUrl: string;
-}) => {
+export const useGetWorkspaceTableColumns = () => {
   const classes = useStyles();
 
   const getProviderIcon = (name?: string): React.ReactNode => {
@@ -62,14 +58,9 @@ export const useGetWorkspaceTableColumns = ({
         field: 'col1',
         width: '22%',
         render: (row: Partial<TableData>) => (
-          <Link
-            href={baseUrl}
-            target="_blank"
-            className={classes.flexCenter}
-            key={row.id}
-          >
-            <b>{row.provider}</b>
-          </Link>
+          <Typography className={classes.smallGreyText}>
+            {row.provider}
+          </Typography>
         ),
         customFilterAndSearch: (term, row: Partial<TableData>) =>
           (row.provider ?? '').toLowerCase().includes(term.toLowerCase()),
@@ -120,7 +111,7 @@ export const useGetWorkspaceTableColumns = ({
           (row1.module ?? '').localeCompare(row2.module ?? ''),
       },
     ],
-    [baseUrl, classes],
+    [classes],
   );
 
   const outputsColumns: TableColumn[] = useMemo(
@@ -181,6 +172,7 @@ export const useGetWorkspaceTableColumns = ({
 
   return {
     resourceColumns,
+    dataSourceColumns: resourceColumns as TableColumn[], // dataSource is also a resource column are same.
     outputsColumns,
   };
 };

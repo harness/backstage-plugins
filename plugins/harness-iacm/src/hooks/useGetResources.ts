@@ -13,19 +13,25 @@ interface useGetFeatureEnvArgs {
   envFromUrl?: string;
 }
 
-export interface Resource {
+interface BaseResource {
   id: string;
   provider: string;
   type: string;
   name: string;
   module: string;
+  drift_status: string;
   attributes: {
     ami: string;
     arn: string;
     associate_public_ip_address: string;
     availability_zone: string;
   };
+  drift_attributes: {
+    [key: string]: string;
+  };
 }
+
+export interface Resource extends BaseResource {}
 
 export interface Output {
   id: string;
@@ -34,8 +40,14 @@ export interface Output {
   value: string;
 }
 
+export interface DataSource extends BaseResource {}
+
 export interface ResourcesResponse {
-  resources: { resources: Resource[] | null; outputs: Output[] };
+  resources: {
+    resources: Resource[] | null;
+    outputs: Output[];
+    data_sources: DataSource[];
+  };
   status: AsyncStatus;
 }
 
