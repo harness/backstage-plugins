@@ -119,7 +119,7 @@ const TimeFilter: React.FC<TimeFilterProps> = ({
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [isLoading, timeRange]);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
