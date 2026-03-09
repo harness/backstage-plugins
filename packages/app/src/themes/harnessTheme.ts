@@ -2,16 +2,6 @@ import { BackstageOverrides } from '@backstage/core-components';
 import { BackstageOverrides as CatalogReactOverrides } from '@backstage/plugin-catalog-react';
 import { BackstageTheme, createTheme, lightTheme } from '@backstage/theme';
 
-import { AutocompleteClassKey } from '@material-ui/lab/Autocomplete';
-import { AlertClassKey } from '@material-ui/lab/Alert';
-
-declare module '@material-ui/core/styles/overrides' {
-  export interface ComponentNameToClassKey {
-    MuiAlert: AlertClassKey;
-    MuiAutocomplete: AutocompleteClassKey;
-  }
-}
-
 const baseTheme = createTheme({
   palette: {
     ...lightTheme.palette,
@@ -279,59 +269,6 @@ const createCustomThemeOverrides = (
     MuiIconButton: {
       label: {
         color: '#b0b1c4',
-      },
-    },
-    MuiAlert: {
-      root: {
-        borderRadius: 4,
-        alignItems: 'center',
-      },
-      standardError: {
-        color: theme.palette.grey[700],
-        backgroundColor: '#FBE6E4',
-        border: '1px solid #EF9790',
-        '& $icon': {
-          color: '#B41710',
-        },
-      },
-      standardInfo: {
-        color: theme.palette.grey[700],
-        backgroundColor: '#EFFBFF',
-        border: '1px solid #A3E9FF',
-        '& $icon': {
-          color: '#0A3364',
-        },
-      },
-      standardSuccess: {
-        color: theme.palette.grey[700],
-        backgroundColor: '#D8F3D4',
-        border: '1px solid #A2E29B',
-        '& $icon': {
-          color: '#1E5C1F',
-        },
-      },
-      standardWarning: {
-        color: theme.palette.grey[700],
-        backgroundColor: '#FFF9E7',
-        border: '1px solid #FEE89D',
-        '& $icon': {
-          color: '#E19C02',
-        },
-      },
-    },
-    MuiAutocomplete: {
-      root: {
-        '&[aria-expanded=true]': {
-          backgroundColor: '#fafcff',
-          color: '#383946',
-        },
-        '&[aria-expanded=true] path': {
-          fill: '#FFFFFF',
-        },
-      },
-      tag: {
-        backgroundColor: '#cdf4fe',
-        color: '#383946',
       },
     },
     MuiBackdrop: {
