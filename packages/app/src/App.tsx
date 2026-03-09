@@ -33,9 +33,48 @@ import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
+import { ThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { lightTheme, darkTheme } from '@backstage/theme';
+import { harnessTheme } from './themes/harnessTheme';
 
 const app = createApp({
   apis,
+  themes: [
+    {
+      id: 'harness',
+      title: 'Harness',
+      variant: 'light',
+      Provider: ({ children }) => (
+        <ThemeProvider theme={harnessTheme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      ),
+    },
+    {
+      id: 'light',
+      title: 'Light',
+      variant: 'light',
+      Provider: ({ children }) => (
+        <ThemeProvider theme={lightTheme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      ),
+    },
+    {
+      id: 'dark',
+      title: 'Dark',
+      variant: 'dark',
+      Provider: ({ children }) => (
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      ),
+    },
+  ],
   bindRoutes({ bind }) {
     bind(catalogPlugin.externalRoutes, {
       createComponent: scaffolderPlugin.routes.root,
