@@ -7,7 +7,10 @@ Website: [https://harness.io/](https://harness.io/)
 Welcome to the Harness IACM plugin for Backstage!
 
 ## Screenshots
-<img src="./src/assets/harness-iacm-backstage-plugin-screenshot.png">
+
+<img src="./src/assets/harness-iacm-resources.png">
+
+<img src="./src/assets/harness-iacm-resource-outputs.png">
 
 
 
