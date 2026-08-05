@@ -177,7 +177,24 @@ spec:
 
 **Important:** The `harnessfme/isMigrated` annotation determines which API endpoints and authentication methods the plugin uses. Set it to `"true"` for migrated environments or `"false"` for Split.io environments.
 
+### Optional default feature flag filters
 
+You can optionally narrow an entity's default FME feature flag list with these catalog annotations. They work in both migrated and non-migrated environments and continue to apply after changing the selected environment:
+
+- `harnessfme/filter-flag-sets`: match feature flags by flag-set ID or resolved flag-set name.
+- `harnessfme/filter-tags`: match feature flags by tag.
+- `harnessfme/filter-flags`: match the FME feature name/key (`Feature.name`).
+
+Each annotation accepts comma- or newline-delimited values. Values are trimmed and matched exactly (case-sensitive). Multiple values in one annotation are alternatives (OR), while configured annotation categories are combined (AND). These annotations are optional: they only narrow the entity's default FME list.
+
+```yaml
+metadata:
+  annotations:
+    # Optional default filters; use one or more comma/newline-delimited values.
+    harnessfme/filter-flag-sets: checkout-experiments, Payments
+    harnessfme/filter-tags: team-payments, release
+    harnessfme/filter-flags: checkout-redesign, payment-retries
+```
 
 ## Features
 

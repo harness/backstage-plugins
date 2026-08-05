@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import {
   Box,
@@ -20,6 +20,7 @@ import {
   useApi,
   configApiRef,
 } from '@backstage/core-plugin-api';
+import { useEntity } from '@backstage/plugin-catalog-react';
 import { useProjectSlugFromEntity } from './useProjectSlugEntity';
 import dayjs from 'dayjs';
 import { AsyncStatus, TableData } from '../../types';
@@ -28,6 +29,10 @@ import useGetFeatureState from '../../hooks/useGetFeatureState';
 import useGetFeatureStatus from '../../hooks/useGetFeatureStatus';
 import useGetOwners from '../../hooks/useGetOwners';
 import useGetFlagSets from '../../hooks/useGetFlagSets';
+import {
+  filterFeaturesByCriteria,
+  parseFeatureFlagFilterCriteria,
+} from '../../utils/featureFlagFilters';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -46,6 +51,7 @@ function FMEFeatureList() {
   const [resolvedBackendBaseUrl, setResolvedBackendBaseUrl] = useState('');
 
   const classes = useStyles();
+  const { entity } = useEntity();
   const discoveryApi = useApi(discoveryApiRef);
   discoveryApi.getBaseUrl('proxy').then(url => setResolvedBackendBaseUrl(url));
   const config = useApi(configApiRef);
@@ -81,7 +87,7 @@ function FMEFeatureList() {
     }
   }, [envId.id, ffEnvIds]);
 
-  const { flagSetsMap } = useGetFlagSets({
+  const { flagSetsMap, loading: flagSetsLoading } = useGetFlagSets({
     resolvedBackendBaseUrl,
     workspaceId,
     refresh: refreshTrigger,
@@ -92,19 +98,48 @@ function FMEFeatureList() {
     refresh: refreshTrigger,
   });
 
-  const { currTableData, totalElements } = useGetFeatureState({
+  const { currTableData, loading: featureStateLoading } = useGetFeatureState({
     workspaceId,
     envId,
     resolvedBackendBaseUrl,
     refresh: refreshTrigger,
   });
 
-  const { featureStatusMap } = useGetFeatureStatus({
-    workspaceId,
-    envId,
-    resolvedBackendBaseUrl,
-    refresh: refreshTrigger,
-  });
+  const { featureStatusMap, loading: featureStatusLoading } =
+    useGetFeatureStatus({
+      workspaceId,
+      envId,
+      resolvedBackendBaseUrl,
+      refresh: refreshTrigger,
+    });
+
+  const filterCriteria = useMemo(
+    () => parseFeatureFlagFilterCriteria(entity.metadata.annotations),
+    [entity.metadata.annotations],
+  );
+  const filteredFeatureRows = useMemo(
+    () =>
+      filterFeaturesByCriteria(
+        currTableData ?? [],
+        filterCriteria,
+        featureStatusMap,
+        flagSetsMap,
+      ),
+    [currTableData, featureStatusMap, filterCriteria, flagSetsMap],
+  );
+  const filterMetadataLoading =
+    (filterCriteria.flagSets.length > 0 && flagSetsLoading) ||
+    (filterCriteria.tags.length > 0 && featureStatusLoading);
+  const environmentLoading =
+    state === AsyncStatus.Init ||
+    state === AsyncStatus.Loading ||
+    (state === AsyncStatus.Success && ffEnvIds.length > 0 && !envId.id);
+  const tableLoading =
+    environmentLoading || featureStateLoading || filterMetadataLoading;
+  const hasDefaultFilterCriteria =
+    filterCriteria.flagSets.length > 0 ||
+    filterCriteria.tags.length > 0 ||
+    filterCriteria.featureNames.length > 0;
 
   const handleChange = (selected: SelectedItems) => {
     const selectedEnv = ffEnvIds.find(env => env.name === selected);
@@ -458,7 +493,7 @@ function FMEFeatureList() {
       </Box>
       <Table
         options={{ paging: true }}
-        data={currTableData ?? []}
+        data={tableLoading ? [] : filteredFeatureRows}
         columns={columns}
         actions={[
           {
@@ -470,11 +505,19 @@ function FMEFeatureList() {
         ]}
         emptyContent={
           <div className={classes.empty}>
-            <CircularProgress />
+            {tableLoading ? (
+              <CircularProgress />
+            ) : (
+              <Typography align="center">
+                {hasDefaultFilterCriteria
+                  ? 'No feature flags match the configured filters.'
+                  : 'No feature flags were found for the selected environment.'}
+              </Typography>
+            )}
           </div>
         }
         title="Feature Flags"
-        totalCount={totalElements}
+        totalCount={tableLoading ? 0 : filteredFeatureRows.length}
       />
     </div>
   );
