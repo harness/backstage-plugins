@@ -35,9 +35,11 @@ export interface FeatureStatus {
   rolloutStatus: {
     name: string;
   };
-  tags: {
-    name: string;
-  }[];
+  tags?:
+    | {
+        name: string;
+      }[]
+    | null;
   owners: { id: string; type: string }[];
   creationTime: string;
 }
