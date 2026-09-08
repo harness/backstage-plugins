@@ -6,10 +6,10 @@ Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
 ## Version compatibility
 
-| Plugin version | Backstage | React | Notes |
-| -------------- | --------- | ----- | ----- |
-| **1.0.0** (this package) | **1.53.x** | **18** | Use this for hosts on Backstage 1.53 (e.g. new frontend system). |
-| **0.11.x** | ~1.21 | 16 / 17 | Pin `0.11.0` if you are not on Backstage 1.50+. `^0.11.0` will **not** install 1.0.0. |
+| Plugin version | Backstage | React | Node | Notes |
+| -------------- | --------- | ----- | ---- | ----- |
+| **1.0.0** (this package) | **1.53.x** | **18** | **22 or 24** | Use this for hosts on Backstage 1.53 (e.g. new frontend system). |
+| **0.11.x** | ~1.21 | 16 / 17 | 18 / 20 | Pin `0.11.0` if you are not on Backstage 1.50+. `^0.11.0` will **not** install 1.0.0. |
 
 ```
 # Backstage 1.53 / React 18
