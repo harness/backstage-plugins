@@ -5906,6 +5906,27 @@
     protobufjs "^7.2.5"
     yargs "^17.7.2"
 
+"@harnessio/backstage-plugin-ci-cd@0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-ci-cd/-/backstage-plugin-ci-cd-0.11.0.tgz#785f121534e81cc2a990b8029fef6c830c785b2d"
+  integrity sha512-3xs1ef/LBRFYsN8ZnX44/86qQ1d4SipUsTzAgWLZHPD5vpVaBPHaZ/hYMAdS+fpUvBGPjPVr3o+7dHhY/b7i5w==
+  dependencies:
+    "@backstage/catalog-model" "^1.4.3"
+    "@backstage/core-components" "^0.13.9"
+    "@backstage/core-plugin-api" "^1.8.1"
+    "@backstage/plugin-catalog-react" "^1.9.2"
+    "@backstage/theme" "^0.5.0"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+    "@material-ui/core" "^4.9.13"
+    "@material-ui/icons" "^4.9.1"
+    "@material-ui/lab" "4.0.0-alpha.57"
+    "@mui/material" "^5.10.13"
+    dayjs "^1.11.6"
+    path-to-regexp "^6.2.1"
+    react-use "^17.2.4"
+    sweetalert2 "^11.6.14"
+
 "@harnessio/backstage-plugin-feature-flags@^0.2.0":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@harnessio/backstage-plugin-feature-flags/-/backstage-plugin-feature-flags-0.2.1.tgz#bba0387673ff3876a9325d1e912dc6db9479dc0b"
@@ -11956,7 +11977,7 @@ apg-lite@^1.0.3:
     "@backstage/plugin-techdocs-react" "^1.1.14"
     "@backstage/plugin-user-settings" "^0.7.14"
     "@backstage/theme" "^0.5.0"
-    "@harnessio/backstage-plugin-ci-cd" "1.0.0"
+    "@harnessio/backstage-plugin-ci-cd" "0.11.0"
     "@harnessio/backstage-plugin-feature-flags" "^0.2.0"
     "@harnessio/backstage-plugin-fme-feature-flags" "^0.4.0"
     "@harnessio/backstage-plugin-harness-ccm" "^0.1.4"
@@ -20945,9 +20966,9 @@ material-ui-popup-state@^1.9.3:
     prop-types "^15.7.2"
 
 material-ui-popup-state@^5.3.6:
-  version "5.3.7"
-  resolved "https://registry.yarnpkg.com/material-ui-popup-state/-/material-ui-popup-state-5.3.7.tgz#dddb75194db390cce1684f4f39d83b5be9fb77ae"
-  integrity sha512-3ppRgNEfJ4pSEmVnRYeDDi/8L6RSGnsBrCP+WikozCeF7E21DyKAm80EOtBbeiOTooPCEQoeqrQ32uDKW2VYcw==
+  version "5.3.6"
+  resolved "https://registry.yarnpkg.com/material-ui-popup-state/-/material-ui-popup-state-5.3.6.tgz#234ff938d3e096ab8785403335e805bd967d4e30"
+  integrity sha512-tGpq417auecyK9iKMGxSQfyv6pwg0Wii2Isi9RuL92YDDkdnXlorl5c3+S4Zg8MH6Hk4NUa/5Y9PPEWgKakzOw==
   dependencies:
     "@babel/runtime" "^7.26.0"
     "@types/prop-types" "^15.7.3"
