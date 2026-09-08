@@ -19,8 +19,10 @@ import { Routes, Route } from 'react-router';
 // import { harnessCIBuildRouteRef } from '../route-refs';
 import ExecutionList from './ExecutionList/ExecutionList';
 import { Entity } from '@backstage/catalog-model';
-import { useEntity } from '@backstage/plugin-catalog-react';
-import { MissingAnnotationEmptyState } from '@backstage/core-components';
+import {
+  MissingAnnotationEmptyState,
+  useEntity,
+} from '@backstage/plugin-catalog-react';
 /** @public */
 export const isHarnessCiCdAvailable = (entity: Entity) =>
   Boolean(entity.metadata.annotations?.['harness.io/project-url']) ||

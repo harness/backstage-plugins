@@ -4,6 +4,35 @@ Website: [https://harness.io/](https://harness.io/)
 
 Welcome to the Harness NextGen CI/CD plugin for Backstage!
 
+## Version compatibility
+
+| Plugin version | Backstage | React | Node | Notes |
+| -------------- | --------- | ----- | ---- | ----- |
+| **1.0.0** (this package) | **1.53.x** | **18** | **22 or 24** | Use this for hosts on Backstage 1.53 (e.g. new frontend system). |
+| **0.11.x** | ~1.21 | 16 / 17 | 18 / 20 | Pin `0.11.0` if you are not on Backstage 1.50+. `^0.11.0` will **not** install 1.0.0. |
+
+```
+# Backstage 1.53 / React 18
+yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd@^1.0.0
+
+# Older Backstage (keep existing installs)
+yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd@0.11.0
+```
+
+Do not publish 1.53-only changes as `0.11.x` or `0.12.x` — `^0.11.0` would pull them into older apps.
+
+### New frontend system (Backstage 1.53)
+
+Install the default plugin feature:
+
+```ts
+import harnessCiCdPlugin from '@harnessio/backstage-plugin-ci-cd/alpha';
+```
+
+and add it to your app's plugin list. The entity tab path defaults to `/harness-ci-cd`.
+
+Legacy `EntityPage.tsx` wiring below still works on the old frontend system.
+
 ## Screenshots
 
 <img src="./src/assets/harness-new-annotation.png">
@@ -22,7 +51,7 @@ We have video tutorial for the plugin.
 1. Open terminal and navigate to the _root of your Backstage app_. Then run
 
 ```
-yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd
+yarn add --cwd packages/app @harnessio/backstage-plugin-ci-cd@^1.0.0
 
 yarn install
 ```
