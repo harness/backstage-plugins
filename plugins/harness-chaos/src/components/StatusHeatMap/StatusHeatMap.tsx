@@ -67,6 +67,12 @@ const useStyles = makeStyles(theme => ({
         boxShadow: '#fff 0px 0px 0px 1px, #fff0e6 0px 0px 0px 2px',
       },
     },
+    '&[data-state="completed_with_probe_absent"]': {
+      backgroundColor: '#4dc952',
+      '&:hover, &:focus': {
+        boxShadow: '#fff 0px 0px 0px 1px, #d8f3d4 0px 0px 0px 2px',
+      },
+    },
     '&[data-state="error"]': {
       backgroundColor: '#fcedec',
       '&:hover, &:focus': {
@@ -118,6 +124,7 @@ const useStyles = makeStyles(theme => ({
 function StatusIcon({ status }: StatusIconProps): React.ReactElement {
   switch (status) {
     case ExperimentRunStatus.COMPLETED:
+    case ExperimentRunStatus.COMPLETED_WITH_PROBE_ABSENT:
       return <CheckCircleIcon style={{ color: '#1b841d', fontSize: '12px' }} />;
     case ExperimentRunStatus.COMPLETED_WITH_PROBE_FAILURE:
     case ExperimentRunStatus.COMPLETED_WITH_ERROR:
@@ -148,6 +155,7 @@ function StatusIcon({ status }: StatusIconProps): React.ReactElement {
 function StatusChip({ status }: StatusIconProps): React.ReactElement {
   switch (status) {
     case ExperimentRunStatus.COMPLETED:
+    case ExperimentRunStatus.COMPLETED_WITH_PROBE_ABSENT:
       return (
         <Chip
           icon={
@@ -243,6 +251,7 @@ export interface StatusHeatMapProps {
 function hideIconForStatus(experimentRunStatus: ExperimentRunStatus): boolean {
   switch (experimentRunStatus) {
     case ExperimentRunStatus.COMPLETED:
+    case ExperimentRunStatus.COMPLETED_WITH_PROBE_ABSENT:
     case ExperimentRunStatus.COMPLETED_WITH_PROBE_FAILURE:
     case ExperimentRunStatus.COMPLETED_WITH_ERROR:
     case ExperimentRunStatus.NA:
@@ -279,9 +288,7 @@ export function StatusHeatMap(props: StatusHeatMapProps): React.ReactElement {
     runId: string | undefined,
   ) => {
     if (!notifyId || !runId) return '';
-    if (notifyId)
-      return `${baseUrl}/ng/account/${accountId}/chaos/orgs/${orgId}/projects/${projectId}/experiments/${expId}/notifyID/${notifyId}`;
-    return `${baseUrl}/ng/account/${accountId}/chaos/orgs/${orgId}/projects/${projectId}/experiments/${expId}/runID/${runId}`;
+    return `${baseUrl}/ng/account/${accountId}/module/chaos/orgs/${orgId}/projects/${projectId}/experiments/${expId}/notifyID/${notifyId}`;
   };
 
   function StatusCell({ execution }: StatusCell): React.ReactElement {

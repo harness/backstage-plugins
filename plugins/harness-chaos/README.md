@@ -95,22 +95,24 @@ const serviceEntityPage = (
 
 4. Add required harness specific annotations to your software component's respective `catalog-info.yaml` file. (optional)
 
-By default, all the chaos experiments will be fetched from the provided project url, providing optional annotations will fetch experiments for a specific application map.
+##### `harness.io/project-url` (required)
 
-Based upon the annotations that the user provides, we decide which version of experiments table to show.
+URL of the experiments page of your Harness project, in the format
 
-##### Chaos V1:
-- scoped to all infrastructure (lists all experiments)
-- only requires project-url annotations
+```
+https://app.harness.io/ng/account/<accountId>/module/chaos/orgs/<orgId>/projects/<projectId>/experiments
+```
 
-##### Chaos V2:
- - based on services/application-maps tags (lists experiments scoped to a service tag or a application map tag)
-- requires project-url annotations AND either service-tag(s) or network-tag(s)
+The older format without `/module` (`https://app.harness.io/ng/account/<accountId>/chaos/orgs/<orgId>/projects/<projectId>/experiments`) is also supported.
 
-For ease of use of the user, we check if project url is provided and then see if the service tag or network tag is provided.
-If only the project url is provided we default to V1 table that shows experiments for all infrastructures else if we see the other annotations also, we show service specific or application map specific experiments.
+The plugin reads the account, organization and project from it and lists the experiments of that project. Only experiments tagged `<spec.type>=<metadata.name>` of the entity (for example `service=payment-service`) are shown, so add that tag to the experiments you want to see on the entity. If the URL doesn't match the format above, the plugin shows an error with the expected format.
 
-> NOTE: service tag based filtering will be available at a later date.
+
+##### What the table shows
+
+- name, infrastructure, resilience score (of the latest run, `N/A` if the run has no score), recent runs, a link to the report of the latest run, last updated by, and actions to run an experiment or open it in Harness
+- a filter to show experiments of a single infrastructure type
+- the average resilience score of all matching experiments (not just the current page), along with how many experiments have a score out of the total. Experiments without a score are not counted, and the average is `N/A` if none of them has a score
 
 Refer image below to locate an application map tag.
 
