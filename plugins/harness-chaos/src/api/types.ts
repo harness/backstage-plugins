@@ -64,6 +64,7 @@ export enum ExperimentRunStatus {
   COMPLETED = 'Completed',
   COMPLETED_WITH_ERROR = 'Completed_With_Error',
   COMPLETED_WITH_PROBE_FAILURE = 'Completed_With_Probe_Failure',
+  COMPLETED_WITH_PROBE_ABSENT = 'Completed_With_Probe_Absent',
   ERROR = 'Error',
   RUNNING = 'Running',
   STOPPED = 'Stopped',

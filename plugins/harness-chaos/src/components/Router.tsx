@@ -23,7 +23,6 @@ export const Router = () => {
         <MissingAnnotationEmptyState
           annotation={[
             'harness.io/project-url',
-            'harness.io/service-tags',
             'harness.io/application-map-tags',
           ]}
         />

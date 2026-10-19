@@ -19,16 +19,6 @@ export const useProjectUrlFromEntity = () => {
   return entity.metadata.annotations?.['harness.io/project-url'];
 };
 
-export const useGetServiceEntity = () => {
-  const { entity } = useEntity();
-
-  const harnessChaosServiceObject = convertStringToObject(
-    entity.metadata.annotations?.['harness.io/service-tags'],
-  );
-
-  return harnessChaosServiceObject;
-};
-
 export const useGetNetworkMapEntity = () => {
   const { entity } = useEntity();
 
@@ -37,4 +27,13 @@ export const useGetNetworkMapEntity = () => {
   );
 
   return harnessChaosNMObject;
+};
+
+/** Tag shared by an entity and its experiments, in the form `<type>=<identifier>`. */
+export const useEntityTag = (): string | undefined => {
+  const { entity } = useEntity();
+  const entityType = entity.spec?.type;
+  const identifier = entity.metadata.name;
+  if (!entityType || !identifier) return undefined;
+  return `${entityType}=${identifier}`;
 };
