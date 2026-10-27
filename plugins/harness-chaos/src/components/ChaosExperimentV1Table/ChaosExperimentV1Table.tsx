@@ -11,33 +11,38 @@ import {
 import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 
 import {
-  Chip,
-  FormControl,
   IconButton,
-  Input,
-  InputLabel,
   ListItemText,
-  MenuItem,
-  Select,
   Tooltip,
   Typography,
   makeStyles,
 } from '@material-ui/core';
 
 import SyncIcon from '@mui/icons-material/Sync';
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
 import LaunchIcon from '@mui/icons-material/Launch';
-import CancelIcon from '@mui/icons-material/Cancel';
 import CircleIcon from '@mui/icons-material/Circle';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 import RunExperimentButton from '../RunExperimentButton';
+import { InfrastructureFilter } from '../InfrastructureFilter/InfrastructureFilter';
 import { StatusHeatMap } from '../StatusHeatMap/StatusHeatMap';
 import { timeDifference } from '../../utils/getTimeDifference';
 import useGetExperimentsList from '../../api/useListExperiments';
 import { ExperimentRunStatus, InfrastructureType } from '../../api/types';
-import { getInfraIconColor, orderExecutions } from '../../utils/tableUtils';
-import { getExperimentLink, getInfrastructureLink } from '../../utils/links';
+import {
+  getInfraIconColor,
+  getLatestScore,
+  getResilienceScoreColor,
+  orderExecutions,
+} from '../../utils/tableUtils';
+import {
+  getExperimentLink,
+  getExperimentRunReportLink,
+  getInfrastructureLink,
+} from '../../utils/links';
+import { useEntityTag } from '../../hooks/useGetSlugsFromEntity';
+import useAverageResilienceScore from '../../api/useAverageResilienceScore';
+import { ResilienceScoreBadge } from '../ResilienceScoreBadge/ResilienceScoreBadge';
 
 interface ChaosExperimentTableProps {
   accountId: string;
@@ -47,7 +52,7 @@ interface ChaosExperimentTableProps {
   baseUrl: string;
 }
 
-export const useStyles = makeStyles(theme => ({
+export const useStyles = makeStyles({
   gridItemCard: {
     display: 'flex',
     flexDirection: 'column',
@@ -67,65 +72,35 @@ export const useStyles = makeStyles(theme => ({
     justifyContent: 'flex-start',
     fontSize: '11px',
   },
-  formControl: {
-    marginLeft: theme.spacing(1),
-    minWidth: 300,
-    height: 56,
-  },
-  chips: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  chip: {
-    margin: 2,
-  },
-  checkIcon: {
-    marginLeft: '6px',
-  },
   infraText: {
     paddingLeft: '4px',
   },
-}));
+  resilienceScore: {
+    fontWeight: 600,
+  },
+});
 
 const columns: TableColumn[] = [
-  { field: 'name', title: 'name', width: '20%' },
-  { field: 'infra', title: 'infra', width: '20%' },
-  { field: 'runs', title: 'recent experiment runs', width: '26%' },
-  { field: 'updatedBy', title: 'last updated by', width: '22%' },
-  { field: 'execute', title: '', width: '6%' },
-  { field: 'launch', title: '', width: '6%' },
+  { field: 'name', title: 'name', width: '15%' },
+  { field: 'infra', title: 'infra', width: '14%' },
+  { field: 'resilienceScore', title: 'resilience score', width: '10%' },
+  { field: 'runs', title: 'recent experiment runs', width: '22%' },
+  { field: 'report', title: 'report', width: '6%' },
+  { field: 'updatedBy', title: 'last updated by', width: '18%' },
+  { field: 'execute', title: '', width: '5%' },
+  { field: 'launch', title: '', width: '5%' },
 ];
-
-const allInfrastructures = [
-  {
-    label: 'Kubernetes (Legacy)',
-    value: 'Kubernetes',
-  },
-  {
-    label: 'Kubernetes (Harness Infrastructure)',
-    value: 'KubernetesV2',
-  },
-  {
-    label: 'Linux',
-    value: 'Linux',
-  },
-  {
-    label: 'Windows',
-    value: 'Windows',
-  },
-];
-
-const INFRA_ITEM_HEIGHT = 48;
-const INFRA_ITEM_PADDING_TOP = 8;
 
 export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
+  const entityTag = useEntityTag();
 
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [infrastructures, setInfrastructures] = useState<string[]>([]);
+  const [selectedInfrastructure, setSelectedInfrastructure] =
+    useState<string>('');
 
   const commonPropsForLinks = omit(props, 'env');
 
@@ -139,83 +114,41 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
     setPageSize(currentPageSize);
   };
 
+  const filter = {
+    infraTypes: (selectedInfrastructure
+      ? [selectedInfrastructure]
+      : []) as InfrastructureType[],
+    ...(entityTag ? { tags: [entityTag] } : {}),
+  };
+
   const { experiments, totalExperiments, loading, error, refetch } =
     useGetExperimentsList({
       ...props,
       page,
       limit: pageSize,
       backendBaseUrl,
-      filter: {
-        infraTypes: infrastructures as InfrastructureType[],
-      },
+      filter,
     });
+
+  const {
+    summary: scoreSummary,
+    error: averageError,
+    loading: averageLoading,
+    refetch: refetchAverage,
+  } = useAverageResilienceScore({ ...props, backendBaseUrl, filter });
 
   if (error) {
     return <ErrorPanel error={error} />;
   }
 
   const infrastructureSelector = (
-    <FormControl className={classes.formControl}>
-      <InputLabel>Filter Infrastructures</InputLabel>
-      <Select
-        multiple
-        value={infrastructures}
-        onChange={e => setInfrastructures(e.target.value as string[])}
-        input={<Input />}
-        renderValue={selected => (
-          <div className={classes.chips}>
-            {(selected as string[]).map(value => (
-              <Chip
-                key={value}
-                size="small"
-                className={classes.chip}
-                label={
-                  allInfrastructures.find(infra => infra.value === value)?.label
-                }
-                onDelete={() =>
-                  setInfrastructures(
-                    infrastructures.filter(item => item !== value),
-                  )
-                }
-                deleteIcon={
-                  <CancelIcon onMouseDown={event => event.stopPropagation()} />
-                }
-              />
-            ))}
-          </div>
-        )}
-        MenuProps={{
-          PaperProps: {
-            style: {
-              maxHeight: INFRA_ITEM_HEIGHT * 4.5 + INFRA_ITEM_PADDING_TOP,
-              width: 350,
-            },
-          },
-        }}
-        IconComponent={
-          infrastructures.length > 0
-            ? () => (
-                <IconButton size="small" onClick={() => setInfrastructures([])}>
-                  <ClearIcon color="error" fontSize="small" />
-                </IconButton>
-              )
-            : undefined
-        }
-      >
-        {allInfrastructures.map(infra => (
-          <MenuItem key={infra.value} value={infra.value}>
-            {infra.label}
-            {infrastructures.includes(infra.value) ? (
-              <CheckIcon
-                className={classes.checkIcon}
-                color="info"
-                fontSize="small"
-              />
-            ) : null}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    <InfrastructureFilter
+      value={selectedInfrastructure}
+      onChange={value => {
+        setSelectedInfrastructure(value);
+        setPage(0);
+      }}
+    />
   );
 
   const data = experiments?.map(experiment => {
@@ -224,6 +157,7 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
       recentExecutions?.phase === ExperimentRunStatus.RUNNING ||
       recentExecutions?.phase === ExperimentRunStatus.QUEUED
     );
+    const latestScore = getLatestScore(experiment.recentWorkflowRunDetails);
     const infrastructure = experiment.infra;
     return {
       name: <div>{experiment.name}</div>,
@@ -270,11 +204,43 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
           }
         />
       ),
+      resilienceScore:
+        latestScore !== undefined ? (
+          <Typography
+            variant="body2"
+            style={{ color: getResilienceScoreColor(latestScore) }}
+            className={classes.resilienceScore}
+          >
+            {latestScore} / 100
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="textSecondary">
+            N/A
+          </Typography>
+        ),
       runs: (
         <StatusHeatMap
           data={orderExecutions(experiment.recentWorkflowRunDetails)}
           experimentID={experiment.workflowID}
         />
+      ),
+      report: recentExecutions?.workflowRunID ? (
+        <Tooltip title="View experiment report">
+          <IconButton
+            href={getExperimentRunReportLink(
+              commonPropsForLinks,
+              experiment.workflowID,
+              recentExecutions.workflowRunID,
+            )}
+            target="_blank"
+          >
+            <AssessmentIcon />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <Typography variant="body2" color="textSecondary">
+          —
+        </Typography>
       ),
       updatedBy: (
         <ListItemText
@@ -319,7 +285,20 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
 
   return (
     <>
-      {infrastructureSelector}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+        }}
+      >
+        {infrastructureSelector}
+        <ResilienceScoreBadge
+          summary={scoreSummary}
+          error={averageError}
+          loading={averageLoading}
+        />
+      </div>
       <div className={classes.gridItemCard}>
         <Table
           isLoading={loading}
@@ -337,7 +316,10 @@ export const ChaosExperimentV1Table = (props: ChaosExperimentTableProps) => {
               icon: () => <SyncIcon />,
               tooltip: 'Refresh',
               isFreeAction: true,
-              onClick: refetch,
+              onClick: () => {
+                refetch();
+                refetchAverage();
+              },
             },
           ]}
           options={{

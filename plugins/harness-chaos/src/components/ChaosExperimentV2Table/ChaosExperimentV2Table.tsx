@@ -13,7 +13,6 @@ import { discoveryApiRef, useApi } from '@backstage/core-plugin-api';
 import {
   FormControl,
   FormHelperText,
-  Grid,
   IconButton,
   InputLabel,
   ListItemText,
@@ -27,18 +26,31 @@ import {
 import SyncIcon from '@mui/icons-material/Sync';
 import LaunchIcon from '@mui/icons-material/Launch';
 import CircleIcon from '@mui/icons-material/Circle';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 import RunExperimentButton from '../RunExperimentButton';
+import { InfrastructureFilter } from '../InfrastructureFilter/InfrastructureFilter';
 import { StatusHeatMap } from '../StatusHeatMap/StatusHeatMap';
 import { timeDifference } from '../../utils/getTimeDifference';
 import useGetExperimentsList from '../../api/useListExperiments';
 import { ExperimentRunStatus, InfrastructureType } from '../../api/types';
-import { getInfraIconColor, orderExecutions } from '../../utils/tableUtils';
-import { getExperimentLink, getInfrastructureLink } from '../../utils/links';
 import {
+  getInfraIconColor,
+  getLatestScore,
+  getResilienceScoreColor,
+  orderExecutions,
+} from '../../utils/tableUtils';
+import {
+  getExperimentLink,
+  getExperimentRunReportLink,
+  getInfrastructureLink,
+} from '../../utils/links';
+import {
+  useEntityTag,
   useGetNetworkMapEntity,
-  useGetServiceEntity,
 } from '../../hooks/useGetSlugsFromEntity';
+import useAverageResilienceScore from '../../api/useAverageResilienceScore';
+import { ResilienceScoreBadge } from '../ResilienceScoreBadge/ResilienceScoreBadge';
 
 interface ChaosExperimentTableProps {
   accountId: string;
@@ -68,18 +80,6 @@ export const useStyles = makeStyles({
     justifyContent: 'flex-start',
     fontSize: '11px',
   },
-  chip: {
-    marginBottom: 0,
-    marginRight: '8px',
-    background: 'grey',
-    borderRadius: '12px',
-  },
-  infraDropDownLabel: { fontSize: '14px !important', marginRight: '4px' },
-  menuItem: {
-    display: 'inline-flex',
-    padding: '6px 8px',
-    justifyContent: 'flex-start',
-  },
   label: {
     marginBottom: '2px',
     fontSize: '14px !important',
@@ -87,27 +87,31 @@ export const useStyles = makeStyles({
   infraText: {
     paddingLeft: '4px',
   },
+  resilienceScore: {
+    fontWeight: 600,
+  },
 });
 
 const columns: TableColumn[] = [
-  { field: 'name', title: 'name', width: '20%' },
-  { field: 'infra', title: 'application map', width: '20%' },
-  { field: 'runs', title: 'recent experiment runs', width: '26%' },
-  { field: 'updatedBy', title: 'last updated by', width: '22%' },
-  { field: 'execute', title: '', width: '6%' },
-  { field: 'launch', title: '', width: '6%' },
+  { field: 'name', title: 'name', width: '15%' },
+  { field: 'infra', title: 'application map', width: '14%' },
+  { field: 'resilienceScore', title: 'resilience score', width: '10%' },
+  { field: 'runs', title: 'recent experiment runs', width: '22%' },
+  { field: 'report', title: 'report', width: '6%' },
+  { field: 'updatedBy', title: 'last updated by', width: '18%' },
+  { field: 'execute', title: '', width: '5%' },
+  { field: 'launch', title: '', width: '5%' },
 ];
 
 export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
   const classes = useStyles();
   const discoveryApi = useApi(discoveryApiRef);
   const backendBaseUrl = discoveryApi.getBaseUrl('proxy');
-  const harnessChaosServices = useGetServiceEntity();
+  const entityTag = useEntityTag();
   const harnessChaosNM = useGetNetworkMapEntity();
 
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const allServices = Object.keys(harnessChaosServices);
   const allNMs = Object.keys(harnessChaosNM).map(key => {
     return {
       label: key,
@@ -116,6 +120,8 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
   });
 
   const [selectedNM, setSelectedNM] = useState<string>(allNMs[0].value);
+  const [selectedInfrastructure, setSelectedInfrastructure] =
+    useState<string>('');
 
   const commonPropsForLinks = omit(props, 'env');
 
@@ -129,40 +135,32 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
     setPageSize(currentPageSize);
   };
 
+  const filter = {
+    infraTypes: (selectedInfrastructure
+      ? [selectedInfrastructure]
+      : []) as InfrastructureType[],
+    tags: [selectedNM, entityTag].filter(Boolean) as string[],
+  };
+
   const { experiments, totalExperiments, loading, error, refetch } =
     useGetExperimentsList({
       ...props,
       page,
       limit: pageSize,
       backendBaseUrl,
-      filter: {
-        tags: [selectedNM],
-      },
+      filter,
     });
+
+  const {
+    summary: scoreSummary,
+    error: averageError,
+    loading: averageLoading,
+    refetch: refetchAverage,
+  } = useAverageResilienceScore({ ...props, backendBaseUrl, filter });
 
   if (error) {
     return <ErrorPanel error={error} />;
   }
-
-  const ServiceDropDown =
-    allServices && allServices?.length > 1 ? (
-      <FormControl fullWidth>
-        <InputLabel
-          htmlFor="Service"
-          classes={{
-            root: classes.label,
-          }}
-        >
-          Service
-        </InputLabel>
-        <Select labelId="Service" id="Service" value={allServices[0]}>
-          {allServices.map(serv => (
-            <MenuItem value={serv}>{serv}</MenuItem>
-          ))}
-        </Select>
-        <FormHelperText />
-      </FormControl>
-    ) : null;
 
   const NMDropDown =
     allNMs && allNMs?.length > 1 ? (
@@ -190,14 +188,39 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
     ) : null;
 
   const DropDownComponent = (
-    <Grid container spacing={3}>
-      <Grid item md={3}>
-        {NMDropDown}
-      </Grid>
-      <Grid item md={3}>
-        {ServiceDropDown}
-      </Grid>
-    </Grid>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        gap: 24,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          flexWrap: 'wrap',
+          gap: 24,
+        }}
+      >
+        <InfrastructureFilter
+          value={selectedInfrastructure}
+          onChange={value => {
+            setSelectedInfrastructure(value);
+            setPage(0);
+          }}
+        />
+        {NMDropDown && <div style={{ minWidth: 250 }}>{NMDropDown}</div>}
+      </div>
+      <div style={{ flexShrink: 0 }}>
+        <ResilienceScoreBadge
+          summary={scoreSummary}
+          error={averageError}
+          loading={averageLoading}
+        />
+      </div>
+    </div>
   );
 
   const data = experiments?.map(experiment => {
@@ -206,6 +229,7 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
       recentExecutions?.phase === ExperimentRunStatus.RUNNING ||
       recentExecutions?.phase === ExperimentRunStatus.QUEUED
     );
+    const latestScore = getLatestScore(experiment.recentWorkflowRunDetails);
     const infrastructure = experiment.infra;
     return {
       name: <div>{experiment.name}</div>,
@@ -243,11 +267,43 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
           </div>
         </Link>
       ),
+      resilienceScore:
+        latestScore !== undefined ? (
+          <Typography
+            variant="body2"
+            style={{ color: getResilienceScoreColor(latestScore) }}
+            className={classes.resilienceScore}
+          >
+            {latestScore} / 100
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="textSecondary">
+            N/A
+          </Typography>
+        ),
       runs: (
         <StatusHeatMap
           data={orderExecutions(experiment.recentWorkflowRunDetails)}
           experimentID={experiment.workflowID}
         />
+      ),
+      report: recentExecutions?.workflowRunID ? (
+        <Tooltip title="View experiment report">
+          <IconButton
+            href={getExperimentRunReportLink(
+              commonPropsForLinks,
+              experiment.workflowID,
+              recentExecutions.workflowRunID,
+            )}
+            target="_blank"
+          >
+            <AssessmentIcon />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <Typography variant="body2" color="textSecondary">
+          —
+        </Typography>
       ),
       updatedBy: (
         <ListItemText
@@ -310,7 +366,10 @@ export const ChaosExperimentV2Table = (props: ChaosExperimentTableProps) => {
               icon: () => <SyncIcon />,
               tooltip: 'Refresh',
               isFreeAction: true,
-              onClick: refetch,
+              onClick: () => {
+                refetch();
+                refetchAverage();
+              },
             },
           ]}
           options={{
