@@ -22,6 +22,12 @@ export function PrintCard(props: any) {
               <>
                 <Grid
                   item
+                  // xs keeps the icon column fixed on narrow viewports. Only
+                  // md was set before, and MUI emits that as a min-width:900px
+                  // media query, so below 900px neither breakpoint applied
+                  // and the icon and the text each sized to their own
+                  // content — which is how they ended up overlapping.
+                  xs={2}
                   md={2}
                   alignItems="center"
                   sx={{ paddingTop: '2px' }}
@@ -55,7 +61,7 @@ export function PrintCard(props: any) {
                     </svg>
                   </Tooltip>
                 </Grid>
-                <Grid sx={{ paddingLeft: '5px' }} item md={18}>
+                <Grid sx={{ paddingLeft: '5px' }} item xs={18} md={18}>
                   <PrintCI props={row} />
                 </Grid>
               </>
@@ -78,7 +84,7 @@ export function PrintCard(props: any) {
           row.sourcebranch === 'undefined' &&
           row.tag === 'undefined' ? null : (
             <>
-              <Grid item md={2} alignItems="center" sx={{ paddingTop: '2px' }}>
+              <Grid item xs={2} md={2} alignItems="center" sx={{ paddingTop: '2px' }}>
                 <Tooltip title="Continuous Integration" arrow>
                   <svg
                     viewBox="0 0 32 32"
@@ -111,13 +117,14 @@ export function PrintCard(props: any) {
               <Grid
                 sx={{ paddingLeft: '5px', paddingBottom: '10px' }}
                 item
+                xs={18}
                 md={18}
               >
                 <PrintCI props={row} />
               </Grid>
             </>
           )}
-          <Grid item md={2} alignItems="top" sx={{ paddingTop: '10px' }}>
+          <Grid item xs={2} md={2} alignItems="top" sx={{ paddingTop: '10px' }}>
             <Tooltip title="Continuous Delivery" arrow>
               <svg
                 viewBox="0 0 32 32"
@@ -147,7 +154,7 @@ export function PrintCard(props: any) {
               </svg>
             </Tooltip>
           </Grid>
-          <Grid sx={{ paddingLeft: '5px' }} item md={18}>
+          <Grid sx={{ paddingLeft: '5px' }} item xs={18} md={18}>
             <PrintCD props={row} />
           </Grid>
         </Grid>
